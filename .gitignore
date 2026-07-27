@@ -1,0 +1,37 @@
+# Локальні службові файли
+CLAUDE.md
+.claude/
+CLAUDE.local.md
+.cursor/
+.aider*
+
+# Env
+.env
+.env.local
+.env*.local
+
+# Next / Node
+node_modules/
+.next/
+out/
+build/
+next-env.d.ts
+
+# Uploads (фото меню живуть у томі, не в репозиторії)
+/data/uploads/
+public/uploads/
+
+# Tests
+coverage/
+playwright-report/
+test-results/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
