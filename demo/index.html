@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Faust — нічний клуб</title>
+<meta name="description" content="Faust — нічний клуб. Двері з 22:00. Бар, танцпол, атмосфера після півночі.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Onest:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B0B10;
+    --ink-raised:#14141C;
+    --bone:#EDE7DC;
+    --brass:#C9A227;
+    --flash:#FF3D5A;
+    --ultra:#4B2EFF;
+    --brass-rgb:201,162,39;
+    --flash-rgb:255,61,90;
+    --ultra-rgb:75,46,255;
+    --radius:2px;
+    --font-display:'Unbounded',system-ui,sans-serif;
+    --font-body:'Onest',system-ui,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,monospace;
+    --container:1180px;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--bone);
+    font-family:var(--font-body);
+    font-weight:400;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;display:block;}
+  a{color:inherit;}
+  h1,h2,h3{font-family:var(--font-display);margin:0;text-transform:uppercase;letter-spacing:-0.02em;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    font-size:0.75rem;
+    color:var(--brass);
+  }
+  .mono{font-family:var(--font-mono);letter-spacing:0.03em;}
+  .wrap{max-width:var(--container);margin:0 auto;padding:0 1.25rem;}
+
+  :focus-visible{outline:2px solid var(--brass);outline-offset:2px;}
+
+  /* ---------- Header ---------- */
+  header.site-header{
+    position:fixed;
+    inset:0 0 auto 0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:1rem 1.25rem;
+    transition:background-color .3s ease,border-color .3s ease;
+    border-bottom:1px solid transparent;
+  }
+  header.site-header.is-scrolled{
+    background:var(--ink-raised);
+    border-bottom-color:rgba(201,162,39,0.25);
+  }
+  .logo{
+    font-family:var(--font-display);
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:-0.02em;
+    font-size:1.25rem;
+    text-decoration:none;
+  }
+  nav.primary-nav{display:flex;gap:2rem;}
+  nav.primary-nav a{
+    font-family:var(--font-mono);
+    font-size:0.85rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    text-decoration:none;
+    padding:0.25rem 0;
+    border-bottom:1px solid transparent;
+  }
+  nav.primary-nav a:hover{border-color:var(--brass);color:var(--brass);}
+  .burger{
+    display:none;
+    width:44px;height:44px;
+    background:none;border:none;
+    color:var(--bone);
+    cursor:pointer;
+    position:relative;
+    z-index:210;
+  }
+  .burger span,.burger::before,.burger::after{
+    content:"";
+    position:absolute;left:10px;right:10px;height:2px;
+    background:var(--bone);
+    transition:transform .25s ease,opacity .25s ease;
+  }
+  .burger::before{top:16px;}
+  .burger span{top:22px;}
+  .burger::after{top:28px;}
+  .burger[aria-expanded="true"]::before{transform:translateY(6px) rotate(45deg);}
+  .burger[aria-expanded="true"] span{opacity:0;}
+  .burger[aria-expanded="true"]::after{transform:translateY(-6px) rotate(-45deg);}
+
+  .mobile-nav{
+    position:fixed;
+    inset:0;
+    background:var(--ink-raised);
+    z-index:200;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:1.5rem;
+    padding:2rem;
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(-8px);
+    transition:opacity .25s ease,transform .25s ease;
+  }
+  .mobile-nav.is-open{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .mobile-nav a{
+    font-family:var(--font-display);
+    text-transform:uppercase;
+    font-size:2rem;
+    text-decoration:none;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    min-height:100dvh;
+    display:flex;
+    align-items:flex-end;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(75,46,255,0.18), transparent 60%),
+      var(--ink);
+  }
+  .hero-inner{
+    position:relative;
+    width:100%;
+    padding:6rem 1.25rem 4rem;
+    max-width:var(--container);
+    margin:0 auto;
+  }
+  .hero .eyebrow{margin-bottom:1rem;display:block;}
+  .lockup{
+    position:relative;
+    font-size:clamp(3rem, 12vw, 9rem);
+    font-weight:800;
+    line-height:0.9;
+    margin:0 0 1.25rem;
+    background:linear-gradient(var(--bone),var(--bone));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:var(--bone);
+  }
+  .lockup::after{
+    content:"FAUST";
+    position:absolute;
+    inset:0;
+    color:var(--brass);
+    background:linear-gradient(100deg, transparent 35%, var(--brass) 48%, var(--bone) 50%, var(--brass) 52%, transparent 65%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-size:280% 100%;
+    background-position:150% 0;
+    animation:beam 8s ease-in-out infinite;
+  }
+  @keyframes beam{
+    0%{background-position:150% 0;opacity:0;}
+    8%{opacity:1;}
+    45%{background-position:-40% 0;opacity:1;}
+    55%{opacity:0;}
+    100%{background-position:-40% 0;opacity:0;}
+  }
+  .hero-sub{
+    max-width:32ch;
+    font-size:1.05rem;
+    color:var(--bone);
+    margin:0 0 1.75rem;
+  }
+  .hero-hours{
+    display:block;
+    margin-bottom:2rem;
+    font-size:0.85rem;
+    color:var(--brass);
+  }
+  .hero-hours .status{color:var(--flash);}
+
+  .btn{
+    display:inline-block;
+    font-family:var(--font-body);
+    font-weight:500;
+    text-decoration:none;
+    padding:0.9rem 1.75rem;
+    border-radius:var(--radius);
+    border:1px solid var(--brass);
+    transition:transform .2s ease,background-color .2s ease,color .2s ease;
+  }
+  .btn-primary{background:var(--brass);color:var(--ink);}
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{background:transparent;color:var(--bone);}
+  .btn-ghost:hover{border-color:var(--bone);}
+
+  /* ---------- Beam divider ---------- */
+  .beam-divider{
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--brass), transparent);
+    max-width:var(--container);
+    margin:0 auto;
+  }
+
+  /* ---------- Sections ---------- */
+  section{padding:5rem 0;}
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease;}
+  .reveal.is-visible{opacity:1;transform:translateY(0);}
+
+  .section-title{margin-bottom:2.5rem;}
+  .section-title h2{font-size:clamp(1.75rem,4vw,2.75rem);margin-top:0.5rem;}
+
+  .about p{max-width:60ch;color:var(--bone);}
+  .about-facts{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1.5rem;
+    margin-top:2.5rem;
+    max-width:640px;
+  }
+  .about-facts .fact-value{font-family:var(--font-mono);color:var(--brass);font-size:1.5rem;display:block;}
+  .about-facts .fact-label{font-size:0.8rem;color:var(--bone);opacity:0.7;}
+
+  /* ---------- Bar highlights ---------- */
+  .highlights-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:1.5rem;
+    margin-top:2.5rem;
+  }
+  .highlight-card{
+    background:var(--ink-raised);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .highlight-photo{
+    aspect-ratio:1/1;
+    background:
+      linear-gradient(135deg, rgba(var(--brass-rgb),0.35), rgba(var(--ultra-rgb),0.25)),
+      var(--ink-raised);
+  }
+  .highlight-body{padding:1.25rem;}
+  .highlight-body h3{font-size:1rem;text-transform:none;letter-spacing:0;font-family:var(--font-body);font-weight:500;}
+  .highlight-comp{font-size:0.85rem;opacity:0.7;margin:0.5rem 0 1rem;}
+  .highlight-price{font-family:var(--font-mono);color:var(--brass);font-size:1.1rem;}
+  .highlights-cta{margin-top:2rem;display:inline-block;font-family:var(--font-mono);text-transform:uppercase;font-size:0.85rem;letter-spacing:0.08em;text-decoration:none;color:var(--brass);border-bottom:1px solid var(--brass);}
+
+  /* ---------- Atmosphere ---------- */
+  .atmosphere-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-auto-rows:180px;
+    gap:0.75rem;
+    margin-top:2.5rem;
+  }
+  .atmosphere-grid > div:nth-child(1){grid-column:span 2;grid-row:span 2;}
+  .tile{
+    position:relative;
+    border-radius:var(--radius);
+    overflow:hidden;
+    display:flex;
+    align-items:flex-end;
+    padding:1rem;
+  }
+  .tile::after{
+    content:"";
+    position:absolute;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:0.12;
+    mix-blend-mode:overlay;
+    pointer-events:none;
+  }
+  .tile span{position:relative;font-family:var(--font-mono);text-transform:uppercase;font-size:0.75rem;letter-spacing:0.08em;color:var(--bone);}
+  .tile-1{background:linear-gradient(160deg,rgba(var(--ultra-rgb),0.45),var(--ink));}
+  .tile-2{background:linear-gradient(160deg,rgba(var(--brass-rgb),0.4),var(--ink));}
+  .tile-3{background:linear-gradient(160deg,rgba(var(--flash-rgb),0.35),var(--ink));}
+  .tile-4{background:linear-gradient(160deg,var(--ink-raised),var(--ink));}
+  .tile-5{background:linear-gradient(160deg,rgba(var(--ultra-rgb),0.3),var(--ink-raised));}
+
+  /* ---------- Find us ---------- */
+  .find-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:2.5rem;
+    margin-top:2.5rem;
+  }
+  .find-list{list-style:none;margin:0;padding:0;}
+  .find-list li{
+    display:flex;
+    justify-content:space-between;
+    padding:0.5rem 0;
+    border-bottom:1px solid rgba(237,231,220,0.1);
+    font-size:0.9rem;
+  }
+  .find-list li.today{color:var(--brass);}
+  .find-list .day{font-family:var(--font-mono);text-transform:uppercase;}
+  .find-contacts{margin-top:1.5rem;}
+  .find-contacts a{display:block;margin-bottom:0.5rem;text-decoration:none;}
+  .find-contacts a:hover{color:var(--brass);}
+  .map-stub{
+    background:var(--ink-raised);
+    border-radius:var(--radius);
+    min-height:280px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--bone);
+    opacity:0.5;
+    font-family:var(--font-mono);
+    text-transform:uppercase;
+    font-size:0.8rem;
+    letter-spacing:0.08em;
+  }
+
+  /* ---------- Footer ---------- */
+  footer{
+    background:var(--ink-raised);
+    padding:3rem 0 2rem;
+    font-size:0.85rem;
+  }
+  .footer-grid{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    gap:2rem;
+  }
+  .footer-nav{display:flex;gap:1.5rem;flex-wrap:wrap;}
+  .footer-nav a{text-decoration:none;}
+  .footer-nav a:hover{color:var(--brass);}
+  .footer-badge{
+    font-family:var(--font-mono);
+    color:var(--flash);
+    letter-spacing:0.08em;
+  }
+  .footer-bottom{
+    margin-top:2rem;
+    padding-top:1.5rem;
+    border-top:1px solid rgba(237,231,220,0.1);
+    opacity:0.6;
+  }
+
+  @media (max-width:820px){
+    nav.primary-nav{display:none;}
+    .burger{display:block;}
+    .about-facts{grid-template-columns:repeat(3,1fr);gap:1rem;}
+    .find-grid{grid-template-columns:1fr;}
+  }
+  @media (max-width:600px){
+    .highlights-grid{grid-template-columns:1fr;}
+    .atmosphere-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:140px;}
+    .atmosphere-grid > div:nth-child(1){grid-column:span 2;grid-row:span 1;}
+    .about-facts{grid-template-columns:1fr 1fr;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important;}
+    .lockup::after{animation:none;background-position:0 0;opacity:1;}
+    .reveal{opacity:1;transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header" id="siteHeader">
+  <a class="logo" href="index.html">FAUST</a>
+  <nav class="primary-nav" aria-label="Основна навігація">
+    <a href="#about">Клуб</a>
+    <a href="menu.html">Меню</a>
+    <a href="#find-us">Контакти</a>
+  </nav>
+  <button class="burger" id="burgerBtn" aria-expanded="false" aria-controls="mobileNav" aria-label="Відкрити меню">
+    <span></span>
+  </button>
+</header>
+
+<nav class="mobile-nav" id="mobileNav" aria-label="Мобільна навігація">
+  <a href="#about">Клуб</a>
+  <a href="menu.html">Меню</a>
+  <a href="#find-us">Контакти</a>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="eyebrow">Нічний клуб</span>
+      <h1 class="lockup">FAUST</h1>
+      <p class="hero-sub">Там, де спокуса стає мистецтвом.</p>
+      <span class="hero-hours mono">ЧТ–СБ · 22:00–04:00 · <span class="status">ВІДЧИНЕНО ЗАРАЗ</span></span>
+      <a class="btn btn-primary" href="menu.html">Дивитись меню</a>
+    </div>
+  </section>
+
+  <div class="beam-divider"></div>
+
+  <section id="about" class="about">
+    <div class="wrap reveal">
+      <div class="section-title">
+        <span class="eyebrow">Про клуб</span>
+        <h2>Двері з 22:00</h2>
+      </div>
+      <p>«Фауст» — це більше, ніж просто простір. Це місце, де переплитаються естетика, якісний відпочинок та атмосфера справжньої свободи. Ми створили локацію для тих, хто цінує вишуканість у деталях, цінує справжній драйв та шукає сховище від сірої щоденності..</p>
+      <div class="about-facts">
+        <div>
+          <span class="fact-value mono">180</span>
+          <span class="fact-label">місць у залі</span>
+        </div>
+        <div>
+          <span class="fact-value mono">22–04</span>
+          <span class="fact-label">години роботи</span>
+        </div>
+        <div>
+          <span class="fact-value mono">21+</span>
+          <span class="fact-label">вхід від</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="beam-divider"></div>
+
+  <section id="highlights" class="highlights">
+    <div class="wrap reveal">
+      <div class="section-title">
+        <span class="eyebrow">Фішки бару</span>
+        <h2>Три причини лишитись</h2>
+      </div>
+      <div class="highlights-grid">
+        <div class="highlight-card">
+          <div class="highlight-photo"></div>
+          <div class="highlight-body">
+            <h3>Полум'я Фауста</h3>
+            <p class="highlight-comp">джин, кампарі, грейпфрут, тонік</p>
+            <span class="highlight-price mono">245&nbsp;₴</span>
+          </div>
+        </div>
+        <div class="highlight-card">
+          <div class="highlight-photo"></div>
+          <div class="highlight-body">
+            <h3>Чорна меса</h3>
+            <p class="highlight-comp">бурбон, амаретто, гіркий шоколад</p>
+            <span class="highlight-price mono">265&nbsp;₴</span>
+          </div>
+        </div>
+        <div class="highlight-card">
+          <div class="highlight-photo"></div>
+          <div class="highlight-body">
+            <h3>Опівнічний дзвін</h3>
+            <p class="highlight-comp">мескаль, лайм, чилі, агава</p>
+            <span class="highlight-price mono">255&nbsp;₴</span>
+          </div>
+        </div>
+      </div>
+      <a class="highlights-cta" href="menu.html">Усе меню →</a>
+    </div>
+  </section>
+
+  <div class="beam-divider"></div>
+
+  <section id="atmosphere" class="atmosphere">
+    <div class="wrap reveal">
+      <div class="section-title">
+        <span class="eyebrow">Атмосфера</span>
+        <h2>Одна ніч, п'ять кадрів</h2>
+      </div>
+      <div class="atmosphere-grid">
+        <div class="tile tile-1"><span>Танцпол</span></div>
+        <div class="tile tile-2"><span>Бар</span></div>
+        <div class="tile tile-3"><span>VIP-зона</span></div>
+        <div class="tile tile-4"><span>Двері</span></div>
+        <div class="tile tile-5"><span>Після 03:00</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="beam-divider"></div>
+
+  <section id="find-us" class="find-us">
+    <div class="wrap reveal">
+      <div class="section-title">
+        <span class="eyebrow">Знайти нас</span>
+        <h2>Адреса й години</h2>
+      </div>
+      <div class="find-grid">
+        <div>
+          <ul class="find-list">
+            <li><span class="day mono">Пн</span><span>зачинено</span></li>
+            <li><span class="day mono">Вт</span><span>зачинено</span></li>
+            <li><span class="day mono">Ср</span><span>зачинено</span></li>
+            <li class="today"><span class="day mono">Чт</span><span>22:00–04:00</span></li>
+            <li><span class="day mono">Пт</span><span>22:00–04:00</span></li>
+            <li><span class="day mono">Сб</span><span>22:00–04:00</span></li>
+            <li><span class="day mono">Нд</span><span>зачинено</span></li>
+          </ul>
+          <div class="find-contacts">
+            <a href="tel:+380441234567">м. Київ, вул. Хрещатик, 22</a>
+            <a href="tel:+380441234567">+380 44 123 45 67</a>
+            <a href="https://instagram.com" target="_blank" rel="noopener">Instagram · @faust.club</a>
+            <a href="https://t.me" target="_blank" rel="noopener">Telegram · @faustclub</a>
+          </div>
+        </div>
+        <div class="map-stub">Мапа з'явиться далі</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <nav class="footer-nav" aria-label="Навігація у футері">
+        <a href="#about">Клуб</a>
+        <a href="menu.html">Меню</a>
+        <a href="#find-us">Контакти</a>
+      </nav>
+      <span class="footer-badge mono">18+ · СMART CASUAL</span>
+    </div>
+    <div class="footer-bottom">© 2026 Faust. Усі права захищено.</div>
+  </div>
+</footer>
+
+<script>
+  // Header background after scroll
+  var header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', function () {
+    header.classList.toggle('is-scrolled', window.scrollY > 80);
+  });
+
+  // Mobile nav: open/close, Esc, click on link
+  var burger = document.getElementById('burgerBtn');
+  var mobileNav = document.getElementById('mobileNav');
+  function closeNav() {
+    mobileNav.classList.remove('is-open');
+    burger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+  burger.addEventListener('click', function () {
+    var open = mobileNav.classList.toggle('is-open');
+    burger.setAttribute('aria-expanded', String(open));
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  mobileNav.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', closeNav);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeNav();
+  });
+
+  // Scroll-reveal
+  if ('IntersectionObserver' in window) {
+    var revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.reveal').forEach(function (el) {
+      revealObserver.observe(el);
+    });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function (el) {
+      el.classList.add('is-visible');
+    });
+  }
+</script>
+</body>
+</html>

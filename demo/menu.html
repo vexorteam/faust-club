@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Меню — Faust</title>
+<meta name="description" content="Меню бару Faust: авторські коктейлі, класика, шоти, вино, пиво, снеки.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Onest:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B0B10;
+    --ink-raised:#14141C;
+    --bone:#EDE7DC;
+    --brass:#C9A227;
+    --flash:#FF3D5A;
+    --ultra:#4B2EFF;
+    --brass-rgb:201,162,39;
+    --flash-rgb:255,61,90;
+    --ultra-rgb:75,46,255;
+    --radius:2px;
+    --font-display:'Unbounded',system-ui,sans-serif;
+    --font-body:'Onest',system-ui,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,monospace;
+    --container:1180px;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--bone);
+    font-family:var(--font-body);
+    font-weight:400;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;display:block;}
+  a{color:inherit;}
+  h1,h2,h3{font-family:var(--font-display);margin:0;text-transform:uppercase;letter-spacing:-0.02em;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    font-size:0.75rem;
+    color:var(--brass);
+  }
+  .mono{font-family:var(--font-mono);letter-spacing:0.03em;}
+  .wrap{max-width:var(--container);margin:0 auto;padding:0 1.25rem;}
+
+  :focus-visible{outline:2px solid var(--brass);outline-offset:2px;}
+
+  /* ---------- Header ---------- */
+  header.site-header{
+    position:fixed;
+    inset:0 0 auto 0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:1rem 1.25rem;
+    background:var(--ink-raised);
+    border-bottom:1px solid rgba(201,162,39,0.25);
+  }
+  .logo{
+    font-family:var(--font-display);
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:-0.02em;
+    font-size:1.25rem;
+    text-decoration:none;
+  }
+  nav.primary-nav{display:flex;gap:2rem;}
+  nav.primary-nav a{
+    font-family:var(--font-mono);
+    font-size:0.85rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    text-decoration:none;
+    padding:0.25rem 0;
+    border-bottom:1px solid transparent;
+  }
+  nav.primary-nav a.active,nav.primary-nav a:hover{border-color:var(--brass);color:var(--brass);}
+  .burger{
+    display:none;
+    width:44px;height:44px;
+    background:none;border:none;
+    color:var(--bone);
+    cursor:pointer;
+    position:relative;
+    z-index:210;
+  }
+  .burger span,.burger::before,.burger::after{
+    content:"";
+    position:absolute;left:10px;right:10px;height:2px;
+    background:var(--bone);
+    transition:transform .25s ease,opacity .25s ease;
+  }
+  .burger::before{top:16px;}
+  .burger span{top:22px;}
+  .burger::after{top:28px;}
+  .burger[aria-expanded="true"]::before{transform:translateY(6px) rotate(45deg);}
+  .burger[aria-expanded="true"] span{opacity:0;}
+  .burger[aria-expanded="true"]::after{transform:translateY(-6px) rotate(-45deg);}
+
+  .mobile-nav{
+    position:fixed;
+    inset:0;
+    background:var(--ink-raised);
+    z-index:200;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:1.5rem;
+    padding:2rem;
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(-8px);
+    transition:opacity .25s ease,transform .25s ease;
+  }
+  .mobile-nav.is-open{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .mobile-nav a{
+    font-family:var(--font-display);
+    text-transform:uppercase;
+    font-size:2rem;
+    text-decoration:none;
+  }
+
+  /* ---------- Menu page header ---------- */
+  .menu-hero{
+    padding:7rem 0 2rem;
+  }
+  .menu-hero h1{font-size:clamp(2rem,6vw,3.5rem);margin-top:0.5rem;}
+
+  /* ---------- Category nav ---------- */
+  .menu-nav{
+    position:sticky;
+    top:64px;
+    z-index:50;
+    background:var(--ink);
+    border-top:1px solid rgba(201,162,39,0.2);
+    border-bottom:1px solid rgba(201,162,39,0.2);
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .menu-nav-inner{
+    display:flex;
+    gap:1.75rem;
+    padding:1rem 1.25rem;
+    max-width:var(--container);
+    margin:0 auto;
+    white-space:nowrap;
+  }
+  .menu-nav a{
+    font-family:var(--font-mono);
+    font-size:0.8rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    text-decoration:none;
+    color:var(--bone);
+    opacity:0.6;
+    padding-bottom:0.25rem;
+    border-bottom:2px solid transparent;
+  }
+  .menu-nav a.active{opacity:1;color:var(--brass);border-color:var(--brass);}
+
+  /* ---------- Category section ---------- */
+  .category{padding:4rem 0;scroll-margin-top:120px;}
+  .category-head{margin-bottom:2rem;}
+  .category-head h2{font-size:clamp(1.5rem,3.5vw,2.25rem);}
+  .category-note{font-size:0.85rem;opacity:0.6;margin-top:0.5rem;}
+
+  .items-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1.5rem;
+  }
+  .item-card{
+    background:var(--ink-raised);
+    border-radius:var(--radius);
+    overflow:hidden;
+    position:relative;
+  }
+  .item-photo{
+    aspect-ratio:1/1;
+    background:linear-gradient(135deg, rgba(var(--brass-rgb),0.3), rgba(var(--ultra-rgb),0.2)), var(--ink-raised);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .item-photo .monogram{
+    font-family:var(--font-display);
+    font-size:2rem;
+    color:var(--brass);
+    opacity:0.5;
+  }
+  .item-body{padding:1.1rem;}
+  .item-body h3{
+    font-family:var(--font-body);
+    font-weight:500;
+    font-size:1rem;
+    text-transform:none;
+    letter-spacing:0;
+    margin-bottom:0.4rem;
+  }
+  .item-comp{font-size:0.8rem;opacity:0.65;margin:0 0 0.9rem;min-height:2.2em;}
+  .item-meta{display:flex;justify-content:space-between;align-items:baseline;}
+  .item-price{font-family:var(--font-mono);color:var(--brass);font-size:1.05rem;}
+  .item-volume{font-family:var(--font-mono);font-size:0.75rem;opacity:0.5;}
+  .badge{
+    position:absolute;
+    top:0.75rem;
+    left:0.75rem;
+    font-family:var(--font-mono);
+    font-size:0.65rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--brass);
+    background:var(--ink);
+    padding:0.2rem 0.5rem;
+    border:1px solid var(--brass);
+    border-radius:var(--radius);
+  }
+  .badge.flash{color:var(--flash);border-color:var(--flash);}
+
+  .item-card.unavailable{opacity:0.4;}
+  .item-card.unavailable .item-price::after{
+    content:" · немає";
+    font-family:var(--font-body);
+    color:var(--bone);
+    opacity:0.8;
+  }
+
+  .beam-divider{
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--brass), transparent);
+    max-width:var(--container);
+    margin:0 auto;
+  }
+
+  /* ---------- Footer ---------- */
+  footer{
+    background:var(--ink-raised);
+    padding:3rem 0 2rem;
+    font-size:0.85rem;
+  }
+  .footer-grid{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    gap:2rem;
+  }
+  .footer-nav{display:flex;gap:1.5rem;flex-wrap:wrap;}
+  .footer-nav a{text-decoration:none;}
+  .footer-nav a:hover{color:var(--brass);}
+  .footer-badge{
+    font-family:var(--font-mono);
+    color:var(--flash);
+    letter-spacing:0.08em;
+  }
+  .footer-bottom{
+    margin-top:2rem;
+    padding-top:1.5rem;
+    border-top:1px solid rgba(237,231,220,0.1);
+    opacity:0.6;
+  }
+
+  @media (max-width:820px){
+    nav.primary-nav{display:none;}
+    .burger{display:block;}
+    .items-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:480px){
+    .items-grid{grid-template-columns:1fr;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="logo" href="index.html">FAUST</a>
+  <nav class="primary-nav" aria-label="Основна навігація">
+    <a href="index.html#about">Клуб</a>
+    <a href="menu.html" class="active">Меню</a>
+    <a href="index.html#find-us">Контакти</a>
+  </nav>
+  <button class="burger" id="burgerBtn" aria-expanded="false" aria-controls="mobileNav" aria-label="Відкрити меню">
+    <span></span>
+  </button>
+</header>
+
+<nav class="mobile-nav" id="mobileNav" aria-label="Мобільна навігація">
+  <a href="index.html#about">Клуб</a>
+  <a href="menu.html">Меню</a>
+  <a href="index.html#find-us">Контакти</a>
+</nav>
+
+<main>
+  <div class="menu-hero wrap">
+    <span class="eyebrow">Меню</span>
+    <h1>Бар і кухня</h1>
+  </div>
+
+  <nav class="menu-nav" aria-label="Категорії меню">
+    <div class="menu-nav-inner">
+      <a href="#signature">Авторські коктейлі</a>
+      <a href="#classics">Класика</a>
+      <a href="#shots">Шоти</a>
+      <a href="#spirits">Міцне</a>
+      <a href="#wine">Вино й ігристе</a>
+      <a href="#beer">Пиво</a>
+      <a href="#soft">Безалкогольне</a>
+      <a href="#snacks">Снеки</a>
+    </div>
+  </nav>
+
+  <section id="signature" class="category">
+    <div class="wrap">
+      <div class="category-head">
+        <h2>Авторські коктейлі</h2>
+        <p class="category-note">Подаються з 22:00</p>
+      </div>
+      <div class="items-grid">
+        <div class="item-card">
+          <span class="badge">New</span>
+          <div class="item-photo"><span class="monogram">F</span></div>
+          <div class="item-body">
+            <h3>Полум'я Фауста</h3>
+            <p class="item-comp">джин, кампарі, грейпфрут, тонік</p>
+            <div class="item-meta"><span class="item-price mono">245&nbsp;₴</span><span class="item-volume mono">250 мл</span></div>
+          </div>
+        </div>
+        <div class="item-card">
+          <span class="badge flash">Hit</span>
+          <div class="item-photo"><span class="monogram">F</span></div>
+          <div class="item-body">
+            <h3>Чорна меса</h3>
+            <p class="item-comp">бурбон, амаретто, гіркий шоколад, апельсинові біттери</p>
+            <div class="item-meta"><span class="item-price mono">265&nbsp;₴</span><span class="item-volume mono">200 мл</span></div>
+          </div>
+        </div>
+        <div class="item-card">
+          <div class="item-photo"><span class="monogram">F</span></div>
+          <div class="item-body">
+            <h3>Опівнічний дзвін</h3>
+            <p class="item-comp">мескаль, лайм, чилі, агава</p>
+            <div class="item-meta"><span class="item-price mono">255&nbsp;₴</span><span class="item-volume mono">200 мл</span></div>
+          </div>
+        </div>
+        <div class="item-card">
+          <div class="item-photo"><span class="monogram">F</span></div>
+          <div class="item-body">
+            <h3>Пакт</h3>
+            <p class="item-comp">горілка, чорна смородина, розмарин, содова</p>
+            <div class="item-meta"><span class="item-price mono">235&nbsp;₴</span><span class="item-volume mono">250 мл</span></div>
+          </div>
+        </div>
+        <div class="item-card unavailable">
+          <div class="item-photo"><span class="monogram">F</span></div>
+          <div class="item-body">
+            <h3>Спокуса</h3>
+            <p class="item-comp">ром, маракуя, кокосові вершки, лайм</p>
+            <div class="item-meta"><span class="item-price mono">250&nbsp;₴</span><span class="item-volume mono">220 мл</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="beam-divider"></div>
+
+  <section id="classics" class="category">
+    <div class="wrap">
+      <div class="category-head"><h2>Класика</h2></div>
+      <div class="items-grid">
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Негроні</h3><p class="item-comp">джин, кампарі, вермут</p><div class="item-meta"><span class="item-price mono">220&nbsp;₴</span><span class="item-volume mono">150 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Олд Фешн</h3><p class="item-comp">бурбон, ангостура, цукор</p><div class="item-meta"><span class="item-price mono">230&nbsp;₴</span><span class="item-volume mono">150 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Дайкірі</h3><p class="item-comp">білий ром, лайм, цукровий сироп</p><div class="item-meta"><span class="item-price mono">210&nbsp;₴</span><span class="item-volume mono">150 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Космополітен</h3><p class="item-comp">горілка, трипл сек, журавлина, лайм</p><div class="item-meta"><span class="item-price mono">225&nbsp;₴</span><span class="item-volume mono">150 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Мохіто</h3><p class="item-comp">білий ром, м'ята, лайм, содова</p><div class="item-meta"><span class="item-price mono">215&nbsp;₴</span><span class="item-volume mono">300 мл</span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="beam-divider"></div>
+
+  <section id="shots" class="category">
+    <div class="wrap">
+      <div class="category-head"><h2>Шоти</h2></div>
+      <div class="items-grid">
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Б-52</h3><p class="item-comp">кавовий лікер, ірландський крем, трипл сек</p><div class="item-meta"><span class="item-price mono">180&nbsp;₴</span><span class="item-volume mono">40 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Кемікал</h3><p class="item-comp">текіла, блю кюрасао, енергетик</p><div class="item-meta"><span class="item-price mono">150&nbsp;₴</span><span class="item-volume mono">40 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Джагербомб</h3><p class="item-comp">єгермайстер, енергетик</p><div class="item-meta"><span class="item-price mono">160&nbsp;₴</span><span class="item-volume mono">40 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Ківі-шот</h3><p class="item-comp">вища проба, ківі, лайм</p><div class="item-meta"><span class="item-price mono">140&nbsp;₴</span><span class="item-volume mono">40 мл</span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="beam-divider"></div>
+
+  <section id="spirits" class="category">
+    <div class="wrap">
+      <div class="category-head"><h2>Міцне</h2></div>
+      <div class="items-grid">
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Джин Faust Dry</h3><p class="item-comp">45%</p><div class="item-meta"><span class="item-price mono">180&nbsp;₴</span><span class="item-volume mono">40 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Бурбон Kentucky Reserve</h3><p class="item-comp">45%</p><div class="item-meta"><span class="item-price mono">210&nbsp;₴</span><span class="item-volume mono">40 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Односолодовий віскі, 12 років</h3><p class="item-comp">40%</p><div class="item-meta"><span class="item-price mono">260&nbsp;₴</span><span class="item-volume mono">40 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Текіла бланко</h3><p class="item-comp">38%</p><div class="item-meta"><span class="item-price mono">190&nbsp;₴</span><span class="item-volume mono">40 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Горілка преміум</h3><p class="item-comp">40%</p><div class="item-meta"><span class="item-price mono">160&nbsp;₴</span><span class="item-volume mono">40 мл</span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="beam-divider"></div>
+
+  <section id="wine" class="category">
+    <div class="wrap">
+      <div class="category-head"><h2>Вино й ігристе</h2></div>
+      <div class="items-grid">
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Просекко, бокал</h3><p class="item-comp">Італія, сухе</p><div class="item-meta"><span class="item-price mono">190&nbsp;₴</span><span class="item-volume mono">150 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Каберне Совіньйон, бокал</h3><p class="item-comp">червоне, сухе</p><div class="item-meta"><span class="item-price mono">210&nbsp;₴</span><span class="item-volume mono">150 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Шардоне, бокал</h3><p class="item-comp">біле, сухе</p><div class="item-meta"><span class="item-price mono">200&nbsp;₴</span><span class="item-volume mono">150 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Просекко, пляшка</h3><p class="item-comp">Італія, сухе</p><div class="item-meta"><span class="item-price mono">950&nbsp;₴</span><span class="item-volume mono">750 мл</span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="beam-divider"></div>
+
+  <section id="beer" class="category">
+    <div class="wrap">
+      <div class="category-head"><h2>Пиво</h2></div>
+      <div class="items-grid">
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Лагер, розлив</h3><p class="item-comp">4.5%</p><div class="item-meta"><span class="item-price mono">110&nbsp;₴</span><span class="item-volume mono">400 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Пшеничне, розлив</h3><p class="item-comp">5%</p><div class="item-meta"><span class="item-price mono">130&nbsp;₴</span><span class="item-volume mono">400 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>IPA, пляшка</h3><p class="item-comp">6%</p><div class="item-meta"><span class="item-price mono">140&nbsp;₴</span><span class="item-volume mono">330 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Стаут, пляшка</h3><p class="item-comp">5.5%</p><div class="item-meta"><span class="item-price mono">150&nbsp;₴</span><span class="item-volume mono">330 мл</span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="beam-divider"></div>
+
+  <section id="soft" class="category">
+    <div class="wrap">
+      <div class="category-head"><h2>Безалкогольне</h2></div>
+      <div class="items-grid">
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Вірджин Мохіто</h3><p class="item-comp">м'ята, лайм, содова</p><div class="item-meta"><span class="item-price mono">140&nbsp;₴</span><span class="item-volume mono">300 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Лимонад Faust</h3><p class="item-comp">огірок, м'ята, лайм</p><div class="item-meta"><span class="item-price mono">130&nbsp;₴</span><span class="item-volume mono">400 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Кола</h3><p class="item-comp">0.33 л</p><div class="item-meta"><span class="item-price mono">80&nbsp;₴</span><span class="item-volume mono">330 мл</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Вода, з газом / без</h3><p class="item-comp">негазована або газована</p><div class="item-meta"><span class="item-price mono">60&nbsp;₴</span><span class="item-volume mono">500 мл</span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="beam-divider"></div>
+
+  <section id="snacks" class="category">
+    <div class="wrap">
+      <div class="category-head"><h2>Снеки</h2></div>
+      <div class="items-grid">
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Темпура з креветками</h3><p class="item-comp">креветки, соус фьюжн</p><div class="item-meta"><span class="item-price mono">285&nbsp;₴</span><span class="item-volume mono">200 г</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Брускети з в'яленою яловичиною</h3><p class="item-comp">яловичина, пармезан, руккола</p><div class="item-meta"><span class="item-price mono">265&nbsp;₴</span><span class="item-volume mono">180 г</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Сирна тарілка</h3><p class="item-comp">три види сиру, мед, горіхи</p><div class="item-meta"><span class="item-price mono">320&nbsp;₴</span><span class="item-volume mono">250 г</span></div></div></div>
+        <div class="item-card"><div class="item-photo"><span class="monogram">F</span></div><div class="item-body"><h3>Начос із соусом</h3><p class="item-comp">кукурудзяні чіпси, сирний соус</p><div class="item-meta"><span class="item-price mono">195&nbsp;₴</span><span class="item-volume mono">200 г</span></div></div></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <nav class="footer-nav" aria-label="Навігація у футері">
+        <a href="index.html#about">Клуб</a>
+        <a href="menu.html">Меню</a>
+        <a href="index.html#find-us">Контакти</a>
+      </nav>
+      <span class="footer-badge mono">18+ · СMART CASUAL</span>
+    </div>
+    <div class="footer-bottom">© 2026 Faust. Усі права захищено.</div>
+  </div>
+</footer>
+
+<script>
+  // Mobile nav: open/close, Esc, click on link
+  var burger = document.getElementById('burgerBtn');
+  var mobileNav = document.getElementById('mobileNav');
+  function closeNav() {
+    mobileNav.classList.remove('is-open');
+    burger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+  burger.addEventListener('click', function () {
+    var open = mobileNav.classList.toggle('is-open');
+    burger.setAttribute('aria-expanded', String(open));
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  mobileNav.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', closeNav);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeNav();
+  });
+
+  // Category scrollspy
+  var navLinks = document.querySelectorAll('.menu-nav a');
+  var sections = document.querySelectorAll('.category');
+  if ('IntersectionObserver' in window) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var link = document.querySelector('.menu-nav a[href="#' + entry.target.id + '"]');
+        if (entry.isIntersecting) {
+          navLinks.forEach(function (l) { l.classList.remove('active'); });
+          link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-140px 0px -60% 0px' });
+    sections.forEach(function (s) { spy.observe(s); });
+  }
+</script>
+</body>
+</html>
