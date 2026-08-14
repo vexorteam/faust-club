@@ -1,0 +1,54 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.required {
+  color: var(--accent-magenta);
+  margin-left: 2px;
+}
+
+.control {
+  background: var(--ink-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 16px;
+  font-size: 15px;
+  color: var(--text-primary);
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+
+.control::placeholder {
+  color: var(--text-muted);
+}
+
+.control:hover {
+  border-color: var(--border-strong);
+}
+
+.control:focus-visible {
+  border-color: var(--accent-magenta);
+}
+
+.invalid {
+  border-color: #ff6b6b;
+}
+
+.error {
+  font-size: 13px;
+  color: #ff8a8a;
+}
+
+textarea.control {
+  resize: vertical;
+  min-height: 120px;
+}

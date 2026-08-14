@@ -1,0 +1,208 @@
+.hero {
+  position: relative;
+  height: 100dvh;
+  min-height: 560px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--text-primary);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-hero);
+  z-index: 0;
+}
+
+.glow {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  width: min(1600px, 180vw);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(109, 55, 165, 0.35), transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.photo {
+  position: absolute;
+  inset: 0; /* Растягиваем на всю секцию, а не на 65% */
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Градиент на всю ширину: слева сплошной цвет фона, плавно переходящий в прозрачность к правому центру */
+  background: linear-gradient(
+    to right,
+    var(--ink) 0%,
+    var(--ink) 25%,
+    rgba(11, 11, 13, 0.7) 55%,
+    rgba(11, 11, 13, 0.3) 100%
+  );
+  backdrop-filter: blur(2px);
+  z-index: 1;
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  padding-bottom: clamp(48px, 10vh, 128px);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.eyebrow {
+  opacity: 0;
+}
+
+.lockupWrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.lockup {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 16vw, 11rem);
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
+.lockup .beamText {
+  background-image: linear-gradient(
+    100deg,
+    var(--text-primary) 0%,
+    var(--text-primary) 40%,
+    #ffffff 45%,
+    var(--accent-magenta) 50%,
+    var(--accent-violet) 55%,
+    var(--text-primary) 60%,
+    var(--text-primary) 100%
+  );
+  background-size: 400% 100%;
+  background-position: 250% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: beam-sweep 30s var(--ease-in-out) infinite;
+}
+
+@keyframes beam-sweep {
+  0% {
+    background-position: 250% 0;
+  }
+  35%,
+  100% {
+    background-position: -150% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lockup .beamText {
+    animation: none;
+    background-position: 50% 0;
+  }
+}
+
+.subtitle {
+  max-width: 62ch;
+  font-size: clamp(0.95rem, 2.2vw, 1.3rem);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.2);
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.statusDotClosed {
+  background: var(--text-muted);
+  box-shadow: 0 0 0 3px rgba(113, 131, 162, 0.2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.scrollHint {
+  composes: no-select from global;
+  position: absolute;
+  bottom: 32px;
+  right: var(--gutter);
+  z-index: 3;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.scrollLine {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(var(--text-muted), transparent);
+}
+
+@media (min-width: 720px) {
+  .scrollHint {
+    display: flex;
+  }
+}
+
+@media (max-width: 767px) {
+  .photo {
+    display: none;
+  }
+}

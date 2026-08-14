@@ -1,0 +1,103 @@
+.section {
+  padding-block: clamp(48px, 8vh, 100px);
+}
+
+.grid {
+  display: grid;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.grid > div {
+  display: flex;
+}
+
+.card {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  background: var(--ink-raised);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 220px;
+  overflow: hidden;
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-4px);
+}
+
+.cardGlow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(120px 120px at 85% 0%, rgba(240, 85, 139, 0.25), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.card:hover .cardGlow {
+  opacity: 1;
+}
+
+.quoteIcon {
+  width: 26px;
+  height: 26px;
+  color: var(--accent-magenta);
+}
+
+.text {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.65;
+  flex: 1;
+}
+
+.author {
+  composes: no-select from global;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 14px;
+  color: #14040c;
+  flex-shrink: 0;
+}
+
+.authorName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.authorMeta {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

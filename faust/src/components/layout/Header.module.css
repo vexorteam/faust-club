@@ -1,0 +1,120 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding-top: env(safe-area-inset-top);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    backdrop-filter var(--dur-base) var(--ease-out);
+}
+
+.scrolled {
+  background: rgba(20, 19, 22, 0.86);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid var(--border);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: 76px;
+}
+
+.logo {
+  height: 26px;
+  width: auto;
+  color: var(--text-primary);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.logo:hover {
+  opacity: 0.85;
+}
+
+.nav {
+  display: none;
+}
+
+.navLink {
+  position: relative;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 8px 2px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.navLink::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5px;
+  background: var(--gradient-brand);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.navLink:hover {
+  color: var(--text-primary);
+}
+
+.navLink:hover::after,
+.navLink[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+.navLink[aria-current="page"] {
+  color: var(--text-primary);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ctaDesktop {
+  display: none;
+}
+
+.menuToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.menuToggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (min-width: 860px) {
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+  }
+
+  .ctaDesktop {
+    display: inline-flex;
+  }
+
+  .menuToggle {
+    display: none;
+  }
+}

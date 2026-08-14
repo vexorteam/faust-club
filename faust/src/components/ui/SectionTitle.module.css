@@ -1,0 +1,34 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: var(--container-narrow);
+}
+
+.center {
+  align-items: center;
+  text-align: center;
+  margin-inline: auto;
+}
+
+.heading {
+  font-size: clamp(1.9rem, 4.2vw, 3rem);
+  color: var(--text-primary);
+}
+
+.accent {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.description {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 56ch;
+}
+
+.center .description {
+  margin-inline: auto;
+}

@@ -1,0 +1,48 @@
+.beam {
+  position: relative;
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  overflow: visible;
+}
+
+.beam::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 1px;
+  width: 220px;
+  max-width: 60%;
+  background: var(--beam);
+  filter: drop-shadow(0 0 6px rgba(240, 85, 139, 0.55));
+  animation: sweep 8s var(--ease-in-out) infinite;
+}
+
+@keyframes sweep {
+  0% {
+    left: -20%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 0;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beam::after {
+    animation: none;
+    left: 0;
+    width: 100%;
+    opacity: 0.5;
+  }
+}

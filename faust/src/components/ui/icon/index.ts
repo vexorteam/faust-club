@@ -1,0 +1,18 @@
+export { Logo } from "./Logo";
+export { IconMenu } from "./Menu";
+export { IconClose } from "./Close";
+export { IconPin } from "./Pin";
+export { IconPhone } from "./Phone";
+export { IconMail } from "./Mail";
+export { IconClock } from "./Clock";
+export { IconInstagram } from "./Instagram";
+export { IconTelegram } from "./Telegram";
+export { IconTiktok } from "./Tiktok";
+export { IconChevronRight } from "./ChevronRight";
+export { IconArrowUpRight } from "./ArrowUpRight";
+export { IconQuote } from "./Quote";
+export { IconPlay } from "./Play";
+export { IconGlassCocktail } from "./GlassCocktail";
+export { IconMusic } from "./Music";
+export { IconSpark } from "./Spark";
+export type { IconProps } from "./types";

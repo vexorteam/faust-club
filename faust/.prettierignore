@@ -1,0 +1,24 @@
+rollup.config.js
+node_modules
+dist
+build
+logs
+coverage
+.next
+.turbo
+.angular
+.svelte-kit
+*.log*
+*.log
+*.lock
+*.yaml
+*.yml
+*.svg
+*rc.*
+*.md
+.*ignore
+
+# project-specific
+.next
+public/fonts
+next-env.d.ts

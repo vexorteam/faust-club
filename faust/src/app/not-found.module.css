@@ -1,0 +1,41 @@
+.section {
+  min-height: 70dvh;
+  display: flex;
+  align-items: center;
+  padding-block: 80px;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.code {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3rem, 12vw, 6rem);
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1;
+}
+
+.title {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: var(--text-primary);
+}
+
+.text {
+  color: var(--text-secondary);
+  max-width: 48ch;
+}
+
+.actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}

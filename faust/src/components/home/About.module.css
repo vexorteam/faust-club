@@ -1,0 +1,112 @@
+.section {
+  padding-block: clamp(64px, 10vh, 120px);
+}
+
+.grid {
+  display: grid;
+  gap: 40px;
+  align-items: center;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.paragraph {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 52ch;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.fact {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px 16px;
+  background: var(--ink-raised);
+}
+
+.factLabel,
+.factValue {
+  composes: no-select from global;
+}
+
+.factValue {
+  font-family: var(--font-mono);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 500;
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.factLabel {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+.visual {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--ink-elevated);
+}
+
+.visualImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+
+  mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+}
+
+.visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 11, 13, 0.45);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.visualMark {
+  composes: no-select from global;
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  z-index: 2;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  color: rgba(255, 255, 255, 0.18);
+  letter-spacing: -0.02em;
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr 0.85fr;
+    gap: 64px;
+  }
+
+  .facts {
+    margin-top: 12px;
+  }
+}

@@ -1,0 +1,150 @@
+.section {
+  padding-block: clamp(48px, 8vh, 100px);
+}
+
+.grid {
+  display: grid;
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.mapCard {
+  position: relative;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  min-height: 320px;
+  background:
+    radial-gradient(90% 70% at 30% 20%, rgba(109, 55, 165, 0.35), transparent 60%),
+    radial-gradient(80% 70% at 80% 90%, rgba(240, 85, 139, 0.28), transparent 60%), var(--ink-elevated);
+  display: flex;
+  align-items: flex-end;
+  padding: 26px;
+}
+
+.mapGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 36px 36px;
+  opacity: 0.5;
+}
+
+.pin {
+  position: absolute;
+  top: 42%;
+  left: 46%;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #14040c;
+  box-shadow: 0 0 0 8px rgba(240, 85, 139, 0.15);
+}
+
+.pin svg {
+  width: 17px;
+  height: 17px;
+}
+
+.mapLink {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--ink-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  padding: 12px 20px;
+}
+
+.mapLink:hover {
+  border-color: var(--accent-magenta);
+}
+
+.mapLink svg {
+  width: 16px;
+  height: 16px;
+}
+
+.infoCard {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--ink-raised);
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.row {
+  display: flex;
+  gap: 14px;
+}
+
+.rowIcon {
+  width: 22px;
+  height: 22px;
+  color: var(--accent-magenta);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.rowLabel {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.rowValue {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.rowValue:hover a {
+  color: var(--accent-magenta);
+}
+
+.hoursTable {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hoursRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 4px 0;
+}
+
+.hoursToday {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 1.3fr 1fr;
+  }
+}
+@media (min-width: 100px) and (max-width: 500px) {
+  .hoursToday {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 14px;
+  }
+}
