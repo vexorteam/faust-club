@@ -19,7 +19,7 @@ export const POST = async (request: Request) => {
     return NextResponse.json({ error: "Missing 'tag' query parameter" }, { status: 400 });
   }
 
-  revalidateTag(tag);
+  revalidateTag(tag, {});
 
   return NextResponse.json({ revalidated: true, tag, now: Date.now() });
 };
