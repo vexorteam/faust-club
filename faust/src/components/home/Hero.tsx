@@ -84,7 +84,7 @@ export const Hero = () => {
       <div className={styles.backdrop} aria-hidden="true" />
 
       <div className={styles.photo} aria-hidden="true">
-        <Image src={clubPhoto} alt="" fill sizes="65vw" priority placeholder="blur" />
+        <Image src={clubPhoto} alt="" fill sizes="(max-width: 767px) 100vw, 65vw" priority placeholder="blur" />
       </div>
 
       <div className={styles.glow} aria-hidden="true" />
