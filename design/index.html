@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Дизайн-система Faust</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600&family=Unbounded:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --ink:#070707;
+      --ink-raised:#141316;
+      --ink-elevated:#1c1e1f;
+      --ultra:#0d0713;
+
+      --white:#fff;
+      --secondary:#a7aebe;
+      --muted:#7183a2;
+
+      --violet:#6d37a5;
+      --blue:#1e2d51;
+      --blue-light:#3b4e73;
+      --magenta:#f0558b;
+      --magenta-strong:#ff2e78;
+
+      --border:rgba(255,255,255,.09);
+      --border-strong:rgba(255,255,255,.16);
+
+      --gradient:linear-gradient(135deg,#ff2e78 0%,#6d37a5 55%,#1e2d51 100%);
+      --hero:radial-gradient(120% 90% at 50% 0%,#1c1030 0%,#070707 55%),linear-gradient(180deg,transparent,#0d0713);
+      --beam:linear-gradient(90deg,transparent,#f0558b 35%,#6d37a5 65%,transparent);
+
+      --display:"Unbounded",sans-serif;
+      --body:"Onest",sans-serif;
+      --mono:"JetBrains Mono",monospace;
+
+      --ease:cubic-bezier(.16,1,.3,1);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--ink);min-width:220px}
+    body{
+      margin:0;background:var(--ink);color:var(--white);
+      font-family:var(--body);-webkit-font-smoothing:antialiased;
+    }
+    button{font:inherit;color:inherit}
+    .page{width:min(1320px,100%);margin:auto;padding:60px 40px}
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:10px;
+      color:var(--magenta);font:500 11px var(--mono);
+      letter-spacing:.16em;text-transform:uppercase
+    }
+    .eyebrow:before{content:"";width:20px;height:1px;background:currentColor;opacity:.7}
+    .section{padding:70px 0;border-bottom:1px solid var(--border)}
+    .label{
+      margin-bottom:28px;color:var(--muted);
+      font:500 10px var(--mono);letter-spacing:.15em;text-transform:uppercase
+    }
+    h1,h2,h3{margin:0;font-family:var(--display);font-weight:600;line-height:1.08}
+    .muted{color:var(--secondary)}
+
+    .intro{
+      min-height:470px;display:flex;flex-direction:column;justify-content:space-between;
+      padding-bottom:50px;border-bottom:1px solid var(--border);
+      background:var(--hero);position:relative;overflow:hidden
+    }
+    .intro:after{
+      content:"";position:absolute;width:700px;height:240px;right:-180px;top:50px;
+      background:radial-gradient(ellipse,rgba(109,55,165,.26),transparent 68%);
+      pointer-events:none
+    }
+    .intro-top,.intro-bottom{position:relative;z-index:1}
+    .intro h1{font-size:clamp(44px,7vw,92px);letter-spacing:-.045em;margin-top:24px}
+    .intro h1 span{
+      background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent
+    }
+    .intro-bottom{
+      display:grid;grid-template-columns:1fr 360px;gap:40px;align-items:end
+    }
+    .intro-description{color:var(--secondary);font-size:15px;line-height:1.7}
+    .project-meta{font:400 10px var(--mono);color:var(--muted);line-height:1.8;text-align:right}
+
+    .colors{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .swatch{
+      min-height:190px;border-radius:18px;padding:20px;
+      display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;
+      transition:transform .5s var(--ease),border-color .5s var(--ease)
+    }
+    .swatch:hover{transform:translateY(-5px)}
+    .swatch.dark{background:#070707;border:1px solid var(--border)}
+    .swatch.dark2{background:#1c1e1f;border:1px solid var(--border)}
+    .swatch.white{background:#fff;color:#070707}
+    .swatch.secondary{background:#a7aebe;color:#070707}
+    .swatch.violet{background:#6d37a5}
+    .swatch.blue{background:#1e2d51}
+    .swatch.blue2{background:#3b4e73}
+    .swatch.magenta{background:#f0558b}
+    .swatch.pink{background:#ff2e78}
+    .swatch strong{font-size:14px;margin-bottom:7px}
+    .swatch p{font-size:11px;line-height:1.45;opacity:.72;margin:0 0 12px}
+    .hex{font:400 10px var(--mono);opacity:.58}
+
+    .gradient{
+      height:300px;border-radius:28px;position:relative;overflow:hidden;
+      background:
+        radial-gradient(circle at 18% 30%,rgba(255,46,120,.78),transparent 30%),
+        radial-gradient(circle at 55% 52%,rgba(109,55,165,.92),transparent 44%),
+        linear-gradient(120deg,#ff2e78,#6d37a5 52%,#1e2d51);
+    }
+    .gradient:after{
+      content:"";position:absolute;inset:-20%;
+      background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.1) 50%,transparent 65%);
+      animation:shine 5s ease-in-out infinite
+    }
+    @keyframes shine{0%,100%{transform:translateX(-35%)}50%{transform:translateX(35%)}}
+    .gradient-content{position:absolute;z-index:2;left:34px;bottom:30px}
+    .gradient-title{font:600 24px var(--display);margin-bottom:10px}
+    .gradient-code{font:400 10px var(--mono);opacity:.7}
+
+    .type-main{
+      padding:42px;border-radius:22px;background:var(--ink-raised);overflow:hidden;margin-bottom:14px
+    }
+    .type-main h2{font-size:clamp(36px,6vw,72px);letter-spacing:-.045em}
+    .type-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .type-card{padding:32px;border-radius:22px;background:var(--ink-raised);min-height:190px}
+    .type-card h3{font:600 28px var(--body);margin-bottom:14px}
+    .type-card p{margin:0;color:var(--secondary);font-size:14px;line-height:1.7}
+    .mono-demo{font:400 12px/1.9 var(--mono);color:var(--magenta)}
+
+    .hierarchy{display:grid;gap:14px}
+    .hierarchy-row{
+      display:grid;grid-template-columns:155px 1fr;gap:30px;align-items:center;
+      padding:28px 30px;background:var(--ink-raised);border-radius:18px
+    }
+    .hierarchy-label{color:var(--muted);font:500 9px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+    .hero-title{font:600 34px var(--display)}
+    .body-demo{font:400 15px/1.65 var(--body);color:var(--secondary);max-width:700px}
+    .caption-demo{font:400 11px var(--mono);letter-spacing:.12em;color:var(--magenta)}
+
+    .component-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .component-card{padding:32px;border-radius:22px;background:var(--ink-raised)}
+    .component-card-title{font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:24px}
+
+    .buttons{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+    .btn{
+      border:0;border-radius:999px;padding:13px 20px;cursor:pointer;
+      font:600 13px var(--body);transition:transform .35s var(--ease),box-shadow .35s var(--ease)
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .btn-primary{background:var(--gradient);box-shadow:0 10px 35px rgba(109,55,165,.22)}
+    .btn-ghost{background:transparent;border:1px solid var(--border-strong)}
+    .btn-accent{  border: 1px solid var(--magenta-strong) !important; background: var(--border); background: var(--border);}
+    
+    .tags{display:flex;gap:9px;flex-wrap:wrap}
+    .tag{
+      border:1px solid var(--border-strong);border-radius:999px;
+      padding:8px 12px;color:var(--secondary);font:400 10px var(--mono)
+    }
+
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .bar-card{
+      min-height:280px;padding:24px;border-radius:20px;background:var(--ink-raised);
+      border:1px solid transparent;position:relative;overflow:hidden;
+      display:flex;flex-direction:column;justify-content:flex-end;
+      transition:transform .55s var(--ease),border-color .55s var(--ease)
+    }
+    .bar-card:before{
+      content:"";position:absolute;inset:0;
+      background:radial-gradient(circle at 50% 0%,rgba(109,55,165,.25),transparent 55%);
+      opacity:.7
+    }
+    .bar-card:hover{transform:translateY(-6px);border-color:rgba(240,85,139,.2)}
+    .bar-icon{
+      position:absolute;top:22px;left:22px;width:42px;height:42px;border-radius:50%;
+      display:grid;place-items:center;border:1px solid var(--border-strong);
+      color:var(--magenta);font-size:17px
+    }
+    .bar-card > *{position:relative}
+    .bar-card h3{font:600 20px var(--display);margin-bottom:10px}
+    .bar-card p{font-size:12px;line-height:1.6;color:var(--secondary);margin:0 0 15px}
+    .bar-tag{font:400 9px var(--mono);color:var(--magenta);letter-spacing:.08em}
+
+    .menu-tabs{
+      display:flex;gap:8px;overflow:auto;padding-bottom:4px;scrollbar-width:none
+    }
+    .menu-tabs::-webkit-scrollbar{display:none}
+    .menu-tab{
+      flex:0 0 auto;border:1px solid var(--border);border-radius:999px;
+      padding:10px 15px;color:var(--secondary);font:500 10px var(--mono);
+      background:transparent;cursor:pointer;transition:.35s var(--ease)
+    }
+    .menu-tab.active,.menu-tab:hover{background:var(--magenta-strong);border-color:var(--magenta-strong);color:#14040c}
+    .menu-preview{margin-top:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .menu-item{
+      padding:20px;border-radius:16px;background:var(--ink-raised);
+      transition:transform .45s var(--ease)
+    }
+    .menu-item:hover{transform:translateY(-4px)}
+    .menu-item h3{font:500 16px var(--body);margin-bottom:8px}
+    .menu-item p{font-size:11px;line-height:1.5;color:var(--secondary);min-height:34px;margin:0 0 14px}
+    .price{font:500 11px var(--mono);color:var(--magenta)}
+
+    .motion-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .motion-card{
+      min-height:220px;padding:24px;border-radius:20px;background:var(--ink-raised);
+      display:flex;flex-direction:column;justify-content:space-between;overflow:hidden
+    }
+    .motion-name{font:500 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+    .motion-stage{height:120px;display:grid;place-items:center}
+    .dot{
+      width:52px;height:52px;border-radius:50%;background:var(--gradient);
+      box-shadow:0 0 50px rgba(240,85,139,.28)
+    }
+    .motion-card:hover .dot{animation:float 1.2s var(--ease) infinite alternate}
+    @keyframes float{to{transform:translateY(-18px) scale(1.06)}}
+    .reveal-line{
+      width:100%;height:1px;background:var(--beam);transform:scaleX(.15);transform-origin:left;
+      transition:transform .8s var(--ease)
+    }
+    .motion-card:hover .reveal-line{transform:scaleX(1)}
+    .motion-text{font-size:11px;line-height:1.5;color:var(--secondary)}
+
+    footer{padding:40px 0 10px;display:flex;justify-content:space-between;color:var(--muted);font:400 9px var(--mono);letter-spacing:.08em}
+
+    @media(max-width:1000px){
+      .colors{grid-template-columns:repeat(2,1fr)}
+      .cards{grid-template-columns:1fr}
+      .motion-grid{grid-template-columns:1fr}
+      .menu-preview{grid-template-columns:1fr}
+    }
+    @media(max-width:760px){
+      .page{padding:35px 20px}
+      .intro{min-height:520px}
+      .intro-bottom{grid-template-columns:1fr}
+      .project-meta{text-align:left}
+      .type-grid,.component-grid{grid-template-columns:1fr}
+      .hierarchy-row{grid-template-columns:1fr;gap:12px}
+    }
+    @media(max-width:480px){
+      .colors{grid-template-columns:1fr}
+      .section{padding:52px 0}
+      .swatch{min-height:160px}
+      .type-main,.type-card,.component-card{padding:24px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      *,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+    }
+  </style>
+</head>
+
+<body>
+<main class="page">
+
+  <header class="intro">
+    <div class="intro-top">
+      <div class="eyebrow">Last update / 17 August 2026</div>
+      <h1>Нічний стиль<br><span>Faust Club</span></h1>
+    </div>
+
+    <div class="intro-bottom">
+      <p class="intro-description">
+        Візуальна система для нічного клубу Faust
+      </p>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="label">01 — Кольорова система</div>
+
+    <div class="colors">
+      <div class="swatch dark">
+        <strong>Основний фон</strong>
+        <p>Глибокий чорний фон сторінок та великих площ.</p>
+        <span class="hex">#070707</span>
+      </div>
+      <div class="swatch dark2">
+        <strong>Піднятий фон</strong>
+        <p>Картки, навігація та контентні блоки.</p>
+        <span class="hex">#1C1E1F</span>
+      </div>
+      <div class="swatch white">
+        <strong>Основний текст</strong>
+        <p>Заголовки, ключова інформація та контрастні елементи.</p>
+        <span class="hex">#FFFFFF</span>
+      </div>
+      <div class="swatch secondary">
+        <strong>Другорядний текст</strong>
+        <p>Описи, пояснення та менш пріоритетна інформація.</p>
+        <span class="hex">#A7AEBE</span>
+      </div>
+      <div class="swatch violet">
+        <strong>Фіолетовий акцент</strong>
+        <p>Глибина градієнтів та атмосферне підсвічування.</p>
+        <span class="hex">#6D37A5</span>
+      </div>
+      <div class="swatch blue">
+        <strong>Темно-синій</strong>
+        <p>Холодний відтінок для балансу фірмової палітри.</p>
+        <span class="hex">#1E2D51</span>
+      </div>
+      <div class="swatch magenta">
+        <strong>Магента</strong>
+        <p>Акцентні елементи, мітки та декоративні деталі.</p>
+        <span class="hex">#F0558B</span>
+      </div>
+      <div class="swatch pink">
+        <strong>Яскрава магента</strong>
+        <p>Основний заклик до дії та інтерактивні стани.</p>
+        <span class="hex">#FF2E78</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">02 — Фірмовий градієнт</div>
+    <div class="gradient">
+      <div class="gradient-content">
+        <div class="gradient-title">Атмосфера Faust</div>
+        <div class="gradient-code">#FF2E78 → #6D37A5 → #1E2D51</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">03 — Типографіка</div>
+
+    <div class="type-main">
+      <h2>Unbounded</h2>
+    </div>
+
+    <div class="type-grid">
+      <div class="type-card">
+        <h3>Onest</h3>
+        <p>
+          Основний шрифт інтерфейсу. Використовується для навігації,
+          описів, меню, кнопок та всього текстового контенту.
+        </p>
+      </div>
+
+      <div class="type-card">
+        <div class="mono-demo">
+          JetBrains Mono<br><br>
+          П’ЯТНИЦЯ · СУБОТА · 22:00<br>
+          ХРЕЩАТИК, 22<br>
+          180+ ПОЗИЦІЙ
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">04 — Типографічна ієрархія</div>
+
+    <div class="hierarchy">
+      <div class="hierarchy-row">
+        <div class="hierarchy-label">Заголовок</div>
+        <div class="hero-title">Ніч починається тут</div>
+      </div>
+
+      <div class="hierarchy-row">
+        <div class="hierarchy-label">Основний текст</div>
+        <div class="body-demo">
+          Авторські коктейлі, особлива атмосфера та ритм,
+          який задає настрій усьому вечору.
+        </div>
+      </div>
+
+      <div class="hierarchy-row">
+        <div class="hierarchy-label">Малий текст</div>
+        <div class="caption-demo">П’ЯТНИЦЯ · СУБОТА · 22:00</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">05 — Кнопки та елементи взаємодії</div>
+
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-card-title">Кнопки</div>
+        <div class="buttons">
+          <button class="btn btn-primary">Відкрити меню →</button>
+          <button class="btn btn-ghost">Про клуб</button>
+          <button class="btn btn-accent">Забронювати</button>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-title">Мітки</div>
+        <div class="tags">
+          <span class="tag">БАР</span>
+          <span class="tag">МІКСОЛОГІЯ</span>
+          <span class="tag">НІЧНИЙ КЛУБ</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Ⓒ Дизайн-система Faust Club &#8212; 2026</span>
+  </footer>
+
+</main>
+
+<script>
+  document.querySelectorAll('.menu-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
