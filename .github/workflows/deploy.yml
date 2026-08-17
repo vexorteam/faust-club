@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy design to GitHub Pages
+    name: Deploy design to gh-pages
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,7 @@ jobs:
       - name: Deploy design
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: design
+          folder: design/src
           branch: gh-pages
           clean: true
           force: true
