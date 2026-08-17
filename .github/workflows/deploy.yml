@@ -1,0 +1,30 @@
+name: Deploy Faust Design
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "design/**"
+      - ".github/workflows/deploy.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Deploy design to GitHub Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Deploy design
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: design
+          branch: gh-pages
+          clean: true
+          force: true
+          commit-message: "Deploy design"
