@@ -1,0 +1,30 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.box {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent-magenta);
+  cursor: pointer;
+}
+
+.text {
+  font-size: 15px;
+}
+
+.hint {
+  padding-left: 32px;
+  font-size: 13px;
+  color: var(--text-muted);
+}

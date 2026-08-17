@@ -1,0 +1,28 @@
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.link:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.current {
+  border-color: var(--border-strong);
+  background: var(--ink-elevated);
+  color: var(--text-primary);
+}

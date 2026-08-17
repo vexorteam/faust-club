@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { requireAdminOrRedirect } from "@/lib/session";
 import { AdminHeader } from "@/components/admin/AdminHeader";
+import { AdminNav } from "@/components/admin/AdminNav";
+import { ToastProvider } from "@/components/admin/Toast";
 import styles from "./layout.module.css";
 
 /**
@@ -23,7 +25,10 @@ const ProtectedLayout = async ({ children }: { children: ReactNode }) => {
     <>
       <AdminHeader user={user} />
       <main id="main" className={styles.content}>
-        {children}
+        <ToastProvider>
+          <AdminNav />
+          {children}
+        </ToastProvider>
       </main>
     </>
   );

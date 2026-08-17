@@ -1,3 +1,5 @@
+import { pluralize } from "@/lib/format";
+
 /**
  * Error hierarchy shared by the whole frontend.
  *
@@ -55,8 +57,10 @@ export class CategoryNotEmptyError extends AppError {
   readonly status = 409;
 
   static forCategory(title: string, itemsCount: number): CategoryNotEmptyError {
+    const noun = pluralize(itemsCount, "позиція", "позиції", "позицій");
+
     return new CategoryNotEmptyError(
-      `У категорії "${title}" ще ${itemsCount} позицій. Перенесіть або видаліть їх спочатку`,
+      `У категорії "${title}" ще ${itemsCount} ${noun}. Перенесіть або видаліть їх спочатку`,
     );
   }
 }

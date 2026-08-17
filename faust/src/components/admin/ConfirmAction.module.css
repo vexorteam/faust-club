@@ -1,0 +1,56 @@
+.trigger,
+.danger,
+.cancel {
+  min-height: 44px;
+  padding-inline: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--ink-elevated);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.trigger:hover:not(:disabled),
+.cancel:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.danger {
+  border-color: var(--danger-strong);
+  color: var(--danger);
+}
+
+.danger:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--danger-strong);
+}
+
+.trigger:disabled,
+.danger:disabled,
+.cancel:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--danger-strong);
+  border-radius: var(--radius-sm);
+  background: var(--ink-raised);
+}
+
+.question {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

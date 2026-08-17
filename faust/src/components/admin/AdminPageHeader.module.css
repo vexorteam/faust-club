@@ -1,0 +1,36 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-bottom: 24px;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font-size: clamp(24px, 5vw, 30px);
+}
+
+.description {
+  max-width: 60ch;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding-inline: 22px;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-brand);
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+}

@@ -1,0 +1,31 @@
+.toggle {
+  min-width: 88px;
+  min-height: 44px;
+  padding-inline: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--ink-elevated);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.toggle:hover:not(:disabled) {
+  border-color: var(--border-strong);
+}
+
+.toggle:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.on {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.off {
+  color: var(--text-muted);
+}

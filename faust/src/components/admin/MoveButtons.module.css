@@ -1,0 +1,26 @@
+.group {
+  display: flex;
+  gap: 6px;
+}
+
+.button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--ink-elevated);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  border-color: var(--border-strong);
+}
+
+.button:disabled {
+  color: var(--text-muted);
+  cursor: default;
+  opacity: 0.5;
+}

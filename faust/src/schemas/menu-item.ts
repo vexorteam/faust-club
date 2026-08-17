@@ -1,0 +1,121 @@
+import { z } from "zod";
+
+/**
+ * Menu items: the admin form and the admin API contract (§5.3.1).
+ *
+ * The bounds repeat what the API enforces on its own. That is not duplication
+ * for its own sake — the API is the real boundary, this copy only spares the
+ * owner a round trip to learn that a name is too long.
+ */
+
+export const ITEM_NAME_MIN = 2;
+export const ITEM_NAME_MAX = 80;
+export const ITEM_DESCRIPTION_MAX = 200;
+export const ITEM_VOLUME_MAX = 20;
+export const ITEM_PRICE_MIN = 1;
+export const ITEM_PRICE_MAX = 99999;
+
+const NAME_MESSAGE = `Назва — від ${ITEM_NAME_MIN} до ${ITEM_NAME_MAX} символів`;
+const DESCRIPTION_MESSAGE = `Склад — не довше ${ITEM_DESCRIPTION_MAX} символів`;
+const VOLUME_MESSAGE = `Об'єм — не довше ${ITEM_VOLUME_MAX} символів`;
+const PRICE_MESSAGE = "Ціна — ціле число гривень";
+const PRICE_RANGE_MESSAGE = `Ціна — від ${ITEM_PRICE_MIN} до ${ITEM_PRICE_MAX} ₴`;
+
+const nullableText = (max: number, message: string) =>
+  z
+    .string()
+    .trim()
+    .max(max, message)
+    .nullish()
+    .transform((value) => (value && value.length > 0 ? value : null));
+
+export const menuItemBadgeSchema = z.enum(["new", "hit"]);
+
+/**
+ * "Без мітки" is an empty `<option>`, so an empty string has to mean the same
+ * thing as an absent badge. Doing that here keeps the mapping out of the form.
+ */
+const badgeFieldSchema = z.preprocess(
+  (value) => (value === "" ? null : value),
+  menuItemBadgeSchema.nullish().transform((value) => value ?? null),
+);
+
+/**
+ * A form field arrives as a string. Whitespace and a decimal comma are
+ * tolerated ("1 250", "320,00" — the owner types on a phone), anything that is
+ * not a whole number of hryvnias is not.
+ */
+const priceSchema = z.preprocess(
+  (value) => {
+    if (typeof value !== "string") return value;
+
+    const normalized = value.replace(/\s/g, "").replace(",", ".");
+
+    if (normalized.length === 0) return undefined;
+
+    const parsed = Number(normalized);
+
+    return Number.isFinite(parsed) ? parsed : value;
+  },
+  z
+    .number({ error: PRICE_MESSAGE })
+    .int(PRICE_MESSAGE)
+    .min(ITEM_PRICE_MIN, PRICE_RANGE_MESSAGE)
+    .max(ITEM_PRICE_MAX, PRICE_RANGE_MESSAGE),
+);
+
+export const menuItemFormSchema = z.object({
+  /** An item always belongs to a category — there is no loose item */
+  categoryId: z.string().trim().min(1, "Оберіть категорію"),
+  name: z.string().trim().min(ITEM_NAME_MIN, NAME_MESSAGE).max(ITEM_NAME_MAX, NAME_MESSAGE),
+  description: nullableText(ITEM_DESCRIPTION_MAX, DESCRIPTION_MESSAGE),
+  price: priceSchema,
+  volume: nullableText(ITEM_VOLUME_MAX, VOLUME_MESSAGE),
+  badge: badgeFieldSchema,
+  available: z.boolean(),
+});
+
+/**
+ * `PATCH /admin/items/{id}` — any subset, including `categoryId`, because
+ * changing it is how an item moves to another category.
+ */
+export const menuItemPatchSchema = menuItemFormSchema
+  .partial()
+  .refine((patch) => Object.keys(patch).length > 0, "Немає що змінювати");
+
+export const adminMenuItemSchema = z.object({
+  id: z.string().min(1),
+  categoryId: z.string().min(1),
+  name: z.string().trim().min(1).max(ITEM_NAME_MAX),
+  description: nullableText(ITEM_DESCRIPTION_MAX, DESCRIPTION_MESSAGE),
+  price: z.number().int(),
+  volume: nullableText(ITEM_VOLUME_MAX, VOLUME_MESSAGE),
+  /** Ready absolute URL, never a storage key: the frontend knows no bucket layout */
+  image: z
+    .url()
+    .nullish()
+    .transform((value) => value ?? null),
+  imageAlt: nullableText(120, "Опис фото — не довше 120 символів"),
+  badge: menuItemBadgeSchema.nullish().transform((value) => value ?? null),
+  available: z.boolean(),
+  order: z.number().int(),
+});
+
+/** `GET /admin/items` — everything, grouped by category, hidden ones included. */
+export const adminItemGroupSchema = z.object({
+  id: z.string().min(1),
+  slug: z.string().min(1),
+  label: z.string().trim().min(1),
+  visible: z.boolean(),
+  items: z.array(adminMenuItemSchema),
+});
+
+export const adminItemsResponseSchema = z.object({ categories: z.array(adminItemGroupSchema) });
+
+export const adminItemResponseSchema = z.object({ item: adminMenuItemSchema });
+
+export type MenuItemInput = z.output<typeof menuItemFormSchema>;
+export type MenuItemPatch = z.output<typeof menuItemPatchSchema>;
+export type AdminMenuItem = z.output<typeof adminMenuItemSchema>;
+export type AdminItemGroup = z.output<typeof adminItemGroupSchema>;
+export type MenuItemBadgeValue = z.output<typeof menuItemBadgeSchema>;
