@@ -52,10 +52,6 @@
   --dur-slow: 640ms;
 }
 
-/* =========================================================
-   RESET
-   ========================================================= */
-
 *,
 *::before,
 *::after {
@@ -108,9 +104,44 @@ button {
   overflow: hidden;
 }
 
-/* =========================================================
-   INTRO
-   ========================================================= */
+.to-top {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  z-index: 100;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  
+  background: var(--ink-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  
+  text-decoration: none;
+  transition: all 400ms var(--ease-out);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.to-top:hover {
+  background: var(--accent-magenta);
+  color: #ffffff;
+  transform: translateY(-5px);
+  border-color: var(--accent-magenta);
+}
+
+@media (max-width: 760px) {
+  .to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+  }
+}
 
 .intro {
   position: relative;
@@ -261,10 +292,6 @@ button {
   margin-bottom: 0;
 }
 
-/* =========================================================
-   SECTIONS
-   ========================================================= */
-
 .section {
   min-width: 0;
   padding: 70px 0;
@@ -281,10 +308,6 @@ button {
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
-
-/* =========================================================
-   COLORS
-   ========================================================= */
 
 .colors {
   display: grid;
@@ -365,10 +388,6 @@ button {
   background: #ff2e78;
 }
 
-/* =========================================================
-   GRADIENT
-   ========================================================= */
-
 .gradient {
   position: relative;
   min-width: 0;
@@ -421,10 +440,6 @@ button {
     transform: translateX(35%);
   }
 }
-
-/* =========================================================
-   LOGO SYSTEM
-   ========================================================= */
 
 .logo-system {
   display: grid;
@@ -846,10 +861,6 @@ button {
   overflow-wrap: anywhere;
 }
 
-/* =========================================================
-   TYPOGRAPHY
-   ========================================================= */
-
 .type-main {
   min-width: 0;
   margin-bottom: 14px;
@@ -901,10 +912,6 @@ button {
   overflow-wrap: anywhere;
 }
 
-/* =========================================================
-   HIERARCHY
-   ========================================================= */
-
 .hierarchy {
   display: grid;
   gap: 14px;
@@ -950,9 +957,6 @@ button {
   overflow-wrap: anywhere;
 }
 
-/* =========================================================
-   COMPONENTS
-   ========================================================= */
 
 .component-grid {
   display: grid;
@@ -1046,10 +1050,6 @@ button {
   font: 400 10px var(--font-mono);
 }
 
-/* =========================================================
-   FOOTER
-   ========================================================= */
-
 .footer {
   display: flex;
   align-items: flex-end;
@@ -1122,10 +1122,6 @@ button {
   display: none;
 }
 
-/* =========================================================
-   1100px
-   ========================================================= */
-
 @media (max-width: 1100px) {
   .colors {
     grid-template-columns: repeat(2, 1fr);
@@ -1135,10 +1131,6 @@ button {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-
-/* =========================================================
-   900px
-   ========================================================= */
 
 @media (max-width: 900px) {
   .logo-primary,
@@ -1161,10 +1153,6 @@ button {
     grid-template-columns: 1fr;
   }
 }
-
-/* =========================================================
-   760px
-   ========================================================= */
 
 @media (max-width: 760px) {
   .page {
@@ -1227,10 +1215,6 @@ button {
   }
 }
 
-/* =========================================================
-   600px
-   ========================================================= */
-
 @media (max-width: 600px) {
   .footer {
     align-items: flex-start;
@@ -1243,10 +1227,6 @@ button {
     gap: 18px 28px;
   }
 }
-
-/* =========================================================
-   480px
-   ========================================================= */
 
 @media (max-width: 480px) {
   .page {
@@ -1489,10 +1469,6 @@ button {
     gap: 15px 25px;
   }
 }
-
-/* =========================================================
-   380px
-   ========================================================= */
 
 @media (max-width: 380px) {
   .page {
@@ -1776,10 +1752,6 @@ button {
   }
 }
 
-/* =========================================================
-   300px
-   ========================================================= */
-
 @media (max-width: 300px) {
   .page {
     padding: 18px 10px;
@@ -2044,10 +2016,6 @@ button {
     right: -12px;
   }
 }
-
-/* =========================================================
-   240px
-   ========================================================= */
 
 @media (max-width: 240px) {
   .page {
@@ -2340,10 +2308,6 @@ button {
   }
 }
 
-/* =========================================================
-   220px — ABSOLUTE MINIMUM
-   ========================================================= */
-
 @media (max-width: 220px) {
   html,
   body {
@@ -2411,8 +2375,6 @@ button {
     letter-spacing: 0.08em;
   }
 
-  /* COLORS */
-
   .colors {
     gap: 8px;
   }
@@ -2438,8 +2400,6 @@ button {
     font-size: 6px;
   }
 
-  /* GRADIENT */
-
   .gradient {
     height: 135px;
     border-radius: 12px;
@@ -2460,8 +2420,6 @@ button {
     font-size: 4.5px;
     line-height: 1.4;
   }
-
-  /* DOWNLOADS */
 
   .logo-downloads {
     gap: 9px;
@@ -2511,8 +2469,6 @@ button {
     right: 8px;
     font-size: 9px;
   }
-
-  /* LOGO */
 
   .logo-primary,
   .logo-card,
@@ -2595,8 +2551,6 @@ button {
     font-size: 9px;
   }
 
-  /* LOCKUPS */
-
   .lockup-preview {
     min-height: 78px;
     gap: 4px;
@@ -2618,8 +2572,6 @@ button {
   .lockup-description {
     padding: 9px;
   }
-
-  /* CLEARSPACE */
 
   .clearspace-preview {
     min-height: 145px;
@@ -2663,8 +2615,6 @@ button {
     line-height: 1.25;
   }
 
-  /* TYPOGRAPHY */
-
   .type-main,
   .type-card,
   .component-card {
@@ -2691,8 +2641,6 @@ button {
     font-size: 5.5px;
     line-height: 1.8;
   }
-
-  /* HIERARCHY */
 
   .hierarchy {
     gap: 8px;
@@ -2723,8 +2671,6 @@ button {
     letter-spacing: 0.08em;
   }
 
-  /* COMPONENTS */
-
   .component-card-title {
     margin-bottom: 12px;
     font-size: 5.5px;
@@ -2748,8 +2694,6 @@ button {
     padding: 4px 6px;
     font-size: 4.5px;
   }
-
-  /* FOOTER */
 
   .footer {
     gap: 12px;
@@ -2775,10 +2719,6 @@ button {
     right: -9px;
   }
 }
-
-/* =========================================================
-   REDUCED MOTION
-   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   *,
