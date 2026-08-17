@@ -40,12 +40,12 @@
 }
 
 .invalid {
-  border-color: #ff6b6b;
+  border-color: var(--danger-strong);
 }
 
 .error {
   font-size: 13px;
-  color: #ff8a8a;
+  color: var(--danger);
 }
 
 textarea.control {

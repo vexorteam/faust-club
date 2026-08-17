@@ -23,8 +23,14 @@ const errorEnvelopeSchema = z.object({
 });
 
 export type ApiRequestOptions = {
+  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  /** Serialized as JSON; never logged, because one of these carries a password */
+  body?: unknown;
+  /** Session token, passed through as-is: for the frontend it is opaque (§5.4) */
+  token?: string;
   /** Caching directives passed straight to the Next fetch layer */
   next?: { tags?: string[]; revalidate?: number | false };
+  cache?: RequestCache;
   timeoutMs?: number;
 };
 
@@ -76,13 +82,21 @@ export const apiRequest = async <T>(
   }
 
   const url = `${baseUrl}${path}`;
+  const headers: Record<string, string> = { accept: "application/json" };
+
+  if (options.body !== undefined) headers["content-type"] = "application/json";
+  if (options.token) headers.authorization = `Bearer ${options.token}`;
+
   let response: Response;
 
   try {
     response = await fetch(url, {
-      headers: { accept: "application/json" },
+      method: options.method ?? "GET",
+      headers,
+      body: options.body === undefined ? undefined : JSON.stringify(options.body),
       signal: AbortSignal.timeout(options.timeoutMs ?? DEFAULT_TIMEOUT_MS),
       next: options.next,
+      cache: options.cache,
     });
   } catch (cause) {
     console.error(`[api] ${url} did not answer`, cause);

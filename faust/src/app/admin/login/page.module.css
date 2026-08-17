@@ -1,0 +1,27 @@
+.screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px clamp(16px, 5vw, 32px);
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  padding: clamp(24px, 5vw, 32px);
+  background: var(--ink-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.title {
+  margin-top: 14px;
+  font-size: 28px;
+}
+
+.hint {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}

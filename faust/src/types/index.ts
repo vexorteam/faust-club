@@ -31,3 +31,10 @@ export type MenuCategoryView = {
   note?: string | null;
   items: MenuItemView[];
 };
+
+/** Whoever is signed in to the admin area, as the API describes them. */
+export type AdminUser = {
+  id: string;
+  name: string;
+  email: string;
+};

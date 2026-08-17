@@ -13,6 +13,8 @@
   --accent-blue-2: #3b4e73;
   --accent-magenta: #f0558b;
   --accent-magenta-strong: #ff2e78;
+  --danger: #ff8a8a;
+  --danger-strong: #ff6b6b;
   --beam: linear-gradient(90deg, transparent, var(--accent-magenta) 35%, var(--accent-violet) 65%, transparent);
   --gradient-brand: linear-gradient(
     135deg,

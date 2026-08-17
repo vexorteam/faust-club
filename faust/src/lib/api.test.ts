@@ -45,6 +45,49 @@ describe("apiRequest", () => {
     expect(requestedUrl).toBe("http://api.test/api/v1/menu");
   });
 
+  it("sends a bearer token and a JSON body when asked to", async () => {
+    let init: RequestInit | undefined;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_input: unknown, received: RequestInit) => {
+        init = received;
+
+        return new Response(JSON.stringify({ ok: true }));
+      }),
+    );
+
+    await apiRequest("/api/v1/auth/logout", schema, {
+      method: "POST",
+      body: { reason: "manual" },
+      token: "jwt-token",
+    });
+
+    expect(init?.method).toBe("POST");
+    expect(init?.body).toBe('{"reason":"manual"}');
+    expect(init?.headers).toMatchObject({
+      authorization: "Bearer jwt-token",
+      "content-type": "application/json",
+    });
+  });
+
+  it("stays a plain GET with no authorization header by default", async () => {
+    let init: RequestInit | undefined;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_input: unknown, received: RequestInit) => {
+        init = received;
+
+        return new Response(JSON.stringify({ ok: true }));
+      }),
+    );
+
+    await apiRequest("/api/v1/menu", schema);
+
+    expect(init?.method).toBe("GET");
+    expect(init?.body).toBeUndefined();
+    expect(init?.headers).not.toHaveProperty("authorization");
+  });
+
   it("maps a bare 500 to ApiUnavailableError, not a naked Error", async () => {
     respondWith("upstream exploded", 500);
 

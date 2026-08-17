@@ -1,0 +1,8 @@
+/* A tool, not a showcase: same tokens, no atmosphere, no animation. */
+
+.shell {
+  min-height: 100dvh;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+}
