@@ -4,7 +4,7 @@
 
 ---
 
-## Українська
+## Українська | [Дизайн система](https://vexorteam.github.io/faust-club/)
 
 Промо-сайт нічного клубу Faust: атмосферна головна сторінка з анімованим hero та окрема сторінка меню-вітрини бару. У складі проєкту також буде закрита адмін-панель для редагування меню власником клубу.
 
@@ -22,7 +22,7 @@
 
 ---
 
-## English
+## English | [Design system](https://vexorteam.github.io/faust-club/)
 
 Promo website for Faust, a night club: an atmospheric homepage with an animated hero section and a separate menu showcase page for the bar. The project will also include a private admin panel for the club owner to manage the menu.
 
