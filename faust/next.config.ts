@@ -1,11 +1,9 @@
 import type { NextConfig } from "next";
 
-// Domain that serves backend-managed content (currently: Atmosphere gallery
-// photos). Set this to your actual CDN/storage hostname before deploying —
-// e.g. Cloudinary, S3, Bunny, or your own media host. Next.js requires
-// remote image domains to be allow-listed at build time for security, so
-// this can't be resolved dynamically per-request.
-const mediaHostname = process.env.MEDIA_HOSTNAME ?? "images.faust.club";
+// Domain that serves backend-managed content: menu photos and the Atmosphere
+// gallery. Next.js requires remote image domains to be allow-listed at build
+// time for security, so this can't be resolved dynamically per-request.
+const mediaHostname = process.env.MEDIA_HOSTNAME ?? "media.faust.bar";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
