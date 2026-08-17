@@ -13,8 +13,10 @@ import {
 import {
   adminItemResponseSchema,
   adminItemsResponseSchema,
+  itemImageResponseSchema,
   type AdminItemGroup,
   type AdminMenuItem,
+  type ItemImage,
   type MenuItemInput,
   type MenuItemPatch,
 } from "@/schemas/menu-item";
@@ -43,6 +45,13 @@ const ADMIN_PATH = "/api/v1/admin";
 
 const EXPIRED_MESSAGE = "Сесія завершилась. Увійдіть ще раз";
 
+/**
+ * A photo taken on a phone is megabytes over a bar's uplink, and the API still
+ * has to rotate and re-encode it. The eight seconds the rest of the endpoints
+ * get would report a failure while the upload is still going fine.
+ */
+const UPLOAD_TIMEOUT_MS = 30000;
+
 /** Answers that carry nothing worth reading: DELETE and the move endpoints. */
 const acknowledgedSchema = z.unknown();
 
@@ -59,6 +68,17 @@ const authorize = async (): Promise<string> => {
   if (!token) throw new UnauthorizedError(EXPIRED_MESSAGE);
 
   return token;
+};
+
+/** Multipart body of an upload: the file plus the texts that come with it. */
+const uploadBody = (file: File, fields: Record<string, string>): FormData => {
+  const form = new FormData();
+
+  form.set("file", file);
+
+  for (const [name, value] of Object.entries(fields)) form.set(name, value);
+
+  return form;
 };
 
 const adminRequest = async <T>(
@@ -176,6 +196,24 @@ export const moveItem = async (id: string, direction: MoveDirection): Promise<vo
   });
 };
 
+/**
+ * Photo of a position. The API stores the file, strips its metadata, rotates it
+ * by EXIF and answers with the ready URL — the frontend never learns the key.
+ * The description travels with the picture, because the two are only useful
+ * together (§5.3.1).
+ */
+export const uploadItemImage = async (id: string, file: File, alt: string): Promise<ItemImage> =>
+  adminRequest(`/items/${id}/image`, itemImageResponseSchema, {
+    method: "POST",
+    body: uploadBody(file, { alt }),
+    timeoutMs: UPLOAD_TIMEOUT_MS,
+  });
+
+/** Removes the picture and its files; the position itself stays in the menu. */
+export const deleteItemImage = async (id: string): Promise<void> => {
+  await adminRequest(`/items/${id}/image`, acknowledgedSchema, { method: "DELETE" });
+};
+
 /* ── Atmosphere photos ──────────────────────────────────────────────────── */
 
 export const listAtmospherePhotos = async (): Promise<AtmospherePhoto[]> => {
@@ -193,6 +231,32 @@ export const findAtmospherePhoto = async (id: string): Promise<AtmospherePhoto |
   const photos = await listAtmospherePhotos();
 
   return photos.find((photo) => photo.id === id) ?? null;
+};
+
+/**
+ * A tile is born with its picture: `POST /admin/atmosphere` takes the file, the
+ * caption and the screen-reader description in one multipart request, because a
+ * tile without a photo is nothing to show (§5.2).
+ */
+export const createAtmospherePhoto = async (file: File, label: string, alt: string): Promise<AtmospherePhoto> => {
+  const { photo } = await adminRequest("/atmosphere", adminAtmospherePhotoResponseSchema, {
+    method: "POST",
+    body: uploadBody(file, { label, alt }),
+    timeoutMs: UPLOAD_TIMEOUT_MS,
+  });
+
+  return photo;
+};
+
+/** Swaps the picture of an existing tile; the API deletes the old files itself. */
+export const replaceAtmosphereImage = async (id: string, file: File, alt: string): Promise<AtmospherePhoto> => {
+  const { photo } = await adminRequest(`/atmosphere/${id}/image`, adminAtmospherePhotoResponseSchema, {
+    method: "POST",
+    body: uploadBody(file, { alt }),
+    timeoutMs: UPLOAD_TIMEOUT_MS,
+  });
+
+  return photo;
 };
 
 export const updateAtmospherePhoto = async (id: string, patch: AtmospherePatch): Promise<AtmospherePhoto> => {

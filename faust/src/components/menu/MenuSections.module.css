@@ -97,6 +97,20 @@
   transform: scale(1.04);
 }
 
+/* Stand-in for a position that has no photo yet: a letter, not an empty box */
+.itemMonogram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-hero);
+  font-family: var(--font-display);
+  font-size: clamp(40px, 9vw, 64px);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
 .itemImageWrap::after {
   content: "";
   position: absolute;

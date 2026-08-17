@@ -24,7 +24,10 @@ const errorEnvelopeSchema = z.object({
 
 export type ApiRequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
-  /** Serialized as JSON; never logged, because one of these carries a password */
+  /**
+   * Serialized as JSON; never logged, because one of these carries a password.
+   * `FormData` is passed through untouched — that is how photos travel (§5.3.1).
+   */
   body?: unknown;
   /** Session token, passed through as-is: for the frontend it is opaque (§5.4) */
   token?: string;
@@ -84,7 +87,10 @@ export const apiRequest = async <T>(
   const url = `${baseUrl}${path}`;
   const headers: Record<string, string> = { accept: "application/json" };
 
-  if (options.body !== undefined) headers["content-type"] = "application/json";
+  /** Multipart writes its own content type, boundary included — do not set one. */
+  const isMultipart = options.body instanceof FormData;
+
+  if (options.body !== undefined && !isMultipart) headers["content-type"] = "application/json";
   if (options.token) headers.authorization = `Bearer ${options.token}`;
 
   let response: Response;
@@ -93,7 +99,10 @@ export const apiRequest = async <T>(
     response = await fetch(url, {
       method: options.method ?? "GET",
       headers,
-      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      body:
+        options.body === undefined || isMultipart
+          ? (options.body as BodyInit | undefined)
+          : JSON.stringify(options.body),
       signal: AbortSignal.timeout(options.timeoutMs ?? DEFAULT_TIMEOUT_MS),
       next: options.next,
       cache: options.cache,

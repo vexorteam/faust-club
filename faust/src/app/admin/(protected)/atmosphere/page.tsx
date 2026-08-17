@@ -24,6 +24,7 @@ const AtmospherePage = async () => {
         eyebrow="головна"
         title="Атмосфера"
         description="Плитки на головній сторінці — у тому ж порядку, що й тут."
+        action={{ href: "/admin/atmosphere/new", label: "Додати фото" }}
       />
 
       <AtmosphereBoard photos={photos} />

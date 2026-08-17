@@ -17,10 +17,8 @@ const HomePage = () => (
     <div className="container">
       <Beam />
     </div>
+    {/* Atmosphere carries the divider that follows it: with no photos both go away */}
     <Atmosphere />
-    <div className="container">
-      <Beam />
-    </div>
     <Testimonials />
     <div className="container">
       <Beam />

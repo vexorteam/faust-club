@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { z } from "zod";
 import { AppError, ValidationError, toActionResult } from "@/errors";
+import { describeUploadProblem } from "@/schemas/image";
 
 /**
  * Shared plumbing of the admin route handlers.
@@ -48,6 +49,44 @@ export const parseBody = <T>(schema: z.ZodType<T>, payload: unknown): T => {
   const firstIssue = parsed.error.issues[0];
 
   throw new ValidationError(firstIssue?.message ?? INVALID_MESSAGE, fieldErrors);
+};
+
+const UPLOAD_MESSAGE = "Не вдалося прочитати завантажений файл";
+
+/** Uploads arrive as `multipart/form-data`, never as JSON (§5.3.1). */
+export const readUpload = async (request: Request): Promise<FormData> => {
+  try {
+    return await request.formData();
+  } catch {
+    throw new ValidationError(UPLOAD_MESSAGE, { file: UPLOAD_MESSAGE });
+  }
+};
+
+/**
+ * The `file` part, checked against the same rules the picker used. The API
+ * checks magic bytes on top of this — the point here is only to fail fast and
+ * name the field, so the message lands under the right input.
+ */
+export const takeFile = (form: FormData, name = "file"): File => {
+  const value = form.get(name);
+  const file = value instanceof File ? value : null;
+  const problem = describeUploadProblem(file);
+
+  if (problem || !file) throw new ValidationError(problem ?? UPLOAD_MESSAGE, { [name]: problem ?? UPLOAD_MESSAGE });
+
+  return file;
+};
+
+/** A text part of the same form, validated by the schema the form itself used. */
+export const takeText = (form: FormData, name: string, schema: z.ZodType<string>): string => {
+  const value = form.get(name);
+  const parsed = schema.safeParse(typeof value === "string" ? value : "");
+
+  if (parsed.success) return parsed.data;
+
+  const message = parsed.error.issues[0]?.message ?? INVALID_MESSAGE;
+
+  throw new ValidationError(message, { [name]: message });
 };
 
 /**

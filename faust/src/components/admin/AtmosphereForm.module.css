@@ -5,22 +5,10 @@
   max-width: 560px;
 }
 
-.preview {
-  width: 100%;
-  height: auto;
-  max-width: 480px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-}
-
-.photoHint,
-.hint {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
 .hint {
   margin-top: -6px;
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 .actions {

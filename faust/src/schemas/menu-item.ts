@@ -114,8 +114,15 @@ export const adminItemsResponseSchema = z.object({ categories: z.array(adminItem
 
 export const adminItemResponseSchema = z.object({ item: adminMenuItemSchema });
 
+/** `POST /admin/items/{id}/image` answers with the stored photo, not the whole item. */
+export const itemImageResponseSchema = z.object({
+  image: z.url(),
+  imageAlt: z.string().trim().min(1).max(120),
+});
+
 export type MenuItemInput = z.output<typeof menuItemFormSchema>;
 export type MenuItemPatch = z.output<typeof menuItemPatchSchema>;
 export type AdminMenuItem = z.output<typeof adminMenuItemSchema>;
 export type AdminItemGroup = z.output<typeof adminItemGroupSchema>;
+export type ItemImage = z.output<typeof itemImageResponseSchema>;
 export type MenuItemBadgeValue = z.output<typeof menuItemBadgeSchema>;

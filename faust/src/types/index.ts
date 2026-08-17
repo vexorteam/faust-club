@@ -32,6 +32,17 @@ export type MenuCategoryView = {
   items: MenuItemView[];
 };
 
+/** One tile of the "Атмосфера" grid, as the home page receives it. */
+export type AtmospherePhotoView = {
+  id: string;
+  /** Caption a visitor reads on the tile */
+  label: string;
+  /** Absolute URL served by the media host */
+  image: string;
+  /** What a screen reader says instead of the picture — never the caption again */
+  imageAlt: string;
+};
+
 /** Whoever is signed in to the admin area, as the API describes them. */
 export type AdminUser = {
   id: string;

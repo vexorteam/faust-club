@@ -1,14 +1,15 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Field } from "@/components/ui/Field";
 import { ITEM_DESCRIPTION_MAX, ITEM_NAME_MAX, ITEM_VOLUME_MAX, menuItemFormSchema } from "@/schemas/menu-item";
 import type { AdminMenuItem } from "@/schemas/menu-item";
+import { IMAGE_ALT_MAX, imageAltSchema } from "@/schemas/image";
 import { CheckboxField } from "./CheckboxField";
 import { ConfirmAction } from "./ConfirmAction";
+import { ImageInput } from "./ImageInput";
 import { SelectField } from "./SelectField";
 import { useAdminMutation } from "./useAdminMutation";
 import styles from "./ItemForm.module.css";
@@ -24,6 +25,11 @@ import styles from "./ItemForm.module.css";
  * Values live in state, so a failed request leaves everything the owner typed
  * on screen. Losing a filled-in form because the bar's wifi blinked is not an
  * acceptable way to report an error.
+ *
+ * The photo is a second request either way: the upload endpoint needs an id, so
+ * a new position is created first and the picture follows immediately. If the
+ * picture is the part that fails, the position is already saved — the form says
+ * so and stays on the item, instead of pretending nothing happened.
  */
 
 const BADGE_OPTIONS = [
@@ -75,14 +81,46 @@ const collectFieldErrors = (issues: readonly { path: readonly PropertyKey[]; mes
   return errors;
 };
 
+/** The id of the position the API answered with, so its photo can follow. */
+const readItemId = (data: unknown): string | null => {
+  if (typeof data !== "object" || data === null) return null;
+
+  const { id } = data as { id?: unknown };
+
+  return typeof id === "string" && id.length > 0 ? id : null;
+};
+
 export const ItemForm = ({ categories, item }: ItemFormProps) => {
   const router = useRouter();
   const { mutate, pendingKey } = useAdminMutation();
   const [values, setValues] = useState<FormValues>(() => initialValues(categories, item));
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoAlt, setPhotoAlt] = useState(item?.imageAlt ?? "");
+  const [photoError, setPhotoError] = useState<string | undefined>(undefined);
 
   const update = <K extends keyof FormValues>(key: K, value: FormValues[K]) =>
     setValues((current) => ({ ...current, [key]: value }));
+
+  /** A picture nobody can describe is a picture a screen reader has to skip. */
+  const checkAlt = (): string | null => {
+    const parsed = imageAltSchema.safeParse(photoAlt);
+
+    if (parsed.success) return parsed.data;
+
+    setPhotoError(parsed.error.issues[0]?.message);
+
+    return null;
+  };
+
+  const sendPhoto = async (id: string, alt: string) => {
+    const body = new FormData();
+
+    body.set("file", photoFile as File);
+    body.set("alt", alt);
+
+    return mutate("photo", { url: `/api/admin/items/${id}/image`, method: "POST", body }, { refresh: false });
+  };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -94,14 +132,19 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
       return;
     }
 
+    const alt = photoFile ? checkAlt() : "";
+
+    if (photoFile && !alt) return;
+
     setFieldErrors({});
+    setPhotoError(undefined);
 
     const outcome = await mutate(
       "save",
       item
         ? { url: `/api/admin/items/${item.id}`, method: "PATCH", body: parsed.data }
         : { url: "/api/admin/items", method: "POST", body: parsed.data },
-      { success: item ? "Збережено" : "Позицію додано", refresh: false },
+      { success: photoFile ? undefined : item ? "Збережено" : "Позицію додано", refresh: false },
     );
 
     if (!outcome.ok) {
@@ -109,8 +152,38 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
       return;
     }
 
+    if (photoFile && alt) {
+      const id = item?.id ?? readItemId(outcome.data);
+
+      if (!id) {
+        setPhotoError("Позицію збережено, але фото завантажити не вдалося. Відкрийте позицію й спробуйте ще раз");
+        return;
+      }
+
+      const uploaded = await sendPhoto(id, alt);
+
+      /** Saved without its photo — say so and stay, so the upload can be retried */
+      if (!uploaded.ok) {
+        if (!item) router.push(`/admin/items/${id}`);
+
+        return;
+      }
+    }
+
     router.push("/admin");
     router.refresh();
+  };
+
+  const removePhoto = async () => {
+    if (!item) return;
+
+    const outcome = await mutate(
+      "photo",
+      { url: `/api/admin/items/${item.id}/image`, method: "DELETE" },
+      { success: "Фото видалено" },
+    );
+
+    if (outcome.ok) setPhotoError(undefined);
   };
 
   const remove = async () => {
@@ -129,6 +202,7 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
   };
 
   const saving = pendingKey === "save";
+  const uploading = pendingKey === "photo";
 
   return (
     <form className={styles.form} onSubmit={onSubmit} noValidate>
@@ -205,24 +279,44 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
       />
 
       <div className={styles.photo}>
-        <span className={styles.photoLabel}>Фото</span>
+        <ImageInput
+          image={item?.image}
+          imageAlt={item?.imageAlt}
+          file={photoFile}
+          onSelect={(file) => {
+            setPhotoFile(file);
+            setPhotoError(undefined);
+          }}
+          onRemove={item?.image ? () => void removePhoto() : undefined}
+          removing={pendingKey === "photo"}
+          error={photoError}
+          disabled={saving}
+          hint={`Знімок із телефона підійде як є. JPEG, PNG, WebP або HEIC, до 5 МБ. Фото поїде разом із ${item ? "збереженням" : "публікацією"}.`}
+        />
 
-        {item?.image ? (
-          <Image
-            src={item.image}
-            alt={item.imageAlt ?? item.name}
-            width={160}
-            height={160}
-            className={styles.preview}
+        {photoFile ? (
+          <Field
+            as="textarea"
+            label="Опис фото для скрінрідера"
+            required
+            maxLength={IMAGE_ALT_MAX}
+            placeholder="Коктейль Faust Sour у келиху купе"
+            value={photoAlt}
+            onChange={(event) => {
+              setPhotoAlt(event.target.value);
+              setPhotoError(undefined);
+            }}
           />
         ) : (
-          <p className={styles.photoHint}>Фото ще немає. Завантаження фотографій зʼявиться наступним кроком.</p>
+          item?.imageAlt && (
+            <p className={styles.photoHint}>Опис фото: «{item.imageAlt}». Змінюється разом із заміною знімка.</p>
+          )
         )}
       </div>
 
       <div className={styles.actions}>
-        <button type="submit" className={styles.submit} disabled={saving}>
-          {saving ? "Зберігаємо…" : item ? "Зберегти" : "Опублікувати"}
+        <button type="submit" className={styles.submit} disabled={saving || uploading}>
+          {uploading ? "Завантажуємо фото…" : saving ? "Зберігаємо…" : item ? "Зберегти" : "Опублікувати"}
         </button>
 
         <Link href="/admin" className={styles.cancel}>

@@ -30,11 +30,36 @@ export const atmospherePhotoSchema = z.object({
 
 export const adminAtmosphereResponseSchema = z.object({ photos: z.array(atmospherePhotoSchema) });
 
+/**
+ * `GET /api/v1/atmosphere` (§5.3) — the public feed of the home page grid.
+ * Hidden tiles and the ordering are the API's business; the frontend renders
+ * what it is given. A broken tile is dropped, like a broken menu item: one bad
+ * record must not take the section down.
+ */
+export const publicAtmospherePhotoSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().trim().min(1).max(PHOTO_LABEL_MAX),
+  image: z.url(),
+  imageAlt: z.string().trim().min(1).max(PHOTO_ALT_MAX),
+});
+
+export const atmosphereResponseSchema = z.object({ photos: z.array(z.unknown()) }).transform(({ photos }) =>
+  photos.flatMap((entry, index) => {
+    const parsed = publicAtmospherePhotoSchema.safeParse(entry);
+
+    if (parsed.success) return [parsed.data];
+
+    console.error(`[atmosphere] photo #${index} does not match the API contract, skipped`, parsed.error.issues);
+
+    return [];
+  }),
+);
+
 export const adminAtmospherePhotoResponseSchema = z.object({ photo: atmospherePhotoSchema });
 
 /**
  * `PATCH /admin/atmosphere/{id}` — text and visibility only. Replacing the
- * picture is a separate upload endpoint and arrives with step 11.
+ * picture is a separate multipart endpoint, `POST /admin/atmosphere/{id}/image`.
  */
 export const atmosphereFormSchema = z.object({
   label: z.string().trim().min(PHOTO_LABEL_MIN, LABEL_MESSAGE).max(PHOTO_LABEL_MAX, LABEL_MESSAGE),
@@ -47,4 +72,5 @@ export const atmospherePatchSchema = atmosphereFormSchema
   .refine((patch) => Object.keys(patch).length > 0, "Немає що змінювати");
 
 export type AtmospherePhoto = z.output<typeof atmospherePhotoSchema>;
+export type PublicAtmospherePhoto = z.output<typeof publicAtmospherePhotoSchema>;
 export type AtmospherePatch = z.output<typeof atmospherePatchSchema>;

@@ -1,24 +1,25 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Field } from "@/components/ui/Field";
 import { PHOTO_ALT_MAX, PHOTO_LABEL_MAX, atmosphereFormSchema, type AtmospherePhoto } from "@/schemas/atmosphere";
 import { CheckboxField } from "./CheckboxField";
+import { ImageInput } from "./ImageInput";
 import { useAdminMutation } from "./useAdminMutation";
 import styles from "./AtmosphereForm.module.css";
 
 /**
- * Texts of one atmosphere tile.
+ * Texts of one atmosphere tile, and the picture behind them.
  *
  * Two fields that look similar and are not: the caption is read by whoever
  * looks at the photo, the description is read *instead* of the photo. The hints
  * spell that out, because the natural instinct is to type the same thing twice.
  *
- * The picture is only shown here. Replacing it is an upload, and uploads arrive
- * with step 11.
+ * Replacing the picture is its own request and happens on its own button: the
+ * texts are a `PATCH`, the photo is a multipart upload, and pretending they are
+ * one save would mean a failed upload silently rolling back a fixed typo.
  */
 
 type FieldErrors = { label?: string; imageAlt?: string };
@@ -30,6 +31,40 @@ export const AtmosphereForm = ({ photo }: { photo: AtmospherePhoto }) => {
   const [imageAlt, setImageAlt] = useState(photo.imageAlt);
   const [visible, setVisible] = useState(photo.visible);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [file, setFile] = useState<File | null>(null);
+  const [photoError, setPhotoError] = useState<string | undefined>(undefined);
+
+  /**
+   * The upload endpoint takes the description along with the file, so a new
+   * picture always arrives described — with whatever is in the field right now.
+   */
+  const uploadPhoto = async () => {
+    if (!file) return;
+
+    const parsed = atmosphereFormSchema.shape.imageAlt.safeParse(imageAlt);
+
+    if (!parsed.success) {
+      setErrors((current) => ({ ...current, imageAlt: parsed.error.issues[0]?.message }));
+      setPhotoError("Спершу опишіть, що на новому знімку");
+      return;
+    }
+
+    const body = new FormData();
+
+    body.set("file", file);
+    body.set("alt", parsed.data);
+
+    const outcome = await mutate(
+      "photo",
+      { url: `/api/admin/atmosphere/${photo.id}/image`, method: "POST", body },
+      { success: "Фото замінено" },
+    );
+
+    if (outcome.ok) {
+      setFile(null);
+      setPhotoError(undefined);
+    }
+  };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -68,12 +103,24 @@ export const AtmosphereForm = ({ photo }: { photo: AtmospherePhoto }) => {
   };
 
   const saving = pendingKey === "save";
+  const uploading = pendingKey === "photo";
 
   return (
     <form className={styles.form} onSubmit={onSubmit} noValidate>
-      <Image src={photo.image} alt={photo.imageAlt} width={480} height={320} className={styles.preview} />
-
-      <p className={styles.photoHint}>Заміна знімка зʼявиться разом із завантаженням фото, наступним кроком.</p>
+      <ImageInput
+        image={photo.image}
+        imageAlt={photo.imageAlt}
+        file={file}
+        onSelect={(chosen) => {
+          setFile(chosen);
+          setPhotoError(undefined);
+        }}
+        onUpload={() => void uploadPhoto()}
+        uploading={uploading}
+        error={photoError}
+        disabled={saving}
+        hint="Новий знімок замінює старий одразу, окремою кнопкою. Опис нижче поїде разом із ним."
+      />
 
       <Field
         label="Підпис на плитці"
@@ -109,7 +156,7 @@ export const AtmosphereForm = ({ photo }: { photo: AtmospherePhoto }) => {
       />
 
       <div className={styles.actions}>
-        <button type="submit" className={styles.submit} disabled={saving}>
+        <button type="submit" className={styles.submit} disabled={saving || uploading}>
           {saving ? "Зберігаємо…" : "Зберегти"}
         </button>
 

@@ -23,6 +23,7 @@ const FALLBACK_MESSAGE = "Щось пішло не так. Спробуйте щ
 export type MutationRequest = {
   url: string;
   method: "POST" | "PATCH" | "DELETE";
+  /** `FormData` goes out as multipart — that is how a photo travels */
   body?: unknown;
 };
 
@@ -35,7 +36,8 @@ export type MutationOptions = {
 
 export type MutationFailure = { ok: false; code: string; message: string; fieldErrors?: Record<string, string> };
 
-export type MutationOutcome = { ok: true } | MutationFailure;
+/** `data` is what the route handler answered — an id, so a follow-up call can use it */
+export type MutationOutcome = { ok: true; data: unknown } | MutationFailure;
 
 type FailurePayload = { message?: unknown; code?: unknown; fieldErrors?: unknown };
 
@@ -64,11 +66,17 @@ export const useAdminMutation = () => {
     async (key: string, request: MutationRequest, options: MutationOptions = {}): Promise<MutationOutcome> => {
       setPendingKey(key);
 
+      /** The browser writes the multipart boundary itself; setting a type breaks it */
+      const isMultipart = request.body instanceof FormData;
+
       try {
         const response = await fetch(request.url, {
           method: request.method,
-          headers: request.body === undefined ? undefined : { "content-type": "application/json" },
-          body: request.body === undefined ? undefined : JSON.stringify(request.body),
+          headers: request.body === undefined || isMultipart ? undefined : { "content-type": "application/json" },
+          body:
+            request.body === undefined || isMultipart
+              ? (request.body as BodyInit | undefined)
+              : JSON.stringify(request.body),
         });
         const payload: unknown = await response.json().catch(() => null);
 
@@ -82,7 +90,9 @@ export const useAdminMutation = () => {
         if (options.success) show(options.success);
         if (options.refresh !== false) router.refresh();
 
-        return { ok: true };
+        const data = typeof payload === "object" && payload !== null ? (payload as { data?: unknown }).data : null;
+
+        return { ok: true, data: data ?? null };
       } catch (error) {
         console.error(`[admin] ${request.method} ${request.url} failed`, error);
         show(NETWORK_MESSAGE, "error");

@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import type { MenuCategory } from "@/data/menu";
+import type { MenuCategoryView } from "@/types";
 import { Reveal } from "@/components/layout/Reveal";
 import styles from "./MenuSections.module.css";
 
-export const MenuSections = ({ categories }: { categories: MenuCategory[] }) => {
+/** A position with no photo keeps its place in the grid: a letter stands in for it. */
+const monogramOf = (name: string): string => name.trim().charAt(0).toUpperCase();
+
+export const MenuSections = ({ categories }: { categories: MenuCategoryView[] }) => {
   const [active, setActive] = useState(categories[0]?.slug ?? "");
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
 
@@ -65,17 +68,21 @@ export const MenuSections = ({ categories }: { categories: MenuCategory[] }) => 
               {category.items.map((item, i) => (
                 <Reveal key={item.id} delay={Math.min(i * 0.04, 0.2)}>
                   <div className={styles.item}>
-                    {item.image && (
-                      <div className={styles.itemImageWrap}>
+                    <div className={styles.itemImageWrap}>
+                      {item.image ? (
                         <Image
                           src={item.image}
-                          alt={item.name}
+                          alt={item.imageAlt ?? item.name}
                           fill
                           sizes="(min-width: 1024px) 33vw, (min-width: 720px) 50vw, 100vw"
                           className={styles.itemImage}
                         />
-                      </div>
-                    )}
+                      ) : (
+                        <span className={styles.itemMonogram} aria-hidden="true">
+                          {monogramOf(item.name)}
+                        </span>
+                      )}
+                    </div>
 
                     <div className={styles.itemContent}>
                       <div className={styles.itemMain}>

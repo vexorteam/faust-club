@@ -1,9 +1,11 @@
 import type { AtmospherePhoto } from "@/schemas/atmosphere";
+import { AdminNotice } from "./AdminNotice";
 import { AtmosphereTile } from "./AtmosphereTile";
 import styles from "./AtmosphereBoard.module.css";
 
 /**
- * The grid the home page mirrors. Order here is order there.
+ * The grid the home page mirrors. Order here is order there — and an empty list
+ * here means the section simply does not appear on the home page.
  */
 
 export type AtmosphereBoardProps = { photos: readonly AtmospherePhoto[] };
@@ -11,10 +13,9 @@ export type AtmosphereBoardProps = { photos: readonly AtmospherePhoto[] };
 export const AtmosphereBoard = ({ photos }: AtmosphereBoardProps) => {
   if (photos.length === 0) {
     return (
-      <p className={styles.empty}>
-        Фотографій ще немає. Секція «Атмосфера» на головній поки показує знімки, зашиті в код: на цей список вона
-        перейде разом із завантаженням фото — наступним кроком.
-      </p>
+      <AdminNotice action={{ href: "/admin/atmosphere/new", label: "Додати фото" }}>
+        Фотографій ще немає, тому секції «Атмосфера» на головній не видно. Перше ж фото поверне її на місце.
+      </AdminNotice>
     );
   }
 
