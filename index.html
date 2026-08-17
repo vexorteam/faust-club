@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="darkreader" content="NO-DARKREADER-PLUGIN" />
+    <meta name="keywords" content="faust, bar, night, club, design, system" />
+    <meta name="description" content="Візуальна система для нічного клубу Faust" />
+    <meta name="image" content="./img/favicon.ico" />
+    <meta name="title" content="Візуальна система для нічного клубу Faust" />
+    <meta name="robots" content="index, follow" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://unpkg.com/modern-normalize@2.0.0/modern-normalize.css" />
+    <link rel="stylesheet" href="./styles/index.css" />
+    <link rel="shortcut icon" href="./img/favicon.ico" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600&family=Unbounded:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Дизайн-система Faust</title>
+  </head>
+
+  <body>
+    <main class="page">
+      <header class="intro">
+        <div class="intro-top">
+          <div class="eyebrow">Last update / 17 August 2026</div>
+          <h1>Нічний стиль<br /><span>Faust Club</span></h1>
+        </div>
+
+        <div class="intro-bottom">
+          <p class="intro-description">Візуальна система для нічного клубу Faust</p>
+
+          <nav class="intro-nav" aria-label="Навігація по дизайн-системі">
+            <ul class="intro-nav-list">
+              <li>
+                <a href="#colors">Кольорова система</a>
+              </li>
+              <li>
+                <a href="#gradient">Фірмовий градієнт</a>
+              </li>
+              <li>
+                <a href="#logo">Логотип</a>
+              </li>
+              <li>
+                <a href="#typography">Типографіка</a>
+              </li>
+              <li>
+                <a href="#hierarchy">Типографічна ієрархія</a>
+              </li>
+              <li>
+                <a href="#components">Кнопки та елементи взаємодії</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <section class="section" id="colors">
+        <div class="label">01 — Кольорова система</div>
+
+        <div class="colors">
+          <div class="swatch dark">
+            <strong>Основний фон</strong>
+            <p>Глибокий чорний фон сторінок та великих площ.</p>
+            <span class="hex">#070707</span>
+          </div>
+
+          <div class="swatch dark2">
+            <strong>Піднятий фон</strong>
+            <p>Картки, навігація та контентні блоки.</p>
+            <span class="hex">#1C1E1F</span>
+          </div>
+
+          <div class="swatch white">
+            <strong>Основний текст</strong>
+            <p>Заголовки, ключова інформація та контрастні елементи.</p>
+            <span class="hex">#FFFFFF</span>
+          </div>
+
+          <div class="swatch secondary">
+            <strong>Другорядний текст</strong>
+            <p>Описи, пояснення та менш пріоритетна інформація.</p>
+            <span class="hex">#A7AEBE</span>
+          </div>
+
+          <div class="swatch violet">
+            <strong>Фіолетовий акцент</strong>
+            <p>Глибина градієнтів та атмосферне підсвічування.</p>
+            <span class="hex">#6D37A5</span>
+          </div>
+
+          <div class="swatch blue">
+            <strong>Темно-синій</strong>
+            <p>Холодний відтінок для балансу фірмової палітри.</p>
+            <span class="hex">#1E2D51</span>
+          </div>
+
+          <div class="swatch magenta">
+            <strong>Магента</strong>
+            <p>Акцентні елементи, мітки та декоративні деталі.</p>
+            <span class="hex">#F0558B</span>
+          </div>
+
+          <div class="swatch pink">
+            <strong>Яскрава магента</strong>
+            <p>Основний заклик до дії та інтерактивні стани.</p>
+            <span class="hex">#FF2E78</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="gradient">
+        <div class="label">02 — Фірмовий градієнт</div>
+
+        <div class="gradient">
+          <div class="gradient-content">
+            <div class="gradient-title">Атмосфера Faust</div>
+            <div class="gradient-code">#FF2E78 → #6D37A5 → #1E2D51</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="logo">
+        <div class="label">03 — Логотип</div>
+
+        <div class="logo-system">
+          <div class="logo-primary">
+            <div class="logo-stage logo-stage-dark">
+              <svg class="logo-mark logo-mark-large" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient
+                    id="logo-gradient-primary"
+                    x1="4"
+                    y1="2"
+                    x2="20"
+                    y2="22"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop offset="0" stop-color="#F0558B" />
+                    <stop offset="1" stop-color="#6D37A5" />
+                  </linearGradient>
+                </defs>
+                <path d="M4 4H20L13.5 12V18.5H17V20H7V18.5H10.5V12L4 4Z" fill="url(#logo-gradient-primary)" />
+              </svg>
+
+              <div class="logo-name">
+                <span>FAUST</span>
+                <small>CLUB</small>
+              </div>
+            </div>
+
+            <div class="logo-info">
+              <span class="logo-type">Основна версія</span>
+              <strong>FAUST CLUB</strong>
+              <p>Основний знак для бренду, першого екрану та ключових комунікацій.</p>
+            </div>
+          </div>
+
+          <div class="logo-grid">
+            <div class="logo-card">
+              <div class="logo-stage logo-stage-dark">
+                <svg class="logo-mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="logo-gradient-a" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+                      <stop offset="0" stop-color="#F0558B" />
+                      <stop offset="1" stop-color="#6D37A5" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M4 4H20L13.5 12V18.5H17V20H7V18.5H10.5V12L4 4Z" fill="url(#logo-gradient-a)" />
+                </svg>
+              </div>
+
+              <div class="logo-card-info">
+                <span>Знак</span>
+                <strong>Градієнтний</strong>
+                <p>Основний символ без текстової частини.</p>
+              </div>
+            </div>
+
+            <div class="logo-card">
+              <div class="logo-stage logo-stage-light">
+                <svg class="logo-mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 4H20L13.5 12V18.5H17V20H7V18.5H10.5V12L4 4Z" fill="#070707" />
+                </svg>
+              </div>
+
+              <div class="logo-card-info">
+                <span>Знак</span>
+                <strong>Монохромний</strong>
+                <p>Для світлих фонів, друку та нейтральних носіїв.</p>
+              </div>
+            </div>
+
+            <div class="logo-card">
+              <div class="logo-stage logo-stage-black">
+                <svg class="logo-mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 4H20L13.5 12V18.5H17V20H7V18.5H10.5V12L4 4Z" fill="#FFFFFF" />
+                </svg>
+              </div>
+
+              <div class="logo-card-info">
+                <span>Знак</span>
+                <strong>Інверсійний</strong>
+                <p>Для темних або насичених фонових поверхонь.</p>
+              </div>
+            </div>
+
+            <div class="logo-card">
+              <div class="logo-stage logo-stage-gradient">
+                <svg class="logo-mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="logo-gradient-d" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+                      <stop offset="0" stop-color="#FFFFFF" />
+                      <stop offset="1" stop-color="#E8DFF2" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M4 4H20L13.5 12V18.5H17V20H7V18.5H10.5V12L4 4Z" fill="url(#logo-gradient-d)" />
+                </svg>
+              </div>
+
+              <div class="logo-card-info">
+                <span>Знак</span>
+                <strong>На градієнті</strong>
+                <p>Контрастна версія для фірмових фонів та промоматеріалів.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="logo-lockups">
+            <div class="logo-lockup">
+              <div class="lockup-preview">
+                <svg
+                  class="logo-mark logo-mark-small"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <defs>
+                    <linearGradient id="logo-gradient-e" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+                      <stop offset="0" stop-color="#F0558B" />
+                      <stop offset="1" stop-color="#6D37A5" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M4 4H20L13.5 12V18.5H17V20H7V18.5H10.5V12L4 4Z" fill="url(#logo-gradient-e)" />
+                </svg>
+
+                <span>FAUST</span>
+              </div>
+
+              <div class="lockup-description">
+                <span>Горизонтальна версія</span>
+                <p>Для навігації, хедеру, футеру та компактних блоків.</p>
+              </div>
+            </div>
+
+            <div class="logo-lockup">
+              <div class="lockup-preview lockup-stacked">
+                <svg
+                  class="logo-mark logo-mark-small"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <defs>
+                    <linearGradient id="logo-gradient-f" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+                      <stop offset="0" stop-color="#F0558B" />
+                      <stop offset="1" stop-color="#6D37A5" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M4 4H20L13.5 12V18.5H17V20H7V18.5H10.5V12L4 4Z" fill="url(#logo-gradient-f)" />
+                </svg>
+
+                <div>
+                  <span>FAUST</span>
+                  <small>NIGHT CLUB</small>
+                </div>
+              </div>
+
+              <div class="lockup-description">
+                <span>Вертикальна версія</span>
+                <p>Для постерів, соціальних мереж та композицій із великим логотипом.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="logo-clearspace">
+            <div class="clearspace-preview">
+              <div class="clearspace-box">
+                <span class="clearspace-line top"></span>
+                <span class="clearspace-line bottom"></span>
+                <span class="clearspace-line left"></span>
+                <span class="clearspace-line right"></span>
+
+                <svg class="logo-mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="logo-gradient-g" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+                      <stop offset="0" stop-color="#F0558B" />
+                      <stop offset="1" stop-color="#6D37A5" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M4 4H20L13.5 12V18.5H17V20H7V18.5H10.5V12L4 4Z" fill="url(#logo-gradient-g)" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="clearspace-info">
+              <span>Охоронне поле</span>
+              <strong>Не наближати інші елементи до знака</strong>
+              <p>
+                Навколо логотипа має залишатися достатньо вільного простору, щоб знак зберігав впізнаваність та
+                візуальну вагу.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="logo-downloads">
+          <div class="logo-downloads-info">
+            <span>Файли логотипа</span>
+            <strong>Готові матеріали для використання</strong>
+            <p>Векторна версія та готові растрові варіанти логотипа для різних носіїв.</p>
+          </div>
+
+          <div class="logo-downloads-links">
+            <a class="download-link" href="./img/faust-icon.svg" download>
+              <span>SVG</span>
+              <small>Векторний знак</small>
+              <b>↓</b>
+            </a>
+
+            <a class="download-link" href="#" data-download-group="gradient">
+              <span>PNG</span>
+              <small>Градієнтні матеріали</small>
+              <b>↓</b>
+            </a>
+
+            <a class="download-link" href="#" data-download-group="white">
+              <span>PNG</span>
+              <small>Світлі матеріали</small>
+              <b>↓</b>
+            </a>
+
+            <a class="download-link" href="#" data-download-group="black">
+              <span>PNG</span>
+              <small>Чорні матеріали</small>
+              <b>↓</b>
+            </a>
+
+            <a class="download-link" href="./img/favicon.ico" download>
+              <span>ICO</span>
+              <small>Іконка сайту</small>
+              <b>↓</b>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="typography">
+        <div class="label">04 — Типографіка</div>
+
+        <div class="type-main">
+          <h2>Unbounded</h2>
+        </div>
+
+        <div class="type-grid">
+          <div class="type-card">
+            <h3>Onest</h3>
+            <p>
+              Основний шрифт інтерфейсу. Використовується для навігації, описів, меню, кнопок та всього текстового
+              контенту.
+            </p>
+          </div>
+
+          <div class="type-card">
+            <div class="mono-demo">
+              JetBrains Mono<br /><br />
+              П’ЯТНИЦЯ · СУБОТА · 22:00<br />
+              ХРЕЩАТИК, 22<br />
+              180+ ПОЗИЦІЙ
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="hierarchy">
+        <div class="label">05 — Типографічна ієрархія</div>
+
+        <div class="hierarchy">
+          <div class="hierarchy-row">
+            <div class="hierarchy-label">Заголовок</div>
+            <div class="hero-title">Ніч починається тут</div>
+          </div>
+
+          <div class="hierarchy-row">
+            <div class="hierarchy-label">Основний текст</div>
+            <div class="body-demo">
+              Авторські коктейлі, особлива атмосфера та ритм, який задає настрій усьому вечору.
+            </div>
+          </div>
+
+          <div class="hierarchy-row">
+            <div class="hierarchy-label">Малий текст</div>
+            <div class="caption-demo">П’ЯТНИЦЯ · СУБОТА · 22:00</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="components">
+        <div class="label">06 — Кнопки та елементи взаємодії</div>
+
+        <div class="component-grid">
+          <div class="component-card">
+            <div class="component-card-title">Кнопки</div>
+
+            <div class="buttons">
+              <button class="btn btn-primary">Відкрити меню →</button>
+              <button class="btn btn-ghost">Про клуб</button>
+              <button class="btn btn-accent">Забронювати</button>
+            </div>
+          </div>
+
+          <div class="component-card">
+            <div class="component-card-title">Мітки</div>
+
+            <div class="tags">
+              <span class="tag">БАР</span>
+              <span class="tag">МІКСОЛОГІЯ</span>
+              <span class="tag">НІЧНИЙ КЛУБ</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="footer-main">
+          <span class="footer-main__label">Ⓒ Дизайн-система Faust Club — 2026</span>
+
+          <span>
+            Розроблено командою
+            <a href="https://vexor.team" target="_blank" rel="noopener noreferrer"> Vexor.team </a>
+            з <span class="footer-heart">❤️</span>
+          </span>
+        </div>
+
+        <div class="footer-links">
+          <a href="https://github.com/vexorteam" target="_blank" rel="noopener noreferrer"> GitHub </a>
+
+          <a href="https://vexor.team" target="_blank" rel="noopener noreferrer"> Vexor.team </a>
+
+          <a href="https://faust.bar" target="_blank" rel="noopener noreferrer"> faust.bar </a>
+        </div>
+      </footer>
+      <a href="#" class="to-top" aria-label="На гору">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+      </a>
+    </main>
+    <script type="module" src="./scripts/index.js"></script>
+  </body>
+</html>
