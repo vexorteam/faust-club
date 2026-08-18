@@ -13,9 +13,10 @@ from typing import Any
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from faust_api.errors import AppError, InternalError, ValidationError
+from faust_api.errors import AppError, DatabaseError, InternalError, ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -134,6 +135,17 @@ def install_handlers(app: FastAPI) -> None:
         logger.info("[api] %s %s → %s %s", request.method, request.url.path, error.status_code, code)
 
         return _respond(wrapped)
+
+    @app.exception_handler(SQLAlchemyError)
+    async def handle_database(request: Request, error: Exception) -> JSONResponse:
+        """A database that stopped answering is not "an unknown bug" — say so.
+
+        The visitor sees the same neutral sentence either way; the difference is
+        that the log names the cause and the frontend gets DATABASE_ERROR.
+        """
+        logger.exception("[api] %s %s: база даних не відповіла", request.method, request.url.path)
+
+        return _respond(DatabaseError())
 
     @app.exception_handler(Exception)
     async def handle_unexpected(request: Request, error: Exception) -> JSONResponse:

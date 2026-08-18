@@ -11,6 +11,7 @@ import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from pydantic import BaseModel, Field
+from sqlalchemy.exc import OperationalError
 
 from faust_api.errors import CategoryNotEmptyError, SlugConflictError
 from faust_api.handlers import install_handlers
@@ -41,6 +42,10 @@ async def client() -> AsyncIterator[AsyncClient]:
     @app.get("/boom")
     async def boom() -> None:
         raise RuntimeError("a bug nobody planned for")
+
+    @app.get("/database-gone")
+    async def database_gone() -> None:
+        raise OperationalError("SELECT 1", {}, Exception("connection refused"))
 
     transport = ASGITransport(app=app, raise_app_exceptions=False)
 
@@ -91,3 +96,14 @@ async def test_unexpected_failure_hides_the_details(client: AsyncClient) -> None
     body = response.json()["error"]
     assert body["code"] == "INTERNAL_ERROR"
     assert "nobody planned" not in body["message"]
+
+
+async def test_a_silent_database_is_named_as_such(client: AsyncClient) -> None:
+    """The visitor learns nothing new; the log and the frontend learn the cause."""
+    response = await client.get("/database-gone")
+
+    assert response.status_code == 500
+    body = response.json()["error"]
+    assert body["code"] == "DATABASE_ERROR"
+    assert "connection refused" not in body["message"]
+    assert "SELECT" not in body["message"]

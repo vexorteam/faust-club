@@ -17,6 +17,7 @@ from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy import Connection, text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
@@ -128,3 +129,27 @@ async def session(engine: AsyncEngine) -> AsyncIterator[AsyncSession]:
 
     async with factory() as session:
         yield session
+
+
+@pytest.fixture
+async def api_client(session: AsyncSession) -> AsyncIterator[AsyncClient]:
+    """The real application, talking to the test database.
+
+    `get_session` is overridden rather than mocked: the endpoints run their own
+    queries against real Postgres, which is the only way a contract test can
+    prove that the ordering and the filtering actually happen in SQL.
+    """
+    from faust_api.db import get_session
+    from faust_api.main import create_app
+
+    app = create_app()
+
+    async def use_test_session() -> AsyncIterator[AsyncSession]:
+        yield session
+
+    app.dependency_overrides[get_session] = use_test_session
+
+    transport = ASGITransport(app=app, raise_app_exceptions=False)
+
+    async with AsyncClient(transport=transport, base_url="http://api") as client:
+        yield client

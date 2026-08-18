@@ -1,7 +1,7 @@
 """Application factory.
 
-Routers arrive step by step: public menu and atmosphere in Б3, auth in Б4, the
-admin CRUD in Б5–Б6. What exists from the first step is the part everything
+Routers arrive step by step: the public menu and atmosphere in Б3, auth in Б4,
+the admin CRUD in Б5–Б6. What exists from the first step is the part everything
 else relies on — configuration that refuses to start when it is wrong, and one
 single shape for failures.
 """
@@ -12,7 +12,7 @@ from fastapi import FastAPI
 
 from faust_api import __version__
 from faust_api.handlers import install_handlers
-from faust_api.routers import health
+from faust_api.routers import health, public
 from faust_api.settings import ConfigurationError, Settings, get_settings
 
 logger = logging.getLogger(__name__)
@@ -50,7 +50,10 @@ def create_app() -> FastAPI:
     )
 
     install_handlers(app)
+    # /health is for ops and stays outside the versioned prefix; everything the
+    # frontend talks to lives under /api/v1.
     app.include_router(health.router)
+    app.include_router(public.router, prefix=API_PREFIX)
 
     return app
 

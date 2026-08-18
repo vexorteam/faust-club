@@ -30,8 +30,16 @@ uv run uvicorn faust_api.main:app --reload --port 8000
 - `GET /health` — стан застосунку й БД: `200 {"status":"ok"}` або `503 {"status":"down"}`.
 - `GET /docs` — схема API. У `ENVIRONMENT=production` вимкнена разом з `/openapi.json`.
 
-Префікс усіх змістовних шляхів — `/api/v1`. Ендпоінти даних з'являються кроками
-Б3–Б6 (див. §13.5 у `CLAUDE.md`).
+Префікс усіх змістовних шляхів — `/api/v1`. Уже працюють два публічні ендпоінти
+за §5.3:
+
+- `GET /api/v1/menu` — уся барна карта: приховані категорії відфільтровані,
+  обидва рівні відсортовані за `order`.
+- `GET /api/v1/atmosphere` — плитки секції «Атмосфера» на головній.
+
+Обидва викликає **сервер Next**, а не браузер, тож CORS не налаштований і не
+потрібен. Авторизація й адмінські ендпоінти — кроки Б4–Б6 (див. §13.5 у
+`CLAUDE.md`).
 
 ## Схема бази
 
@@ -99,7 +107,9 @@ docker exec faust-pg psql -U faust -c "CREATE DATABASE faust_test"
 | `src/faust_api/models/` | чотири сутності §5.2 |
 | `src/faust_api/security/` | паролі; токени й перевірка Bearer — крок Б4 |
 | `src/faust_api/seed.py` | перший адмін і демо-меню |
-| `src/faust_api/routers/` | ендпоінти: `health` уже є, решта — кроки Б3–Б6 |
+| `src/faust_api/routers/` | ендпоінти: `health` і публічні `menu`/`atmosphere`; `auth` і `admin/` — Б4–Б6 |
+| `src/faust_api/schemas/` | Pydantic-моделі відповідей — це і є контракт §5.3 |
+| `src/faust_api/services/` | те, чого не має знати роутер: URL фото, вебхук ревалідації |
 | `migrations/` | Alembic |
 | `tests/unit/` | логіка: налаштування, помилки, паролі |
 | `tests/contract/` | форма відповідей — те, на що спирається фронтенд |
