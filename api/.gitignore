@@ -1,0 +1,14 @@
+# Virtualenv and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Env
+.env
+.env.local
+
+# Uploaded photos live in a volume, never in the repository
+uploads/
