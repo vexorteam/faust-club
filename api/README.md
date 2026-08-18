@@ -17,8 +17,10 @@ PyJWT · bcrypt · Pillow + pillow-heif. Менеджер пакетів — `uv
 ## Запуск
 
 ```bash
-cp .env.example .env      # заповнити DATABASE_URL, JWT_SECRET, MEDIA_BASE_URL, UPLOAD_DIR
+cp .env.example .env            # заповнити DATABASE_URL, JWT_SECRET, MEDIA_BASE_URL, UPLOAD_DIR
 uv sync
+uv run alembic upgrade head     # схема
+uv run python -m faust_api.seed # перший адмін + демо-меню
 uv run uvicorn faust_api.main:app --reload --port 8000
 ```
 
@@ -31,6 +33,39 @@ uv run uvicorn faust_api.main:app --reload --port 8000
 Префікс усіх змістовних шляхів — `/api/v1`. Ендпоінти даних з'являються кроками
 Б3–Б6 (див. §13.5 у `CLAUDE.md`).
 
+## Схема бази
+
+```bash
+uv run alembic upgrade head        # накотити
+uv run alembic downgrade base      # відкотити повністю
+uv run alembic revision --autogenerate -m "опис"   # нова міграція після правки моделей
+```
+
+Модель описана в `src/faust_api/models/` і повторює §5.2 дослівно. Схема
+береться **з міграцій**, не з `create_all()`: тест `tests/db/test_migrations.py`
+падає, щойно моделі й міграції розійшлися, — щоб це помітив розробник, а не
+деплой.
+
+## Сід
+
+```bash
+uv run python -m faust_api.seed
+```
+
+Робить дві речі. Гарантує адміністратора з `SEED_ADMIN_EMAIL` і
+`SEED_ADMIN_PASSWORD` (пароль хешується bcrypt-ом і в базу як текст не
+потрапляє). І, **лише якщо база порожня**, наливає демо-меню: 4 категорії з
+однією прихованою, 7 позицій (з фото, без фото, одна «немає», мітки `hit` і
+`new`) і 3 плитки атмосфери з однією прихованою. Повторний запуск нічого не
+дублює й не перезаписує — правки власника переживають повторний деплой.
+
+> Ключі фото в сіді вказують на файли, яких ще немає: завантаження й обробка —
+> крок Б6. До того URL із такого ключа віддає 404, і позиція на вітрині
+> виглядає як позиція без фото.
+
+Змінити пароль адміна поки що можна лише через базу — окрема команда з'явиться
+разом з авторизацією (крок Б4).
+
 ## Перевірки
 
 ```bash
@@ -42,6 +77,17 @@ uv run pytest            # тести
 
 Усі чотири мусять бути зелені перед тим, як крок вважається завершеним.
 
+Тестам із `tests/db/` потрібен живий Postgres — `RESTRICT` і унікальний індекс
+це обіцянки бази, а не коду. Адреса береться з `TEST_DATABASE_URL` (за
+замовчуванням `postgresql+asyncpg://faust:faust@localhost:5432/faust_test`).
+Немає сервера — ці тести **пропускаються з поясненням**, решта йде як завжди:
+
+```bash
+docker run -d --name faust-pg -e POSTGRES_USER=faust -e POSTGRES_PASSWORD=faust \
+  -e POSTGRES_DB=faust -p 5432:5432 postgres:16-alpine
+docker exec faust-pg psql -U faust -c "CREATE DATABASE faust_test"
+```
+
 ## Що де лежить
 
 | Тека | Що в ній |
@@ -50,14 +96,19 @@ uv run pytest            # тести
 | `src/faust_api/errors.py` | ієрархія помилок §9 — тут вона породжується |
 | `src/faust_api/handlers.py` | будь-який збій → `{ error: { code, message, fields? } }` |
 | `src/faust_api/db.py` | engine, сесія на запит, проба здоров'я |
+| `src/faust_api/models/` | чотири сутності §5.2 |
+| `src/faust_api/security/` | паролі; токени й перевірка Bearer — крок Б4 |
+| `src/faust_api/seed.py` | перший адмін і демо-меню |
 | `src/faust_api/routers/` | ендпоінти: `health` уже є, решта — кроки Б3–Б6 |
-| `tests/unit/` | логіка: налаштування, помилки |
+| `migrations/` | Alembic |
+| `tests/unit/` | логіка: налаштування, помилки, паролі |
 | `tests/contract/` | форма відповідей — те, на що спирається фронтенд |
+| `tests/db/` | обіцянки схеми: `RESTRICT`, унікальні індекси, міграції, сід |
 
 ## Дані і файли
 
 - Фото зберігаються в теці з `UPLOAD_DIR` і роздаються з `/media/<key>` (крок Б6).
   У проді це том Docker: **втрата тому = втрата всіх фото меню й атмосфери.**
 - Пароль адміна не існує ні в коді, ні в сіді — лише в `SEED_ADMIN_PASSWORD`
-  під час першого запуску сіду (крок Б2).
+  під час першого запуску сіду. У базі — тільки bcrypt-хеш, cost 12.
 - `JWT_SECRET` живе тільки тут. Фронтенд токен не перевіряє: для нього він непрозорий.
