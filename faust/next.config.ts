@@ -5,12 +5,28 @@ import type { NextConfig } from "next";
 // time for security, so this can't be resolved dynamically per-request.
 const mediaHostname = process.env.MEDIA_HOSTNAME ?? "media.faust.bar";
 
+const remotePatterns: NonNullable<NonNullable<NextConfig["images"]>["remotePatterns"]> = [
+  { protocol: "https", hostname: mediaHostname, pathname: "/**" },
+];
+
+// Locally the API serves photos over plain http from its own port, and the
+// allow-list above only takes https (§13.4). Allow-listing the host is not
+// enough on its own: Next also refuses to fetch an image from an address that
+// resolves to a private IP, which is exactly what localhost is. Both are
+// evaluated at build time, so a production build carries neither.
+const isLocalDev = process.env.NODE_ENV === "development";
+
+if (isLocalDev) {
+  remotePatterns.push({ protocol: "http", hostname: "localhost", pathname: "/**" });
+}
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   images: {
-    remotePatterns: [{ protocol: "https", hostname: mediaHostname, pathname: "/**" }],
+    remotePatterns,
     formats: ["image/avif", "image/webp"],
+    dangerouslyAllowLocalIP: isLocalDev,
   },
   async headers() {
     return [

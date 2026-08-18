@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { apiRequest } from "@/lib/api";
+import { apiRequest, type SessionRenewal } from "@/lib/api";
 import { meResponseSchema } from "@/schemas/auth";
 import { ForbiddenError, UnauthorizedError } from "@/errors";
 import { SESSION_COOKIE } from "@/lib/session-cookie";
@@ -41,6 +41,26 @@ export const setSessionCookie = async (token: string, maxAgeSeconds: number): Pr
     path: "/",
     maxAge: maxAgeSeconds,
   });
+};
+
+/**
+ * Sliding renewal (§5.4): with less than a day left the API answers with a
+ * fresh token, and the cookie is rewritten without the owner noticing.
+ *
+ * Only a route handler may write cookies, so a renewal that arrives while a
+ * page is rendering is dropped. That costs nothing — the token it would have
+ * replaced is still valid for another day, and the next write renews it.
+ */
+export const applySessionRenewal = async (renewal: SessionRenewal | null): Promise<boolean> => {
+  if (!renewal) return false;
+
+  try {
+    await setSessionCookie(renewal.token, renewal.expiresIn);
+
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 export const clearSessionCookie = async (): Promise<void> => {

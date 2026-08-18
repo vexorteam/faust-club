@@ -30,6 +30,10 @@ import styles from "./ItemForm.module.css";
  * a new position is created first and the picture follows immediately. If the
  * picture is the part that fails, the position is already saved — the form says
  * so and stays on the item, instead of pretending nothing happened.
+ *
+ * Its description travels with whichever request owns it: with the upload when
+ * a new frame was picked, and inside the `PATCH` otherwise (§13.4). So a typo
+ * in the description is fixed on its own, without re-uploading the photo.
  */
 
 const BADGE_OPTIONS = [
@@ -98,6 +102,10 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoAlt, setPhotoAlt] = useState(item?.imageAlt ?? "");
   const [photoError, setPhotoError] = useState<string | undefined>(undefined);
+  const [altError, setAltError] = useState<string | undefined>(undefined);
+
+  /** A stored photo needs its description as much as a freshly picked one. */
+  const describesPhoto = Boolean(photoFile) || Boolean(item?.image);
 
   const update = <K extends keyof FormValues>(key: K, value: FormValues[K]) =>
     setValues((current) => ({ ...current, [key]: value }));
@@ -108,7 +116,7 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
 
     if (parsed.success) return parsed.data;
 
-    setPhotoError(parsed.error.issues[0]?.message);
+    setAltError(parsed.error.issues[0]?.message);
 
     return null;
   };
@@ -132,17 +140,21 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
       return;
     }
 
-    const alt = photoFile ? checkAlt() : "";
+    const alt = describesPhoto ? checkAlt() : "";
 
-    if (photoFile && !alt) return;
+    if (describesPhoto && !alt) return;
 
     setFieldErrors({});
     setPhotoError(undefined);
+    setAltError(undefined);
+
+    /** Without a new frame the description has no upload to travel with (§13.4). */
+    const body = alt && !photoFile ? { ...parsed.data, imageAlt: alt } : parsed.data;
 
     const outcome = await mutate(
       "save",
       item
-        ? { url: `/api/admin/items/${item.id}`, method: "PATCH", body: parsed.data }
+        ? { url: `/api/admin/items/${item.id}`, method: "PATCH", body }
         : { url: "/api/admin/items", method: "POST", body: parsed.data },
       { success: photoFile ? undefined : item ? "Збережено" : "Позицію додано", refresh: false },
     );
@@ -294,23 +306,24 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
           hint={`Знімок із телефона підійде як є. JPEG, PNG, WebP або HEIC, до 5 МБ. Фото поїде разом із ${item ? "збереженням" : "публікацією"}.`}
         />
 
-        {photoFile ? (
+        {describesPhoto && (
           <Field
             as="textarea"
             label="Опис фото для скрінрідера"
             required
             maxLength={IMAGE_ALT_MAX}
             placeholder="Коктейль Faust Sour у келиху купе"
+            error={altError}
             value={photoAlt}
             onChange={(event) => {
               setPhotoAlt(event.target.value);
-              setPhotoError(undefined);
+              setAltError(undefined);
             }}
           />
-        ) : (
-          item?.imageAlt && (
-            <p className={styles.photoHint}>Опис фото: «{item.imageAlt}». Змінюється разом із заміною знімка.</p>
-          )
+        )}
+
+        {describesPhoto && (
+          <p className={styles.photoHint}>Що прочитає вголос той, хто не бачить знімка. Не назва позиції.</p>
         )}
       </div>
 

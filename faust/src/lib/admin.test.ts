@@ -38,7 +38,7 @@ const item = {
   order: 1,
 };
 
-type Route = { body: unknown; status?: number };
+type Route = { body: unknown; status?: number; headers?: Record<string, string> };
 
 /**
  * The API answers per method and path, because a single call here often means
@@ -54,7 +54,7 @@ const apiRoutes = (routes: Record<string, Route>) => {
       return new Response(JSON.stringify({ error: { code: "NOT_FOUND", message: `немає ${key}` } }), { status: 404 });
     }
 
-    return new Response(JSON.stringify(route.body), { status: route.status ?? 200 });
+    return new Response(JSON.stringify(route.body), { status: route.status ?? 200, headers: route.headers });
   });
 
   vi.stubGlobal("fetch", fetchMock);
@@ -191,5 +191,33 @@ describe("admin api", () => {
 
     expect(failure).toBeInstanceOf(CategoryNotEmptyError);
     expect((failure as CategoryNotEmptyError).message).toBe("У категорії ще є позиції");
+  });
+  it("rewrites the session cookie when a write comes back with a renewed token", async () => {
+    signedIn();
+    apiRoutes({
+      [ME]: { body: { user } },
+      "PATCH /api/v1/admin/items/item-1": {
+        body: { item: { ...item, price: 555 } },
+        headers: { "x-session-token": "fresh-jwt", "x-session-expires-in": "604800" },
+      },
+    });
+
+    await updateItem("item-1", { price: 555 });
+
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      expect.objectContaining({ value: "fresh-jwt", maxAge: 604800, httpOnly: true }),
+    );
+  });
+
+  it("leaves the cookie alone on the days the API renews nothing", async () => {
+    signedIn();
+    apiRoutes({
+      [ME]: { body: { user } },
+      "PATCH /api/v1/admin/items/item-1": { body: { item: { ...item, price: 555 } } },
+    });
+
+    await updateItem("item-1", { price: 555 });
+
+    expect(cookieStore.set).not.toHaveBeenCalled();
   });
 });

@@ -35,6 +35,25 @@ export type ApiRequestOptions = {
   next?: { tags?: string[]; revalidate?: number | false };
   cache?: RequestCache;
   timeoutMs?: number;
+  /**
+   * Called when the answer carries a renewed session token. Reading the
+   * headers is transport work; writing the cookie is not, so the renewal is
+   * handed over instead of applied here.
+   */
+  onRenewal?: (renewal: SessionRenewal) => void;
+};
+
+/** A fresh token the API issues before the current one runs out (§13.4). */
+export type SessionRenewal = { token: string; expiresIn: number };
+
+/** Headers of the sliding renewal. Absent on all but the last day of a token. */
+const readRenewal = (response: Response): SessionRenewal | null => {
+  const token = response.headers.get("x-session-token");
+  const expiresIn = Number(response.headers.get("x-session-expires-in"));
+
+  if (!token || !Number.isFinite(expiresIn) || expiresIn <= 0) return null;
+
+  return { token, expiresIn };
 };
 
 const getBaseUrl = (): string | null => {
@@ -110,6 +129,12 @@ export const apiRequest = async <T>(
   } catch (cause) {
     console.error(`[api] ${url} did not answer`, cause);
     throw new ApiUnavailableError(UNAVAILABLE_MESSAGE, cause);
+  }
+
+  if (options.onRenewal) {
+    const renewal = readRenewal(response);
+
+    if (renewal) options.onRenewal(renewal);
   }
 
   const payload = await readJson(response, url);

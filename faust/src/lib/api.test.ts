@@ -148,6 +148,49 @@ describe("apiRequest", () => {
     await expect(apiRequest("/api/v1/menu", schema)).rejects.toBeInstanceOf(ApiUnavailableError);
   });
 
+  it("hands over a renewed session token when the answer carries one", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(JSON.stringify({ ok: true }), {
+            headers: { "x-session-token": "fresh-jwt", "x-session-expires-in": "604800" },
+          }),
+      ),
+    );
+
+    const seen: unknown[] = [];
+    await apiRequest("/api/v1/admin/items", schema, { onRenewal: (renewal) => seen.push(renewal) });
+
+    expect(seen).toEqual([{ token: "fresh-jwt", expiresIn: 604800 }]);
+  });
+
+  it("says nothing about renewal on the six days the headers are absent", async () => {
+    respondWith({ ok: true });
+
+    const onRenewal = vi.fn();
+    await apiRequest("/api/v1/admin/items", schema, { onRenewal });
+
+    expect(onRenewal).not.toHaveBeenCalled();
+  });
+
+  it("ignores a renewal whose lifetime is not a usable number", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(JSON.stringify({ ok: true }), {
+            headers: { "x-session-token": "fresh-jwt", "x-session-expires-in": "forever" },
+          }),
+      ),
+    );
+
+    const onRenewal = vi.fn();
+    await apiRequest("/api/v1/admin/items", schema, { onRenewal });
+
+    expect(onRenewal).not.toHaveBeenCalled();
+  });
+
   it("fails loudly when MENU_API_URL is not configured", async () => {
     vi.stubEnv("MENU_API_URL", "");
     respondWith({ ok: true });

@@ -14,7 +14,7 @@ const redirect = vi.fn((path: string) => {
 vi.mock("next/headers", () => ({ cookies: async () => cookieStore }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => redirect(path) }));
 
-const { getSession, requireAdmin, requireAdminOrRedirect, setSessionCookie, clearSessionCookie } =
+const { applySessionRenewal, getSession, requireAdmin, requireAdminOrRedirect, setSessionCookie, clearSessionCookie } =
   await import("@/lib/session");
 
 const user = { id: "9f3a", name: "Власник", email: "owner@faust.bar" };
@@ -116,5 +116,26 @@ describe("session", () => {
     await clearSessionCookie();
 
     expect(cookieStore.delete).toHaveBeenCalledWith("faust_session");
+  });
+  it("rewrites the cookie with the token the API renewed", async () => {
+    await expect(applySessionRenewal({ token: "fresh-jwt", expiresIn: 604800 })).resolves.toBe(true);
+
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      expect.objectContaining({ value: "fresh-jwt", maxAge: 604800, httpOnly: true }),
+    );
+  });
+
+  it("does nothing when there was no renewal to apply", async () => {
+    await expect(applySessionRenewal(null)).resolves.toBe(false);
+
+    expect(cookieStore.set).not.toHaveBeenCalled();
+  });
+
+  it("drops a renewal that arrives where cookies are read-only, instead of failing the page", async () => {
+    cookieStore.set.mockImplementationOnce(() => {
+      throw new Error("Cookies can only be modified in a Server Action or Route Handler");
+    });
+
+    await expect(applySessionRenewal({ token: "fresh-jwt", expiresIn: 604800 })).resolves.toBe(false);
   });
 });

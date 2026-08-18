@@ -80,6 +80,24 @@ describe("menuItemPatchSchema", () => {
   it("refuses an empty patch instead of writing nothing", () => {
     expect(menuItemPatchSchema.safeParse({}).success).toBe(false);
   });
+
+  it("takes a photo description in the patch, so a typo is fixed without re-uploading", () => {
+    const parsed = menuItemPatchSchema.safeParse({ imageAlt: "Коктейль Faust Sour у келиху купе" });
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.success && parsed.data.imageAlt).toBe("Коктейль Faust Sour у келиху купе");
+  });
+
+  it("refuses a photo description too short to describe anything", () => {
+    expect(menuItemPatchSchema.safeParse({ imageAlt: "фото" }).success).toBe(false);
+  });
+
+  it("leaves the stored description alone when the patch does not mention it", () => {
+    const parsed = menuItemPatchSchema.safeParse({ price: 555 });
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.success && "imageAlt" in parsed.data).toBe(false);
+  });
 });
 
 describe("adminMenuItemSchema", () => {

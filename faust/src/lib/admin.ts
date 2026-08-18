@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { apiRequest, type ApiRequestOptions } from "@/lib/api";
-import { readSessionToken, requireAdmin } from "@/lib/session";
+import { apiRequest, type ApiRequestOptions, type SessionRenewal } from "@/lib/api";
+import { applySessionRenewal, readSessionToken, requireAdmin } from "@/lib/session";
 import { CategoryNotEmptyError, UnauthorizedError } from "@/errors";
 import {
   adminCategoriesResponseSchema,
@@ -84,11 +84,25 @@ const uploadBody = (file: File, fields: Record<string, string>): FormData => {
 const adminRequest = async <T>(
   path: string,
   schema: z.ZodType<T>,
-  options: Omit<ApiRequestOptions, "token" | "next"> = {},
+  options: Omit<ApiRequestOptions, "token" | "next" | "onRenewal"> = {},
 ): Promise<T> => {
   const token = await authorize();
 
-  return apiRequest(`${ADMIN_PATH}${path}`, schema, { ...options, token, cache: "no-store" });
+  /** Per call, so two requests in flight can never hand each other a token. */
+  const renewal: { current: SessionRenewal | null } = { current: null };
+
+  const result = await apiRequest(`${ADMIN_PATH}${path}`, schema, {
+    ...options,
+    token,
+    cache: "no-store",
+    onRenewal: (fresh) => {
+      renewal.current = fresh;
+    },
+  });
+
+  await applySessionRenewal(renewal.current);
+
+  return result;
 };
 
 /* ── Categories ─────────────────────────────────────────────────────────── */

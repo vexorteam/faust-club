@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { IMAGE_ALT_MAX, imageAltSchema } from "@/schemas/image";
 
 /**
  * Menu items: the admin form and the admin API contract (§5.3.1).
@@ -78,9 +79,16 @@ export const menuItemFormSchema = z.object({
 /**
  * `PATCH /admin/items/{id}` — any subset, including `categoryId`, because
  * changing it is how an item moves to another category.
+ *
+ * `imageAlt` lives here and not in the create form: a position gets its
+ * description together with its first photo, and this is how the description
+ * is corrected afterwards without re-uploading the frame (§13.4). Absent means
+ * "leave it alone" — the field is never sent empty, because a photo whose
+ * description was wiped is a photo a screen reader has to skip.
  */
 export const menuItemPatchSchema = menuItemFormSchema
   .partial()
+  .extend({ imageAlt: imageAltSchema.optional() })
   .refine((patch) => Object.keys(patch).length > 0, "Немає що змінювати");
 
 export const adminMenuItemSchema = z.object({
@@ -95,7 +103,7 @@ export const adminMenuItemSchema = z.object({
     .url()
     .nullish()
     .transform((value) => value ?? null),
-  imageAlt: nullableText(120, "Опис фото — не довше 120 символів"),
+  imageAlt: nullableText(IMAGE_ALT_MAX, `Опис фото — не довше ${IMAGE_ALT_MAX} символів`),
   badge: menuItemBadgeSchema.nullish().transform((value) => value ?? null),
   available: z.boolean(),
   order: z.number().int(),
@@ -117,7 +125,7 @@ export const adminItemResponseSchema = z.object({ item: adminMenuItemSchema });
 /** `POST /admin/items/{id}/image` answers with the stored photo, not the whole item. */
 export const itemImageResponseSchema = z.object({
   image: z.url(),
-  imageAlt: z.string().trim().min(1).max(120),
+  imageAlt: z.string().trim().min(1).max(IMAGE_ALT_MAX),
 });
 
 export type MenuItemInput = z.output<typeof menuItemFormSchema>;

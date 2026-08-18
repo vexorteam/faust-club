@@ -19,7 +19,10 @@ export const POST = async (request: Request) => {
     return NextResponse.json({ error: "Missing 'tag' query parameter" }, { status: 400 });
   }
 
-  revalidateTag(tag, {});
+  // `{ expire: 0 }` means "drop it now". Next 16 reads an empty profile as
+  // stale-while-revalidate instead: the tag is marked, the old page keeps being
+  // served, and a price the owner just changed stays wrong on the showcase.
+  revalidateTag(tag, { expire: 0 });
 
   return NextResponse.json({ revalidated: true, tag, now: Date.now() });
 };
