@@ -13,6 +13,7 @@ import asyncio
 import os
 from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from alembic import command
@@ -20,6 +21,9 @@ from alembic.config import Config
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import Connection, text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+
+if TYPE_CHECKING:
+    from faust_api.models import AdminUser
 
 ENV = {
     "ENVIRONMENT": "development",
@@ -146,6 +150,41 @@ async def session(engine: AsyncEngine) -> AsyncIterator[AsyncSession]:
 
     async with factory() as session:
         yield session
+
+
+# bcrypt at cost 12 is deliberately slow, so the admin every contract test
+# signs in as is hashed once for the whole session.
+ADMIN_EMAIL = "owner@faust.bar"
+ADMIN_PASSWORD = "нічна зміна 22:00"
+
+
+@pytest.fixture
+async def admin(session: AsyncSession) -> "AdminUser":
+    """The one administrator of §13.7, already in the database."""
+    from faust_api.models import AdminUser
+    from faust_api.security.passwords import hash_password
+
+    owner = AdminUser(email=ADMIN_EMAIL, password_hash=hash_password(ADMIN_PASSWORD), name="Власник")
+
+    session.add(owner)
+    await session.commit()
+
+    return owner
+
+
+@pytest.fixture
+async def admin_client(api_client: AsyncClient, admin: "AdminUser") -> AsyncClient:
+    """A client that carries a live session, the way the admin panel does.
+
+    The token is signed rather than obtained through `/auth/login`, because
+    what these tests are about is what happens *after* the sign-in — and paying
+    for a second bcrypt round per test buys nothing.
+    """
+    from faust_api.security.tokens import issue_token
+
+    api_client.headers["authorization"] = f"Bearer {issue_token(admin).token}"
+
+    return api_client
 
 
 @pytest.fixture

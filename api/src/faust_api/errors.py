@@ -1,4 +1,4 @@
-"""The exception hierarchy of CLAUDE.md §9 — here it is raised, not received.
+"""The exception hierarchy of the contract, §9 — here it is raised, not received.
 
 The frontend has the mirror image of this file (`faust/src/errors/index.ts`)
 and maps `code` back onto its own classes, so the list of codes is a shared
