@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from faust_api.models import AdminUser, AtmospherePhoto, MenuCategory, MenuItem
 from faust_api.seed import seed
+from faust_api.services.images import VARIANTS, file_path
 from faust_api.settings import ConfigurationError, get_settings
 
 SEED_ENV = {
@@ -64,6 +65,23 @@ async def test_the_set_covers_every_state_the_showcase_can_show(session: AsyncSe
     assert {badge.value for badge in badges if badge is not None} == {"new", "hit"}
     assert with_photo and without_photo
     assert hidden_tiles == 1
+
+
+async def test_every_seeded_photo_has_its_files(session: AsyncSession) -> None:
+    """A key with nothing behind it would leave the showcase with broken pictures.
+
+    The frames themselves are drawn at seed time — the real ones are the
+    owner's and arrive through the panel.
+    """
+    await seed(session)
+
+    tiles = await session.scalars(select(AtmospherePhoto))
+    items = await session.scalars(select(MenuItem).where(MenuItem.image_key.is_not(None)))
+
+    keys = [tile.image_key for tile in tiles] + [item.image_key or "" for item in items]
+
+    assert len(keys) == 5
+    assert all(file_path(key, variant).is_file() for key in keys for variant in VARIANTS)
 
 
 async def test_the_order_starts_at_one_inside_every_category(session: AsyncSession) -> None:

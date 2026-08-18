@@ -53,6 +53,12 @@ plugins = ["pydantic.mypy"]
 files = ["src", "tests"]
 warn_unreachable = true
 
+# pillow-heif ships no type information; it is one call — registering the HEIC
+# opener — and everything downstream of it is Pillow, which is typed.
+[[tool.mypy.overrides]]
+module = ["pillow_heif.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]

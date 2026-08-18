@@ -31,14 +31,18 @@ ENV = {
     # Long enough that PyJWT does not warn about the HMAC key on every test.
     "JWT_SECRET": "test-secret-not-a-real-one-and-long-enough-for-sha256",
     "MEDIA_BASE_URL": "http://localhost:8000/media",
+    # Overridden per test by the `environment` fixture below.
     "UPLOAD_DIR": "./uploads",
 }
 
 
 @pytest.fixture(autouse=True)
-def environment() -> Iterator[None]:
+def environment(tmp_path: Path) -> Iterator[None]:
     previous = {name: os.environ.get(name) for name in ENV}
     os.environ.update(ENV)
+    # Every test gets its own volume: uploads are real files, and a suite that
+    # writes into the working tree is a suite that leaves rubbish behind.
+    os.environ["UPLOAD_DIR"] = str(tmp_path / "uploads")
 
     from faust_api.settings import get_settings
 

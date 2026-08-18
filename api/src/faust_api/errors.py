@@ -119,8 +119,10 @@ class UnsupportedFileError(AppError):
     def __init__(
         self,
         message: str = "Формат не підходить. Потрібен JPEG, PNG, WebP або HEIC",
+        *,
+        details: Any | None = None,
     ) -> None:
-        super().__init__(message)
+        super().__init__(message, details=details)
 
 
 class RateLimitError(AppError):

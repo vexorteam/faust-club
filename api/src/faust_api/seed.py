@@ -13,18 +13,26 @@ The demo set is deliberately the one the frontend was accepted against (§13.1):
 four categories with one hidden, seven positions covering "with a photo",
 "without a photo", "немає" and both badges, three atmosphere tiles with one
 hidden. Between them they show every state the showcase knows how to render.
+
+The photos it needs are drawn, not committed: real frames are the owner's and
+arrive through the panel, while the seed only has to prove the path works and
+be obviously a stand-in.
 """
 
 import asyncio
 import logging
+import uuid
 from dataclasses import dataclass, field
+from io import BytesIO
 
+from PIL import Image
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from faust_api.db import get_engine, get_session_factory
 from faust_api.models import AdminUser, AtmospherePhoto, MenuCategory, MenuItem, MenuItemBadge
 from faust_api.security.passwords import hash_password
+from faust_api.services.images import ATMOSPHERE_FOLDER, MENU_FOLDER, store_photo
 from faust_api.settings import ConfigurationError, get_settings
 
 logger = logging.getLogger("faust_api.seed")
@@ -38,8 +46,9 @@ class ItemSeed:
     volume: str
     badge: MenuItemBadge | None = None
     available: bool = True
-    image_key: str | None = None
     image_alt: str | None = None
+    """Doubles as the marker for "this row has a photo": a picture without a
+    description is not something this project ships (§5.2)."""
 
 
 @dataclass(frozen=True)
@@ -51,10 +60,10 @@ class CategorySeed:
     items: tuple[ItemSeed, ...] = field(default_factory=tuple)
 
 
-# The keys below point at files that do not exist yet: uploading and resizing
-# arrive in Б6. Until then a photo URL built from them answers 404, which is
-# exactly what a position with no photo looks like on the showcase — the card
-# falls back to its monogram instead of breaking.
+# Rows that carry a photo get a real one: `image_alt` below is what marks them,
+# and the file itself is drawn at seed time (see `placeholder`). Pointing at
+# files that do not exist would leave the showcase with broken pictures rather
+# than with the monogram it draws for a position that has none.
 CATEGORIES: tuple[CategorySeed, ...] = (
     CategorySeed(
         slug="signature",
@@ -67,7 +76,6 @@ CATEGORIES: tuple[CategorySeed, ...] = (
                 price=320,
                 volume="250 мл",
                 badge=MenuItemBadge.HIT,
-                image_key="menu/seed-faust-sour",
                 image_alt="Коктейль Faust Sour у келиху купе",
             ),
             ItemSeed(
@@ -95,7 +103,6 @@ CATEGORIES: tuple[CategorySeed, ...] = (
                 composition="джин, кампарі, червоний вермут",
                 price=280,
                 volume="150 мл",
-                image_key="menu/seed-negroni",
                 image_alt="Негроні з апельсиновою цедрою у склянці рокс",
             ),
             ItemSeed(
@@ -134,11 +141,51 @@ CATEGORIES: tuple[CategorySeed, ...] = (
     ),
 )
 
-PHOTOS: tuple[tuple[str, str, str, bool], ...] = (
-    ("Танцпол", "atmosphere/seed-dancefloor", "Танцпол Faust під час нічного сету", True),
-    ("Бар", "atmosphere/seed-bar", "Барна стійка з підсвіткою й барменом за роботою", True),
-    ("VIP-зона", "atmosphere/seed-vip", "Кутовий диван VIP-зони з приглушеним світлом", False),
+PHOTOS: tuple[tuple[str, str, bool], ...] = (
+    ("Танцпол", "Танцпол Faust під час нічного сету", True),
+    ("Бар", "Барна стійка з підсвіткою й барменом за роботою", True),
+    ("VIP-зона", "Кутовий диван VIP-зони з приглушеним світлом", False),
 )
+
+PLACEHOLDER_SIZE = 900
+PLACEHOLDER_TOP = (13, 7, 19)
+"""--ultra: the dark violet the whole site is built on."""
+
+PLACEHOLDER_BOTTOM = (240, 85, 139)
+"""--accent-magenta. A gradient between the two reads as a placeholder at a
+glance — which is the point: nobody should mistake it for a photo of a drink."""
+
+
+def placeholder(tilt: int) -> bytes:
+    """A frame to seed with, drawn rather than committed.
+
+    The real photos are the owner's, taken with a phone and uploaded through
+    the panel. What the seed needs is something that exercises the whole path —
+    magic bytes, resizing, three variants — and that is honest about being a
+    stand-in. `tilt` only shifts the gradient so the tiles are told apart.
+    """
+
+    def blend(y: int) -> tuple[int, int, int]:
+        weight = ((y + tilt * 60) % PLACEHOLDER_SIZE) / PLACEHOLDER_SIZE
+        top, bottom = PLACEHOLDER_TOP, PLACEHOLDER_BOTTOM
+
+        return (
+            round(top[0] + (bottom[0] - top[0]) * weight),
+            round(top[1] + (bottom[1] - top[1]) * weight),
+            round(top[2] + (bottom[2] - top[2]) * weight),
+        )
+
+    # Drawn as a single column and stretched: a pixel loop over the whole
+    # square would make seeding noticeably slow for no visible difference.
+    column = Image.new("RGB", (1, PLACEHOLDER_SIZE))
+    column.putdata([blend(y) for y in range(PLACEHOLDER_SIZE)])
+
+    frame = column.resize((PLACEHOLDER_SIZE, PLACEHOLDER_SIZE))
+
+    buffer = BytesIO()
+    frame.save(buffer, format="PNG")
+
+    return buffer.getvalue()
 
 
 async def ensure_admin(session: AsyncSession) -> bool:
@@ -187,20 +234,33 @@ async def ensure_menu(session: AsyncSession) -> bool:
             order=category_order,
             visible=category.visible,
         )
-        row.items = [
-            MenuItem(
-                name=item.name,
-                composition=item.composition,
-                price=item.price,
-                volume=item.volume,
-                badge=item.badge,
-                available=item.available,
-                image_key=item.image_key,
-                image_alt=item.image_alt,
-                order=item_order,
+        items: list[MenuItem] = []
+
+        for item_order, item in enumerate(category.items, start=1):
+            # Minted here rather than by the database: the files are stored
+            # under the id of the row that owns them, so it has to exist first.
+            item_id = uuid.uuid4()
+
+            items.append(
+                MenuItem(
+                    id=item_id,
+                    name=item.name,
+                    composition=item.composition,
+                    price=item.price,
+                    volume=item.volume,
+                    badge=item.badge,
+                    available=item.available,
+                    image_key=(
+                        await store_photo(MENU_FOLDER, item_id, placeholder(item_order))
+                        if item.image_alt
+                        else None
+                    ),
+                    image_alt=item.image_alt,
+                    order=item_order,
+                )
             )
-            for item_order, item in enumerate(category.items, start=1)
-        ]
+
+        row.items = items
         session.add(row)
 
     logger.info("[seed] додано %s категорій меню", len(CATEGORIES))
@@ -215,11 +275,14 @@ async def ensure_atmosphere(session: AsyncSession) -> bool:
         logger.info("[seed] у базі вже %s фото атмосфери — не чіпаю", count)
         return False
 
-    for order, (label, image_key, image_alt, visible) in enumerate(PHOTOS, start=1):
+    for order, (label, image_alt, visible) in enumerate(PHOTOS, start=1):
+        photo_id = uuid.uuid4()
+
         session.add(
             AtmospherePhoto(
+                id=photo_id,
                 label=label,
-                image_key=image_key,
+                image_key=await store_photo(ATMOSPHERE_FOLDER, photo_id, placeholder(order + 3)),
                 image_alt=image_alt,
                 order=order,
                 visible=visible,

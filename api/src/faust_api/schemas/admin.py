@@ -21,7 +21,8 @@ from typing import Annotated, Any, Literal
 from pydantic import AfterValidator, BaseModel, Field, StringConstraints
 
 from faust_api.errors import ValidationError
-from faust_api.models import MenuCategory, MenuItem, MenuItemBadge
+from faust_api.models import AtmospherePhoto, MenuCategory, MenuItem, MenuItemBadge
+from faust_api.models.atmosphere import LABEL_LENGTH as TILE_LABEL_MAX
 from faust_api.models.category import NOTE_LENGTH as NOTE_MAX
 from faust_api.models.category import SLUG_LENGTH as SLUG_MAX
 from faust_api.models.category import TITLE_LENGTH as LABEL_MAX
@@ -34,6 +35,9 @@ from faust_api.services.images import photo_url
 
 LABEL_MIN = 2
 NAME_MIN = 2
+IMAGE_ALT_MIN = 5
+"""Same floor as the frontend's `imageAltSchema`: "фото" is not a description."""
+
 PRICE_MIN = 1
 PRICE_MAX = 99999
 
@@ -100,6 +104,16 @@ Volume = Annotated[
 ImageAlt = Annotated[
     Annotated[str, StringConstraints(strip_whitespace=True, max_length=IMAGE_ALT_MAX)] | None,
     AfterValidator(blank_to_none),
+]
+
+RequiredImageAlt = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=IMAGE_ALT_MIN, max_length=IMAGE_ALT_MAX)
+]
+"""A photo arrives with its description or not at all: a picture nobody can see
+and nobody can read is worse than no picture (§5.2)."""
+
+TileLabel = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=LABEL_MIN, max_length=TILE_LABEL_MAX)
 ]
 
 
@@ -256,6 +270,69 @@ class ItemsResponse(ApiModel):
 
 class ItemResponse(ApiModel):
     item: AdminMenuItem
+
+
+# ── Atmosphere tiles ──────────────────────────────────────────────────────
+
+
+class AtmospherePatch(ApiModel):
+    """Texts and visibility only.
+
+    Replacing the picture is its own multipart endpoint, because the two are
+    different kinds of failure: a typo fixed in the caption must not be rolled
+    back because an upload timed out (§5.3.1).
+    """
+
+    label: Annotated[TileLabel | None, AfterValidator(not_null)] = None
+    image_alt: Annotated[RequiredImageAlt | None, AfterValidator(not_null)] = None
+    visible: Annotated[bool | None, AfterValidator(not_null)] = None
+
+
+class AdminAtmospherePhoto(ApiModel):
+    id: uuid.UUID
+    label: str
+    """The caption the visitor reads on the tile."""
+
+    image: str
+    """Never null: a tile *is* its picture (§13.4)."""
+
+    image_alt: str
+    order: int
+    visible: bool
+
+    @classmethod
+    def of(cls, photo: AtmospherePhoto) -> "AdminAtmospherePhoto":
+        url = photo_url(photo.image_key)
+        # image_key is NOT NULL, so this only trips if the column was emptied
+        # behind the model's back.
+        assert url is not None
+
+        return cls(
+            id=photo.id,
+            label=photo.label,
+            image=url,
+            image_alt=photo.image_alt,
+            order=photo.order,
+            visible=photo.visible,
+        )
+
+
+class AtmospherePhotosResponse(ApiModel):
+    photos: list[AdminAtmospherePhoto]
+
+
+class AtmospherePhotoResponse(ApiModel):
+    photo: AdminAtmospherePhoto
+
+
+# ── Uploads ───────────────────────────────────────────────────────────────
+
+
+class ItemImageResponse(ApiModel):
+    """The answer to a menu photo upload — not the whole position (§5.3.1)."""
+
+    image: str
+    image_alt: str
 
 
 # ── Shared ────────────────────────────────────────────────────────────────

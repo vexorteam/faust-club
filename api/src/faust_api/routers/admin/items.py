@@ -14,7 +14,7 @@ contiguous and lands at the end of the new one.
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Query, UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -28,12 +28,15 @@ from faust_api.schemas.admin import (
     AdminMenuItem,
     ItemCreate,
     ItemGroup,
+    ItemImageResponse,
     ItemPatch,
     ItemResponse,
     ItemsResponse,
     MoveRequest,
+    RequiredImageAlt,
     changes_of,
 )
+from faust_api.services.images import MENU_FOLDER, accept_upload, photo_url, remove_photo, store_photo
 from faust_api.services.ordering import append, close_gap, move
 from faust_api.services.revalidate import request_revalidation
 
@@ -42,6 +45,9 @@ router = APIRouter(prefix="/items")
 Session = Annotated[AsyncSession, Depends(get_session)]
 
 MISSING_MESSAGE = "Позицію не знайдено. Можливо, її щойно видалили"
+
+Upload = Annotated[UploadFile | None, File()]
+Alt = Annotated[RequiredImageAlt, Form()]
 
 COLUMNS: dict[str, str] = {"description": "composition"}
 """Contract name → column name. Only one field differs, and it differs on the
@@ -154,15 +160,17 @@ async def update_item(
 async def delete_item(item_id: uuid.UUID, session: Session, revalidation: BackgroundTasks) -> Acknowledged:
     """Removing a position closes the gap it leaves in its category's order.
 
-    Its photo files go with it — that part arrives in Б6, together with the
-    storage that holds them.
+    Its photo files go with it: the key is read before the row disappears, and
+    the volume is cleaned up once the deletion is actually committed.
     """
     item = await load_item(session, item_id)
-    category_id, vacated = item.category_id, item.order
+    category_id, vacated, image_key = item.category_id, item.order, item.image_key
 
     await session.delete(item)
     await close_gap(session, MenuItem, vacated, within_category(category_id))
     await session.commit()
+
+    await remove_photo(image_key)
 
     revalidation.add_task(request_revalidation, "menu")
 
@@ -178,5 +186,66 @@ async def move_item(
     if await move(session, item, payload.direction, within_category(item.category_id)):
         await session.commit()
         revalidation.add_task(request_revalidation, "menu")
+
+    return Acknowledged()
+
+
+@router.post("/{item_id}/image", response_model=ItemImageResponse)
+async def upload_image(
+    item_id: uuid.UUID,
+    session: Session,
+    revalidation: BackgroundTasks,
+    alt: Alt,
+    file: Upload = None,
+) -> ItemImageResponse:
+    """Attaches a photo to a position and answers with the ready URL.
+
+    The description travels with the picture because the contract carries it
+    there, and the two are only useful together. The files are written before
+    the row is touched, so a failed upload leaves the old photo in place.
+
+    Unlike the atmosphere tile, the answer is the picture alone rather than the
+    whole position (§5.3.1).
+    """
+    item = await load_item(session, item_id)
+    data = await accept_upload(file)
+
+    previous = item.image_key
+
+    item.image_key = await store_photo(MENU_FOLDER, item.id, data)
+    item.image_alt = alt
+
+    await session.commit()
+
+    if previous != item.image_key:
+        await remove_photo(previous)
+
+    revalidation.add_task(request_revalidation, "menu")
+
+    url = photo_url(item.image_key)
+    assert url is not None
+
+    return ItemImageResponse(image=url, image_alt=alt)
+
+
+@router.delete("/{item_id}/image", response_model=Acknowledged)
+async def delete_image(item_id: uuid.UUID, session: Session, revalidation: BackgroundTasks) -> Acknowledged:
+    """Takes the picture off; the position stays on the card.
+
+    The opposite of an atmosphere tile, which *is* its photo — here the drink
+    exists whether or not anybody has photographed it yet, and the showcase
+    draws a monogram in its place.
+    """
+    item = await load_item(session, item_id)
+    image_key = item.image_key
+
+    item.image_key = None
+    item.image_alt = None
+
+    await session.commit()
+
+    await remove_photo(image_key)
+
+    revalidation.add_task(request_revalidation, "menu")
 
     return Acknowledged()

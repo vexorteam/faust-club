@@ -9,7 +9,7 @@ happened (§3.5).
 
 from fastapi import APIRouter, Depends
 
-from faust_api.routers.admin import categories, items
+from faust_api.routers.admin import atmosphere, categories, items
 from faust_api.security.dependencies import current_admin
 
 router = APIRouter(
@@ -22,5 +22,6 @@ router = APIRouter(
 
 router.include_router(categories.router)
 router.include_router(items.router)
+router.include_router(atmosphere.router)
 
 __all__ = ["router"]
