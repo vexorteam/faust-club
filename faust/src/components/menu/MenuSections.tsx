@@ -2,12 +2,19 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import type { MenuCategoryView } from "@/types";
+import type { MenuCategoryView, MenuItemView } from "@/types";
 import { Reveal } from "@/components/layout/Reveal";
 import styles from "./MenuSections.module.css";
 
 /** A position with no photo keeps its place in the grid: a letter stands in for it. */
 const monogramOf = (name: string): string => name.trim().charAt(0).toUpperCase();
+
+/**
+ * A position that ran out stays on the showcase, dimmed, with its price still
+ * readable (§5.3). An absent flag means it is on the card, so only an explicit
+ * `false` counts.
+ */
+const soldOut = (item: MenuItemView): boolean => item.available === false;
 
 export const MenuSections = ({ categories }: { categories: MenuCategoryView[] }) => {
   const [active, setActive] = useState(categories[0]?.slug ?? "");
@@ -67,7 +74,7 @@ export const MenuSections = ({ categories }: { categories: MenuCategoryView[] })
             <div className={styles.grid}>
               {category.items.map((item, i) => (
                 <Reveal key={item.id} delay={Math.min(i * 0.04, 0.2)}>
-                  <div className={styles.item}>
+                  <div className={`${styles.item} ${soldOut(item) ? styles.itemOut : ""}`}>
                     <div className={styles.itemImageWrap}>
                       {item.image ? (
                         <Image
@@ -92,6 +99,7 @@ export const MenuSections = ({ categories }: { categories: MenuCategoryView[] })
 
                       <div className={styles.itemFooter}>
                         <span className={styles.itemPrice}>{item.price} ₴</span>
+                        {soldOut(item) && <span className={styles.itemOutMark}>немає</span>}
                       </div>
                     </div>
                   </div>
