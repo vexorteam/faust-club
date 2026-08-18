@@ -1,5 +1,6 @@
 """Passwords, tokens and the dependency that turns a Bearer header into an admin.
 
-Only the password hashing exists so far — the seed needs it to write the first
-administrator. Token signing and the request dependency arrive in Б4.
+The signing secret of the session tokens exists in this package and nowhere
+else — the frontend carries a token it never opens (§5.4), so verifying one is
+this application's job alone.
 """

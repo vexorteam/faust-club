@@ -25,3 +25,22 @@ def hash_password(password: str) -> str:
         raise PasswordTooLongError(f"Пароль задовгий: {len(encoded)} байтів, максимум — {MAX_PASSWORD_BYTES}")
 
     return bcrypt.hashpw(encoded, bcrypt.gensalt(rounds=COST)).decode("utf-8")
+
+
+def verify_password(password: str, password_hash: str) -> bool:
+    """Constant-time comparison against a stored hash.
+
+    A password past bcrypt's 72-byte limit is rejected here too, for the same
+    reason it is rejected when hashing: it must not silently match a shorter
+    one. A malformed hash in the column answers `False` instead of crashing —
+    a broken row is a failed login, not a 500.
+    """
+    encoded = password.encode("utf-8")
+
+    if len(encoded) > MAX_PASSWORD_BYTES:
+        return False
+
+    try:
+        return bcrypt.checkpw(encoded, password_hash.encode("utf-8"))
+    except ValueError:
+        return False

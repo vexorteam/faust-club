@@ -8,7 +8,8 @@ Secrets are `SecretStr` on purpose — that way an accidental `print(settings)`
 or a logged traceback shows `**********` rather than the JWT key.
 """
 
-from functools import lru_cache
+from functools import cached_property, lru_cache
+from ipaddress import IPv4Network, IPv6Network, ip_network
 from pathlib import Path
 from typing import Literal
 
@@ -49,6 +50,16 @@ class Settings(BaseSettings):
 
     upload_dir: Path
 
+    trusted_proxies: str = ""
+    """Comma-separated addresses or CIDRs whose `X-Forwarded-For` may be believed.
+
+    Empty by default, which means nobody: the login limit then counts the peer
+    that actually opened the connection. Behind the frontend that peer is the
+    same for every visitor, so the compose file names the web container's
+    network here — and an attacker talking to the API directly still cannot
+    forge their way into somebody else's bucket.
+    """
+
     revalidate_url: str | None = None
     """POST target on the frontend; without it the showcase only updates by ISR timer."""
 
@@ -65,6 +76,25 @@ class Settings(BaseSettings):
     @property
     def media_prefix(self) -> str:
         return self.media_base_url.rstrip("/")
+
+    @cached_property
+    def trusted_proxy_networks(self) -> tuple[IPv4Network | IPv6Network, ...]:
+        """Parsed once. An unreadable entry is dropped, not fatal: a typo in this
+        variable must not keep the whole API from starting."""
+        networks: list[IPv4Network | IPv6Network] = []
+
+        for entry in self.trusted_proxies.split(","):
+            candidate = entry.strip()
+
+            if not candidate:
+                continue
+
+            try:
+                networks.append(ip_network(candidate, strict=False))
+            except ValueError:
+                continue
+
+        return tuple(networks)
 
 
 def _describe(error: ValidationError) -> str:

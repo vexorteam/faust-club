@@ -12,7 +12,7 @@ from fastapi import FastAPI
 
 from faust_api import __version__
 from faust_api.handlers import install_handlers
-from faust_api.routers import health, public
+from faust_api.routers import auth, health, public
 from faust_api.settings import ConfigurationError, Settings, get_settings
 
 logger = logging.getLogger(__name__)
@@ -54,6 +54,7 @@ def create_app() -> FastAPI:
     # frontend talks to lives under /api/v1.
     app.include_router(health.router)
     app.include_router(public.router, prefix=API_PREFIX)
+    app.include_router(auth.router, prefix=API_PREFIX)
 
     return app
 

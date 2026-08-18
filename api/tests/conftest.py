@@ -24,7 +24,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 ENV = {
     "ENVIRONMENT": "development",
     "DATABASE_URL": "postgresql+asyncpg://faust:faust@localhost:5432/faust_test",
-    "JWT_SECRET": "test-secret-not-a-real-one",
+    # Long enough that PyJWT does not warn about the HMAC key on every test.
+    "JWT_SECRET": "test-secret-not-a-real-one-and-long-enough-for-sha256",
     "MEDIA_BASE_URL": "http://localhost:8000/media",
     "UPLOAD_DIR": "./uploads",
 }
@@ -48,6 +49,22 @@ def environment() -> Iterator[None]:
             os.environ[name] = value
 
     get_settings.cache_clear()
+
+
+@pytest.fixture(autouse=True)
+def clean_login_limiter() -> Iterator[None]:
+    """The sign-in limiter is one object for the whole process — on purpose (§13.2).
+
+    That makes it shared state between tests, so every test starts with an
+    empty window and leaves one behind.
+    """
+    from faust_api.services.rate_limit import login_limiter
+
+    login_limiter.forget_all()
+
+    yield
+
+    login_limiter.forget_all()
 
 
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", ENV["DATABASE_URL"])
