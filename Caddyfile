@@ -1,0 +1,36 @@
+# The edge of the deployment: two names, two jobs, nothing else exposed.
+#
+# The API is not published here. Everything the browser needs from it arrives
+# through Next — the admin panel proxies its own writes — so the only part of
+# `api` the outside world can reach is the photos, under the media name below.
+#
+# Both addresses come from the environment: locally they are plain http on
+# port 80, in production they are the real names and Caddy gets certificates
+# for them by itself.
+
+{$SITE_ORIGIN:http://localhost} {
+	encode zstd gzip
+
+	# Uploads travel browser → Next → API, so this is where a large body
+	# enters. Five megabytes is the applications' own limit and they answer it
+	# with a sentence the owner can read; the edge is here to stop a body that
+	# is absurd, and it leaves room for the multipart envelope around a file of
+	# exactly five (§13.7, deviation 36).
+	request_body {
+		max_size 6MB
+	}
+
+	reverse_proxy web:3000
+}
+
+{$MEDIA_ORIGIN:http://media.faust.bar} {
+	# The API stores a photo under the key `menu/<id>-<hash>` and serves it at
+	# `/media/<key>-card.webp`, while the URL it hands out is built from
+	# MEDIA_BASE_URL — with no path of its own. This rewrite is what makes the
+	# two agree (§13.7, deviation 35).
+	rewrite * /media{uri}
+
+	# No `encode` on purpose: WebP is already compressed, and gzipping it again
+	# costs CPU on every request to buy nothing.
+	reverse_proxy api:8000
+}

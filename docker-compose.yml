@@ -1,0 +1,172 @@
+# The whole site in one file: Postgres, the Python API, the Next frontend and
+# the proxy in front of them.
+#
+#   cp .env.example .env                                  # fill in the secrets
+#   docker compose up -d postgres api                     # schema included
+#   docker compose run --rm api python -m faust_api.seed  # first administrator
+#   docker compose up -d --build                          # the rest of the site
+#
+# Three commands rather than one, and both extra steps earn their place. The
+# seed is separate because demo data must never appear on a live site just
+# because somebody restarted the stack. And `web` is built last because it
+# prerenders the showcase: an image built against an API that is not up yet
+# carries an empty menu that nothing can refresh afterwards.
+
+name: faust
+
+# Everything the API and its one-off commands read. Kept in one place so the
+# `migrate` service and `docker compose run api …` cannot drift from the
+# running container — they are the same image talking to the same database.
+x-api-environment: &api-environment
+  ENVIRONMENT: production
+  DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-faust}:${POSTGRES_PASSWORD:?задайте POSTGRES_PASSWORD у .env}@postgres:5432/${POSTGRES_DB:-faust}
+  JWT_SECRET: ${JWT_SECRET:?задайте JWT_SECRET у .env}
+  JWT_TTL_DAYS: ${JWT_TTL_DAYS:-7}
+  # The public prefix of every photo URL. The proxy maps this name onto the
+  # API's own /media, so the two must name the same host.
+  MEDIA_BASE_URL: ${MEDIA_ORIGIN:-http://media.faust.bar}
+  UPLOAD_DIR: /app/uploads
+  # The sign-in limit counts attempts per visitor, and the peer the API sees is
+  # the web container. Naming this network is what lets it believe the
+  # `X-Forwarded-For` the frontend passes on — and only from in here.
+  TRUSTED_PROXIES: ${TRUSTED_PROXIES:-172.28.0.0/16}
+  REVALIDATE_URL: http://web:3000/api/revalidate
+  REVALIDATE_SECRET: ${REVALIDATE_SECRET:?задайте REVALIDATE_SECRET у .env}
+  SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
+  SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+  API_WORKERS: ${API_WORKERS:-1}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-faust}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?задайте POSTGRES_PASSWORD у .env}
+      POSTGRES_DB: ${POSTGRES_DB:-faust}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-faust} -d ${POSTGRES_DB:-faust}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # Migrations run as their own command, not from inside the application
+  # (Б8). The container exits when the schema is up to date, and the API is
+  # only allowed to start after it succeeded — so a deploy can never serve code
+  # against a schema that is one migration behind.
+  migrate:
+    build: ./api
+    image: faust-api
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    environment: *api-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: ./api
+    image: faust-api
+    restart: unless-stopped
+    environment: *api-environment
+    volumes:
+      # LOSING THIS VOLUME MEANS LOSING EVERY PHOTO of the menu and the
+      # atmosphere. It is the only copy — the database stores keys, not files.
+      - uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      # Loopback only — the outside world reaches the API through the proxy or
+      # not at all. It is published for two things that happen on the server
+      # itself: looking at /health by hand, and building `web` against live
+      # data (see BUILD_MENU_API_URL in .env.example).
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  web:
+    build:
+      context: ./faust
+      # The build runs in the host's network namespace so it can reach the API
+      # on the loopback address above. Nothing else about the image depends on
+      # it — the running container uses the compose network like every other.
+      network: host
+      args:
+        # Next allow-lists photo hosts at build time, so this is baked in.
+        MEDIA_HOSTNAME: ${MEDIA_HOSTNAME:-media.faust.bar}
+        NEXT_PUBLIC_SITE_URL: ${SITE_ORIGIN:-http://localhost}
+        # Only for a stack raised locally, where photos come over plain http
+        # from a private address. Leave it empty for a real deployment.
+        LOCAL_MEDIA: ${LOCAL_MEDIA:-}
+        # The showcase is prerendered here, so the API has to be up and seeded
+        # by the time this image is built — a build that cannot reach it comes
+        # out with an empty menu baked in, and no revalidation ever fills it
+        # (a page that never fetched carries neither a tag nor a timer). The
+        # order of commands at the top of this file is what makes it work.
+        MENU_API_URL: ${BUILD_MENU_API_URL:-}
+    restart: unless-stopped
+    environment:
+      MENU_API_URL: http://api:8000
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:?задайте REVALIDATE_SECRET у .env}
+      NEXT_PUBLIC_SITE_URL: ${SITE_ORIGIN:-http://localhost}
+    # No `depends_on` on purpose. The public pages are static, so the site is
+    # readable while the API is still migrating or restarting — waiting for it
+    # would turn a backend restart into downtime for visitors.
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:3000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_ORIGIN: ${SITE_ORIGIN:-http://localhost}
+      MEDIA_ORIGIN: ${MEDIA_ORIGIN:-http://media.faust.bar}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Certificates live here. Losing the volume only means asking for new
+      # ones, but doing that too often runs into the issuer's rate limit.
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      default:
+        aliases:
+          # Next fetches every photo server-side to optimise it, so the media
+          # name has to resolve inside the network too. The alias sends it to
+          # the proxy — the same path a browser would take, rewrite included.
+          - ${MEDIA_HOSTNAME:-media.faust.bar}
+
+networks:
+  default:
+    ipam:
+      config:
+        # Fixed on purpose: TRUSTED_PROXIES above names this range, and a
+        # trust boundary written as "some private address" is not one.
+        - subnet: 172.28.0.0/16
+
+volumes:
+  pgdata:
+  uploads:
+  caddy_data:
+  caddy_config:

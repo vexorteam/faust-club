@@ -18,6 +18,20 @@ const CREDENTIALS_MESSAGE = "Невірна пошта або пароль";
 const rejected = (code: string, message: string, status: number) =>
   NextResponse.json({ ok: false, code, message }, { status });
 
+/**
+ * The visitor's address, as the edge proxy saw it.
+ *
+ * The API limits sign-in attempts per address, and the peer it sees is this
+ * application: without passing the chain on, every guest would share one
+ * bucket and a stranger with five wrong guesses would lock the owner out.
+ * The API believes the header only from a proxy it trusts (`TRUSTED_PROXIES`).
+ */
+const forwardedFor = (request: Request): Record<string, string> => {
+  const chain = request.headers.get("x-forwarded-for");
+
+  return chain ? { "x-forwarded-for": chain } : {};
+};
+
 export const POST = async (request: Request) => {
   let payload: unknown;
 
@@ -37,6 +51,7 @@ export const POST = async (request: Request) => {
     const { token, expiresIn, user } = await apiRequest("/api/v1/auth/login", loginResponseSchema, {
       method: "POST",
       body: credentials.data,
+      headers: forwardedFor(request),
       cache: "no-store",
     });
 

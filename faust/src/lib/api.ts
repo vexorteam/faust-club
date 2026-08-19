@@ -31,6 +31,12 @@ export type ApiRequestOptions = {
   body?: unknown;
   /** Session token, passed through as-is: for the frontend it is opaque (§5.4) */
   token?: string;
+  /**
+   * Extra request headers. One caller needs them: the sign-in proxy passes on
+   * the visitor's address, because the API counts attempts per address and its
+   * peer is this application, not the browser (§3.5).
+   */
+  headers?: Record<string, string>;
   /** Caching directives passed straight to the Next fetch layer */
   next?: { tags?: string[]; revalidate?: number | false };
   cache?: RequestCache;
@@ -104,7 +110,7 @@ export const apiRequest = async <T>(
   }
 
   const url = `${baseUrl}${path}`;
-  const headers: Record<string, string> = { accept: "application/json" };
+  const headers: Record<string, string> = { accept: "application/json", ...options.headers };
 
   /** Multipart writes its own content type, boundary included — do not set one. */
   const isMultipart = options.body instanceof FormData;

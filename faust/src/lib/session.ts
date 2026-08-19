@@ -20,6 +20,7 @@ export { SESSION_COOKIE };
 const EXPIRED_MESSAGE = "Сесія завершилась. Увійдіть ще раз";
 
 export const ADMIN_LOGIN_PATH = "/admin/login";
+export const ADMIN_HOME_PATH = "/admin";
 
 /** Reads the raw token. Server-only: the cookie is invisible to client JS. */
 export const readSessionToken = async (): Promise<string | null> => {
@@ -128,4 +129,32 @@ export const requireAdminOrRedirect = async (): Promise<AdminUser> => {
   if (!user) redirect(ADMIN_LOGIN_PATH);
 
   return user;
+};
+
+/**
+ * The mirror of `requireAdminOrRedirect()`, worn by the login page: whoever
+ * already has a live session has nothing to do on the form.
+ *
+ * It asks the API rather than looking for a cookie, and that is the whole
+ * point. `proxy.ts` used to bounce anyone holding a cookie back to `/admin`,
+ * so a token that died over the week ping-ponged between the two pages until
+ * the browser gave up — and a week is exactly how long a token lives (§5.4),
+ * with an owner who signs in about that often. The check that decides now is
+ * the same one the panel itself trusts, so the two cannot disagree.
+ *
+ * An API that is merely unreachable leaves the form on screen. Signing in will
+ * not work either way, but a form that says so beats an error page.
+ */
+export const redirectIfSignedIn = async (): Promise<void> => {
+  let user: AdminUser | null = null;
+
+  try {
+    user = await getSession();
+  } catch {
+    return;
+  }
+
+  // Outside the `try`: `redirect()` works by throwing, and catching it here
+  // would swallow the redirect itself.
+  if (user) redirect(ADMIN_HOME_PATH);
 };

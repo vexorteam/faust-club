@@ -32,10 +32,14 @@ describe("proxy", () => {
     expect(locationOf(response)).toBeNull();
   });
 
-  it("does not show the login form to someone who already has a session", () => {
+  it("lets a cookie holder reach the login form, so an expired session cannot loop", () => {
+    // The regression: bouncing anyone with a cookie back to /admin sent a dead
+    // token ping-ponging between the two pages, because the panel sends it here
+    // and this used to send it straight back. Deciding that direction needs the
+    // API, and the login page is the one that asks.
     const response = proxy(request("/admin/login", true));
 
-    expect(locationOf(response)).toBe("https://faust.bar/admin");
+    expect(locationOf(response)).toBeNull();
   });
 
   it("waves through a request that carries a cookie", () => {

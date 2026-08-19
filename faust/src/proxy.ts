@@ -24,10 +24,12 @@ export const proxy = (request: NextRequest) => {
     return NextResponse.redirect(new URL(LOGIN_PATH, request.url));
   }
 
-  if (hasCookie && isLogin) {
-    return NextResponse.redirect(new URL("/admin", request.url));
-  }
-
+  // The opposite shortcut — "has a cookie, so send them to the panel" — used
+  // to live here and had to go. A cookie whose token has expired still looks
+  // like a session from here, so the panel bounced it back to the form and the
+  // form bounced it back to the panel until the browser refused to follow. The
+  // login page now decides that direction itself, by asking the API whether
+  // the session is actually alive.
   return NextResponse.next();
 };
 

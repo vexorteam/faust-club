@@ -14,19 +14,31 @@ const remotePatterns: NonNullable<NonNullable<NextConfig["images"]>["remotePatte
 // enough on its own: Next also refuses to fetch an image from an address that
 // resolves to a private IP, which is exactly what localhost is. Both are
 // evaluated at build time, so a production build carries neither.
-const isLocalDev = process.env.NODE_ENV === "development";
+//
+// `next dev` is one such case. The whole stack raised locally with
+// `docker compose` is the other, and NODE_ENV cannot tell them apart: that
+// image is built the production way, it just talks to a proxy on a private
+// address over plain http. LOCAL_MEDIA is the build argument for it, and the
+// images that go to the server never set it.
+const isLocalMedia = process.env.NODE_ENV === "development" || process.env.LOCAL_MEDIA === "1";
 
-if (isLocalDev) {
-  remotePatterns.push({ protocol: "http", hostname: "localhost", pathname: "/**" });
+if (isLocalMedia) {
+  remotePatterns.push(
+    { protocol: "http", hostname: "localhost", pathname: "/**" },
+    { protocol: "http", hostname: mediaHostname, pathname: "/**" },
+  );
 }
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // The container ships the server Next builds for itself plus the static
+  // assets — not node_modules. Step 13 of the plan asks for exactly this.
+  output: "standalone",
   images: {
     remotePatterns,
     formats: ["image/avif", "image/webp"],
-    dangerouslyAllowLocalIP: isLocalDev,
+    dangerouslyAllowLocalIP: isLocalMedia,
   },
   async headers() {
     return [

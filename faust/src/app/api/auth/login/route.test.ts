@@ -6,11 +6,11 @@ vi.mock("next/headers", () => ({ cookies: async () => cookieStore }));
 
 const { POST } = await import("@/app/api/auth/login/route");
 
-const post = (body: unknown) =>
+const post = (body: unknown, headers: Record<string, string> = {}) =>
   POST(
     new Request("http://localhost/api/auth/login", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...headers },
       body: JSON.stringify(body),
     }),
   );
@@ -100,5 +100,33 @@ describe("POST /api/auth/login", () => {
 
     expect(response.status).toBe(503);
     expect(cookieStore.set).not.toHaveBeenCalled();
+  });
+
+  it("passes the visitor's address on so the attempt limit counts them, not us", async () => {
+    const fetchMock = apiAnswers({
+      access_token: "jwt-token",
+      expires_in: 604800,
+      user: { id: "9f3a", name: "Власник", email: "owner@faust.bar" },
+    });
+
+    await post(credentials, { "x-forwarded-for": "203.0.113.7, 172.28.0.4" });
+
+    const [, request] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+
+    expect((request.headers as Record<string, string>)["x-forwarded-for"]).toBe("203.0.113.7, 172.28.0.4");
+  });
+
+  it("sends no address header when nothing proxied the request", async () => {
+    const fetchMock = apiAnswers({
+      access_token: "jwt-token",
+      expires_in: 604800,
+      user: { id: "9f3a", name: "Власник", email: "owner@faust.bar" },
+    });
+
+    await post(credentials);
+
+    const [, request] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+
+    expect(request.headers as Record<string, string>).not.toHaveProperty("x-forwarded-for");
   });
 });

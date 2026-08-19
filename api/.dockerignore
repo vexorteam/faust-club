@@ -1,0 +1,18 @@
+# Everything the image has no use for. Keeping this list tight matters twice:
+# a smaller context is a faster build, and a stray .env in the image would put
+# the signing key of the session tokens into a layer anyone can read.
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+.env
+.env.local
+
+# Photos live in a volume, never in an image.
+uploads/
+
+tests/
+README.md

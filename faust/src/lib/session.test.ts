@@ -14,8 +14,15 @@ const redirect = vi.fn((path: string) => {
 vi.mock("next/headers", () => ({ cookies: async () => cookieStore }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => redirect(path) }));
 
-const { applySessionRenewal, getSession, requireAdmin, requireAdminOrRedirect, setSessionCookie, clearSessionCookie } =
-  await import("@/lib/session");
+const {
+  applySessionRenewal,
+  getSession,
+  redirectIfSignedIn,
+  requireAdmin,
+  requireAdminOrRedirect,
+  setSessionCookie,
+  clearSessionCookie,
+} = await import("@/lib/session");
 
 const user = { id: "9f3a", name: "Власник", email: "owner@faust.bar" };
 
@@ -137,5 +144,35 @@ describe("session", () => {
     });
 
     await expect(applySessionRenewal({ token: "fresh-jwt", expiresIn: 604800 })).resolves.toBe(false);
+  });
+
+  it("redirectIfSignedIn sends a live session to the panel", async () => {
+    signedInWith("jwt-token");
+    apiAnswers({ user });
+
+    await expect(redirectIfSignedIn()).rejects.toThrow("NEXT_REDIRECT:/admin");
+  });
+
+  it("redirectIfSignedIn leaves an expired cookie on the login form", async () => {
+    // The loop this closes: the panel sends a dead token here, and anything
+    // that sent it back would keep the two pages throwing it at each other.
+    signedInWith("stale-token");
+    apiAnswers({ error: { code: "UNAUTHORIZED", message: "Сесія недійсна" } }, 401);
+
+    await expect(redirectIfSignedIn()).resolves.toBeUndefined();
+    expect(redirect).not.toHaveBeenCalled();
+  });
+
+  it("redirectIfSignedIn keeps the form on screen when the API is unreachable", async () => {
+    signedInWith("jwt-token");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new TypeError("fetch failed");
+      }),
+    );
+
+    await expect(redirectIfSignedIn()).resolves.toBeUndefined();
+    expect(redirect).not.toHaveBeenCalled();
   });
 });
