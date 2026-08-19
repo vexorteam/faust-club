@@ -283,3 +283,33 @@ async def test_a_category_is_untouched_by_all_of_this(
     categories = await session.scalars(select(MenuCategory))
 
     assert [row.slug for row in categories] == ["signature"]
+
+
+async def test_a_refused_write_takes_the_new_files_with_it(
+    admin_client: AsyncClient, session: AsyncSession, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The volume is not where failures go to be forgotten.
+
+    Files are written before the row is touched on purpose, so a bad upload
+    leaves the previous picture alone. The other half of that promise is this
+    one: when the database is what refuses, nothing points at the three
+    variants already on disk and nobody would ever come looking for them.
+    """
+    drink = await a_position(session, image_key="menu/old", image_alt="старий опис")
+
+    async def refuse() -> None:
+        raise RuntimeError("транзакція не пройшла")
+
+    monkeypatch.setattr(type(session), "commit", lambda _self: refuse())
+
+    response = await admin_client.post(
+        f"{ITEMS}/{drink.id}/image", files=frame(photos.jpeg()), data={"alt": ALT}
+    )
+
+    assert response.status_code == 500
+
+    monkeypatch.undo()
+    stored = await reread(session, drink.id)
+
+    assert stored.image_key == "menu/old"
+    assert not list(file_path("menu/", "card").parent.glob(f"{drink.id.hex}-*"))

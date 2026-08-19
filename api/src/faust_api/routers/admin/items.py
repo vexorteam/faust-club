@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from faust_api.db import get_session
-from faust_api.errors import NotFoundError
+from faust_api.errors import NotFoundError, ValidationError
 from faust_api.models import MenuCategory, MenuItem
 from faust_api.routers.admin.categories import load_category
 from faust_api.schemas.admin import (
@@ -36,7 +36,7 @@ from faust_api.schemas.admin import (
     RequiredImageAlt,
     changes_of,
 )
-from faust_api.services.images import MENU_FOLDER, accept_upload, photo_url, remove_photo, store_photo
+from faust_api.services.images import MENU_FOLDER, accept_upload, photo_url, remove_photo, stored_photo
 from faust_api.services.ordering import append, close_gap, move
 from faust_api.services.revalidate import request_revalidation
 
@@ -45,6 +45,8 @@ router = APIRouter(prefix="/items")
 Session = Annotated[AsyncSession, Depends(get_session)]
 
 MISSING_MESSAGE = "Позицію не знайдено. Можливо, її щойно видалили"
+
+NO_PHOTO_MESSAGE = "Опис фото нема до чого прикласти — спершу завантажте знімок"
 
 Upload = Annotated[UploadFile | None, File()]
 Alt = Annotated[RequiredImageAlt, Form()]
@@ -81,6 +83,10 @@ async def read_items(
     query = select(MenuCategory).order_by(MenuCategory.order).options(selectinload(MenuCategory.items))
 
     if category is not None:
+        # A category that is not there is a 404, not an empty menu: answering
+        # "no positions" to a question about a section that no longer exists
+        # reads, in the panel, as a section somebody emptied.
+        await load_category(session, category)
         query = query.where(MenuCategory.id == category)
 
     groups = await session.scalars(query)
@@ -140,6 +146,13 @@ async def update_item(
 ) -> ItemResponse:
     changes = changes_of(payload)
     item = await load_item(session, item_id)
+
+    # A description belongs to a picture (§5.3). Letting it be written onto a
+    # position that has no photo leaves a screen reader with a caption for
+    # something that is not on the page, and the showcase with an `imageAlt`
+    # its own contract says only travels next to an `image`.
+    if changes.get("image_alt") is not None and item.image_key is None:
+        raise ValidationError(NO_PHOTO_MESSAGE, fields={"imageAlt": NO_PHOTO_MESSAGE})
 
     target = changes.pop("category_id", None)
 
@@ -212,10 +225,11 @@ async def upload_image(
 
     previous = item.image_key
 
-    item.image_key = await store_photo(MENU_FOLDER, item.id, data)
-    item.image_alt = alt
+    async with stored_photo(MENU_FOLDER, item.id, data) as image_key:
+        item.image_key = image_key
+        item.image_alt = alt
 
-    await session.commit()
+        await session.commit()
 
     if previous != item.image_key:
         await remove_photo(previous)

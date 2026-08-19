@@ -349,3 +349,47 @@ async def test_a_write_without_a_session_never_reaches_the_database(
 
     assert response.status_code == 401
     assert await total_items(session) == 0
+
+
+async def test_a_description_without_a_photo_is_refused(
+    admin_client: AsyncClient, session: AsyncSession
+) -> None:
+    """§5.3 pairs `imageAlt` with `image`. A description of a picture that is not
+    there would be read aloud in place of nothing at all."""
+    signature = category("signature", "Авторські коктейлі", 1)
+    signature.items = [item("Мефісто", 1)]
+    await persist(session, signature)
+
+    target = signature.items[0].id
+    answer = await admin_client.patch(f"{ITEMS}/{target}", json={"imageAlt": "опис без фото"})
+
+    assert answer.status_code == 400
+    assert "imageAlt" in answer.json()["error"]["fields"]
+
+    stored = await session.get(MenuItem, target)
+    assert stored is not None
+    assert stored.image_alt is None
+
+
+async def test_a_description_next_to_a_photo_is_saved(
+    admin_client: AsyncClient, session: AsyncSession
+) -> None:
+    """The point of the addition in §13.4: fixing a typo must not need the frame again."""
+    signature = category("signature", "Авторські коктейлі", 1)
+    signature.items = [item("Faust Sour", 1, image_key="menu/9f3a", image_alt="старий опис")]
+    await persist(session, signature)
+
+    target = signature.items[0].id
+    answer = await admin_client.patch(f"{ITEMS}/{target}", json={"imageAlt": "Коктейль у келиху купе"})
+
+    assert answer.status_code == 200
+    assert answer.json()["item"]["imageAlt"] == "Коктейль у келиху купе"
+
+
+async def test_filtering_by_a_category_that_is_gone_is_a_404(admin_client: AsyncClient) -> None:
+    """An empty group would read as a section somebody emptied, not as one that
+    no longer exists."""
+    answer = await admin_client.get(ITEMS, params={"category": str(uuid.uuid4())})
+
+    assert answer.status_code == 404
+    assert answer.json()["error"]["code"] == "NOT_FOUND"

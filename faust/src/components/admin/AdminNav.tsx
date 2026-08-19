@@ -10,13 +10,19 @@ import styles from "./AdminNav.module.css";
  */
 
 const SECTIONS = [
-  { href: "/admin", label: "Позиції", owns: ["/admin", "/admin/items"] },
+  /**
+   * `owns` is the list of prefixes a section answers for, and the list of
+   * positions has one that its own address is not: it lives at the root of the
+   * panel, so treating `/admin` as a prefix would mark it current on every page
+   * in the area — two tabs highlighted at once, and `aria-current` on both.
+   */
+  { href: "/admin", label: "Позиції", owns: ["/admin/items"] },
   { href: "/admin/categories", label: "Категорії", owns: ["/admin/categories"] },
   { href: "/admin/atmosphere", label: "Атмосфера", owns: ["/admin/atmosphere"] },
 ] as const;
 
-const isCurrent = (pathname: string, owns: readonly string[]) =>
-  owns.some((base) => pathname === base || pathname.startsWith(`${base}/`));
+const isCurrent = (pathname: string, href: string, owns: readonly string[]) =>
+  pathname === href || owns.some((base) => pathname === base || pathname.startsWith(`${base}/`));
 
 export const AdminNav = () => {
   const pathname = usePathname();
@@ -24,7 +30,7 @@ export const AdminNav = () => {
   return (
     <nav className={styles.nav} aria-label="Розділи керування">
       {SECTIONS.map((section) => {
-        const current = isCurrent(pathname, section.owns);
+        const current = isCurrent(pathname, section.href, section.owns);
 
         return (
           <Link

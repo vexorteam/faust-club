@@ -121,13 +121,18 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
     return null;
   };
 
-  const sendPhoto = async (id: string, alt: string) => {
+  /**
+   * The photo is a second request, so the confirmation belongs to it: the save
+   * that went before it stayed quiet on purpose, and announcing «Збережено»
+   * while the frame is still on its way would be a lie with a picture missing.
+   */
+  const sendPhoto = async (id: string, alt: string, success: string) => {
     const body = new FormData();
 
     body.set("file", photoFile as File);
     body.set("alt", alt);
 
-    return mutate("photo", { url: `/api/admin/items/${id}/image`, method: "POST", body }, { refresh: false });
+    return mutate("photo", { url: `/api/admin/items/${id}/image`, method: "POST", body }, { success, refresh: false });
   };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -151,12 +156,14 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
     /** Without a new frame the description has no upload to travel with (§13.4). */
     const body = alt && !photoFile ? { ...parsed.data, imageAlt: alt } : parsed.data;
 
+    const saved = item ? "Збережено" : "Позицію додано";
+
     const outcome = await mutate(
       "save",
       item
         ? { url: `/api/admin/items/${item.id}`, method: "PATCH", body }
         : { url: "/api/admin/items", method: "POST", body: parsed.data },
-      { success: photoFile ? undefined : item ? "Збережено" : "Позицію додано", refresh: false },
+      { success: photoFile ? undefined : saved, refresh: false },
     );
 
     if (!outcome.ok) {
@@ -172,7 +179,7 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
         return;
       }
 
-      const uploaded = await sendPhoto(id, alt);
+      const uploaded = await sendPhoto(id, alt, saved);
 
       /** Saved without its photo — say so and stay, so the upload can be retried */
       if (!uploaded.ok) {

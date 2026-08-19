@@ -9,6 +9,9 @@ import { expect, test } from "@playwright/test";
  * the markup — a category heading, a price, a photo with a description.
  */
 
+/** Same name `admin.spec.ts` reads: one variable moves the whole suite. */
+const API_URL = process.env.E2E_API_URL ?? "http://localhost:8000";
+
 test("головна показує клуб і веде в меню", async ({ page }) => {
   await page.goto("/");
 
@@ -43,7 +46,7 @@ test("меню наповнене з API: категорії, ціни, опис
 });
 
 test("прихована категорія на вітрину не потрапляє", async ({ page, request }) => {
-  const menu = await (await request.get("http://localhost:8000/api/v1/menu")).json();
+  const menu = await (await request.get(`${API_URL}/api/v1/menu`)).json();
   const published: string[] = menu.categories.map((category: { label: string }) => category.label);
 
   await page.goto("/menu");

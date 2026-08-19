@@ -32,7 +32,7 @@ from faust_api.schemas.admin import (
     TileLabel,
     changes_of,
 )
-from faust_api.services.images import ATMOSPHERE_FOLDER, accept_upload, remove_photo, store_photo
+from faust_api.services.images import ATMOSPHERE_FOLDER, accept_upload, remove_photo, stored_photo
 from faust_api.services.ordering import append, close_gap, move
 from faust_api.services.revalidate import request_revalidation
 
@@ -84,16 +84,17 @@ async def create_photo(
     data = await accept_upload(file)
     photo_id = uuid.uuid4()
 
-    photo = AtmospherePhoto(
-        id=photo_id,
-        label=label,
-        image_alt=alt,
-        image_key=await store_photo(ATMOSPHERE_FOLDER, photo_id, data),
-        order=await append(session, AtmospherePhoto),
-    )
+    async with stored_photo(ATMOSPHERE_FOLDER, photo_id, data) as image_key:
+        photo = AtmospherePhoto(
+            id=photo_id,
+            label=label,
+            image_alt=alt,
+            image_key=image_key,
+            order=await append(session, AtmospherePhoto),
+        )
 
-    session.add(photo)
-    await session.commit()
+        session.add(photo)
+        await session.commit()
 
     revalidation.add_task(request_revalidation, "atmosphere")
 
@@ -138,10 +139,11 @@ async def replace_image(
 
     previous = photo.image_key
 
-    photo.image_key = await store_photo(ATMOSPHERE_FOLDER, photo.id, data)
-    photo.image_alt = alt
+    async with stored_photo(ATMOSPHERE_FOLDER, photo.id, data) as image_key:
+        photo.image_key = image_key
+        photo.image_alt = alt
 
-    await session.commit()
+        await session.commit()
 
     if previous != photo.image_key:
         await remove_photo(previous)

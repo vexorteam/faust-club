@@ -97,3 +97,54 @@ def test_a_trusted_proxy_without_the_header_still_counts_as_itself(
 def test_a_request_without_a_peer_lands_in_one_shared_bucket() -> None:
     """Nameless callers share a window rather than each getting a free one."""
     assert client_address(request_from(None)) == "unknown"
+
+
+def test_a_forged_entry_in_front_of_the_real_one_is_not_believed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The edge proxy *appends* to whatever the browser sent, so the left-hand
+    end of the chain belongs to the caller. Reading it would give an attacker a
+    fresh bucket per request — five guesses each, forever."""
+    trusting(monkeypatch, "10.0.0.0/8")
+
+    forged = request_from("10.0.0.5", x_forwarded_for="9.9.9.9, 203.0.113.7, 10.0.0.5")
+
+    assert client_address(forged) == "203.0.113.7"
+
+
+def test_a_chain_of_nonsense_does_not_mint_a_bucket(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Only our own proxies write into this header, and they write addresses."""
+    trusting(monkeypatch, "10.0.0.0/8")
+
+    junk = request_from("10.0.0.5", x_forwarded_for="not-an-address, 10.0.0.5")
+
+    assert client_address(junk) == "10.0.0.5"
+
+
+def test_the_limit_survives_a_forged_header(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The whole point, end to end: the same visitor behind a proxy runs out of
+    attempts no matter what they put in front of their own address."""
+    trusting(monkeypatch, "10.0.0.0/8")
+    limiter = AttemptLimiter()
+
+    for guess in range(MAX_ATTEMPTS):
+        caller = client_address(
+            request_from("10.0.0.5", x_forwarded_for=f"9.9.9.{guess}, 203.0.113.7, 10.0.0.5")
+        )
+        limiter.record_failure(caller)
+
+    assert limiter.blocked("203.0.113.7") is True
+
+
+def test_buckets_of_addresses_that_went_quiet_are_swept(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`_recent` only cleans the key it is asked about, so without a sweep a
+    burst from many addresses would leave an entry behind for each of them."""
+    limiter = AttemptLimiter()
+
+    for host in range(2000):
+        limiter.record_failure(f"203.0.113.{host // 250}.{host % 250}")
+
+    monkeypatch.setattr(limiter, "window", timedelta(seconds=0))
+    limiter.record_failure("198.51.100.1")
+
+    assert len(limiter._failures) == 1

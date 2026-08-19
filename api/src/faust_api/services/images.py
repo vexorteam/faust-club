@@ -21,6 +21,8 @@ import hashlib
 import logging
 import re
 import uuid
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from io import BytesIO
 from pathlib import Path
 
@@ -239,6 +241,25 @@ async def store_photo(folder: str, owner: uuid.UUID, data: bytes) -> str:
     serving.
     """
     return await run_in_threadpool(_store, folder, owner, data)
+
+
+@asynccontextmanager
+async def stored_photo(folder: str, owner: uuid.UUID, data: bytes) -> AsyncIterator[str]:
+    """The key of a freshly written photo, taken back if the caller cannot finish.
+
+    Files are written before the row is touched, so an upload that fails leaves
+    the previous picture in place (§13.7). The other half of that promise lives
+    here: when it is the *database* that refuses — the row vanished under us, the
+    connection dropped — the three variants already on the volume have nothing
+    pointing at them and nobody would ever come back for them.
+    """
+    image_key = await store_photo(folder, owner, data)
+
+    try:
+        yield image_key
+    except BaseException:
+        await remove_photo(image_key)
+        raise
 
 
 def _remove(image_key: str) -> None:

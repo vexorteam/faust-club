@@ -25,10 +25,11 @@ COPY . .
 ARG MEDIA_HOSTNAME
 ARG NEXT_PUBLIC_SITE_URL
 ARG LOCAL_MEDIA
-# Optional: with the API reachable during the build, `/` and `/menu` come out
-# already filled. Without it they are built empty and fill themselves in on the
-# first revalidation — which is what happens on a first `docker compose up`,
-# where the API starts after this image is built.
+# The API has to be reachable during the build, because `/` and `/menu` are
+# prerendered here. An image built without it carries an empty showcase for
+# good: a page that never fetched has neither a cache tag nor an ISR timer, so
+# neither the revalidation webhook nor time itself will ever fill it in. That
+# is why the compose file raises `postgres` and `api` before building `web`.
 ARG MENU_API_URL
 
 ENV NEXT_TELEMETRY_DISABLED=1
