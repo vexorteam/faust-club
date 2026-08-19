@@ -100,6 +100,17 @@ export class ApiUnavailableError extends AppError {
   readonly status = 503;
 }
 
+/**
+ * Raised by the frontend itself when its own data is unusable — `data/site.ts`
+ * missing a weekday, say. Never comes from the API and never has a code in the
+ * shared dictionary below: nobody on the other side can cause it, and nobody
+ * there could fix it either.
+ */
+export class ConfigurationError extends AppError {
+  readonly code = "CONFIGURATION_ERROR";
+  readonly status = 500;
+}
+
 type AppErrorConstructor = new (message: string, details?: unknown) => AppError;
 
 /**

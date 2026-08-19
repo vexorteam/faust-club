@@ -14,6 +14,11 @@
   --accent-magenta: #f0558b;
   --accent-magenta-strong: #ff2e78;
   --danger: #ff8a8a;
+  /* «Відчинено зараз» in the hero. Green because that is the one thing on a
+     magenta site that must not read as an accent — it reports a fact. */
+  --online: #4ade80;
+  --online-soft: rgba(74, 222, 128, 0.2);
+  --offline-soft: rgba(113, 131, 162, 0.2);
   --danger-strong: #ff6b6b;
   --beam: linear-gradient(90deg, transparent, var(--accent-magenta) 35%, var(--accent-violet) 65%, transparent);
   --gradient-brand: linear-gradient(

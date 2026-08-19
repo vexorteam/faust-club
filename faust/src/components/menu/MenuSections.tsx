@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { MenuCategoryView, MenuItemView } from "@/types";
 import { Reveal } from "@/components/layout/Reveal";
+import { formatPrice } from "@/lib/format";
 import styles from "./MenuSections.module.css";
 
 /** A position with no photo keeps its place in the grid: a letter stands in for it. */
@@ -15,6 +16,9 @@ const monogramOf = (name: string): string => name.trim().charAt(0).toUpperCase()
  * `false` counts.
  */
 const soldOut = (item: MenuItemView): boolean => item.available === false;
+
+/** The same two words the admin list uses, so one thing is called one name. */
+const BADGE_LABELS: Record<"new" | "hit", string> = { new: "Нове", hit: "Хіт" };
 
 export const MenuSections = ({ categories }: { categories: MenuCategoryView[] }) => {
   const [active, setActive] = useState(categories[0]?.slug ?? "");
@@ -69,6 +73,9 @@ export const MenuSections = ({ categories }: { categories: MenuCategoryView[] })
               <h2 id={`${category.slug}-title`} className={styles.categoryTitle}>
                 {category.label}
               </h2>
+
+              {/* The owner's own line under the heading: «подаються з 22:00» */}
+              {category.note && <p className={styles.categoryNote}>{category.note}</p>}
             </Reveal>
 
             <div className={styles.grid}>
@@ -76,6 +83,9 @@ export const MenuSections = ({ categories }: { categories: MenuCategoryView[] })
                 <Reveal key={item.id} delay={Math.min(i * 0.04, 0.2)}>
                   <div className={`${styles.item} ${soldOut(item) ? styles.itemOut : ""}`}>
                     <div className={styles.itemImageWrap}>
+                      {item.badge && !soldOut(item) && (
+                        <span className={styles.itemBadge}>{BADGE_LABELS[item.badge]}</span>
+                      )}
                       {item.image ? (
                         <Image
                           src={item.image}
@@ -98,7 +108,10 @@ export const MenuSections = ({ categories }: { categories: MenuCategoryView[] })
                       </div>
 
                       <div className={styles.itemFooter}>
-                        <span className={styles.itemPrice}>{item.price} ₴</span>
+                        <span className={styles.itemPrice}>
+                          {formatPrice(item.price)}
+                          {item.volume && <span className={styles.itemVolume}>{item.volume}</span>}
+                        </span>
                         {soldOut(item) && <span className={styles.itemOutMark}>немає</span>}
                       </div>
                     </div>

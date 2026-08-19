@@ -29,7 +29,10 @@
   padding: 9px 16px;
   border-radius: var(--radius-pill);
   border: 1px solid transparent;
-  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
 }
 
 .tab:hover {
@@ -60,6 +63,18 @@
 .categoryTitle {
   font-size: clamp(1.7rem, 4vw, 2.4rem);
   margin-bottom: 28px;
+}
+
+/* The note belongs to the heading, so it takes over the gap below it. */
+.categoryTitle:has(+ .categoryNote) {
+  margin-bottom: 8px;
+}
+
+.categoryNote {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  max-width: 60ch;
 }
 
 .grid {
@@ -157,10 +172,22 @@
 }
 
 .itemPrice {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
   font-family: var(--font-mono);
   font-size: 15px;
   font-weight: 600;
   color: var(--accent-magenta);
+}
+
+/* Volume is part of the price line but not part of the price: same family,
+   quieter colour, so «320 ₴ 250 мл» reads as one fact and not as two sums. */
+.itemVolume {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
 }
 
 /*
@@ -177,6 +204,29 @@
 
 .itemOut .itemMain {
   opacity: 0.7;
+}
+
+/*
+ * «Нове» / «Хіт» — the mark the owner sets in the admin panel. It sits on the
+ * photo because that is where the eye lands first, and above the gradient
+ * overlay, which is a `::after` and would otherwise paint over it.
+ */
+.itemBadge {
+  position: absolute;
+  z-index: 1;
+  top: 12px;
+  left: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  /* Solid magenta with near-black text: 6.1:1. The brand gradient would need
+     dark text at one end and light at the other, so no single colour passes. */
+  color: var(--ink);
+  background: var(--accent-magenta);
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
 }
 
 /* A word, not a `content:` string — this is the one label that changes what

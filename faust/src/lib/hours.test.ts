@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { getOpenStatus, formatStatus } from "./hours";
+import { site } from "@/data/site";
+import { formatStatus, formatWeek, formatWorkingDays, getOpenStatus, openingTime } from "./hours";
 
 const TZ = "Europe/Kyiv";
 
@@ -73,5 +74,32 @@ describe("getOpenStatus — boundary cases around midnight", () => {
     const closed = getOpenStatus(kyiv("2025-01-13T10:00"), TZ);
     expect(formatStatus(open)).toContain("Відчинено зараз");
     expect(formatStatus(closed)).toContain("Наступна ніч");
+  });
+});
+
+/**
+ * The hero used to say "П'ятниця · Субота · 22:00" and the About section
+ * "7/7 днів на тиждень", while `site.hours` said Чт–Сб. Both lines are read out
+ * of the data now, so this is the test that keeps them from drifting apart
+ * again — including when the owner finally confirms the real schedule.
+ */
+describe("the working week, read out of site.hours", () => {
+  it("collapses three nights in a row into a range", () => {
+    expect(formatWorkingDays()).toBe("Чт–Сб");
+  });
+
+  it("names the opening time only while every night shares one", () => {
+    expect(openingTime()).toBe("22:00");
+  });
+
+  it("puts the two together the way the hero shows them", () => {
+    expect(formatWeek()).toBe("Чт–Сб · 22:00");
+  });
+
+  it("agrees with the days site.hours actually marks as open", () => {
+    const open = site.hours.filter((rule) => rule.open !== null);
+
+    expect(open).toHaveLength(3);
+    expect(open.map((rule) => rule.label)).toEqual(["Четвер", "П'ятниця", "Субота"]);
   });
 });

@@ -155,15 +155,15 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #4ade80;
-  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.2);
+  background: var(--online);
+  box-shadow: 0 0 0 4px var(--online-soft);
   display: inline-block;
   margin-right: 8px;
 }
 
 .statusDotClosed {
   background: var(--text-muted);
-  box-shadow: 0 0 0 3px rgba(113, 131, 162, 0.2);
+  box-shadow: 0 0 0 3px var(--offline-soft);
 }
 
 .actions {

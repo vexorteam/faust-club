@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "modern-normalize/modern-normalize.css";
 import { fontVariables } from "@/lib/fonts";
 import { site } from "@/data/site";
+import { siteUrl } from "@/lib/site-url";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
@@ -9,7 +10,7 @@ import { SiteChrome } from "@/components/layout/SiteChrome";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(site.url),
+  metadataBase: new URL(siteUrl),
   title: {
     default: `${site.name} — ${site.tagline}`,
     template: `%s · ${site.name}`,
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: site.locale,
-    url: site.url,
+    url: siteUrl,
     siteName: site.name,
     title: `${site.name} — ${site.tagline}`,
     description: site.description,
@@ -46,7 +47,7 @@ const jsonLd = {
   "@type": "NightClub",
   name: site.name,
   description: site.description,
-  url: site.url,
+  url: siteUrl,
   telephone: site.contacts.phone,
   email: site.contacts.email,
   address: {

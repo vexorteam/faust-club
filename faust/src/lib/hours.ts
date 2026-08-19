@@ -1,4 +1,5 @@
 import { site } from "@/data/site";
+import { ConfigurationError } from "@/errors";
 
 type DayRule = (typeof site.hours)[number];
 
@@ -45,7 +46,7 @@ const getZonedParts = (date: Date, timeZone: string): { weekday: number; minutes
 
 const ruleFor = (weekday: number): DayRule => {
   const rule = site.hours.find((h) => h.day === weekday);
-  if (!rule) throw new Error(`No hours rule configured for weekday ${weekday}`);
+  if (!rule) throw new ConfigurationError(`У site.hours немає правила для дня тижня ${weekday}`);
   return rule;
 };
 
@@ -89,10 +90,46 @@ export const getOpenStatus = (date: Date = new Date(), timeZone: string = site.t
     return { isOpen: false, nextOpen: { label, time: candidate.open } };
   }
 
-  throw new Error("No open days configured");
+  throw new ConfigurationError("У site.hours немає жодного робочого дня");
 };
 
 export const formatStatus = (status: OpenStatus): string => {
   if (status.isOpen) return `Відчинено зараз · до ${status.closesAt}`;
   return `Наступна ніч: ${status.nextOpen.label}, ${status.nextOpen.time}`;
 };
+
+/* ── The working week, straight from the data ──────────────────────────── */
+
+const SHORT_DAYS: Record<number, string> = { 1: "Пн", 2: "Вт", 3: "Ср", 4: "Чт", 5: "Пт", 6: "Сб", 7: "Нд" };
+
+const openDays = (): readonly DayRule[] => site.hours.filter((rule) => rule.open !== null);
+
+/**
+ * "Чт–Сб", or "Чт, Сб" when the nights are not next to each other.
+ *
+ * Derived rather than written out, because a hero that says one thing while
+ * the footer and the JSON-LD say another is worse than a hero that says
+ * nothing: the visitor turns up on the wrong night.
+ */
+export const formatWorkingDays = (): string => {
+  const days = openDays();
+
+  if (days.length === 0) return "";
+
+  const short = days.map((rule) => SHORT_DAYS[rule.day] ?? rule.label);
+  const runsTogether = days.every((rule, index) => index === 0 || rule.day === (days[index - 1]?.day ?? 0) + 1);
+
+  if (!runsTogether || days.length < 3) return short.join(", ");
+
+  return `${short[0]}–${short[short.length - 1]}`;
+};
+
+/** The opening time, when every working night shares one. Otherwise `null`. */
+export const openingTime = (): string | null => {
+  const times = new Set(openDays().map((rule) => rule.open));
+
+  return times.size === 1 ? ([...times][0] ?? null) : null;
+};
+
+/** "Чт–Сб · 22:00" — the line the hero shows before any clock is consulted. */
+export const formatWeek = (): string => [formatWorkingDays(), openingTime()].filter(Boolean).join(" · ");

@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
-import { site } from "@/data/site";
+import { siteUrl } from "@/lib/site-url";
 
 const robots = (): MetadataRoute.Robots => ({
   rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/api/"] },
-  sitemap: `${site.url}/sitemap.xml`,
-  host: site.url,
+  sitemap: `${siteUrl}/sitemap.xml`,
+  host: siteUrl,
 });
 
 export default robots;

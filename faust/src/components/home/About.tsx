@@ -1,11 +1,14 @@
 import Image from "next/image";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Reveal } from "@/components/layout/Reveal";
+import { formatWorkingDays } from "@/lib/hours";
 import styles from "./About.module.css";
 import aboutPhoto from "../../../public/img/disco.jpg";
 
 const facts = [
-  { value: "7/7", label: "днів на тиждень" },
+  /* Read out of `site.hours`, not typed out: the fact used to say "7/7 днів на
+     тиждень" while the footer, the hero and the JSON-LD all said Чт–Сб. */
+  { value: formatWorkingDays(), label: "ночі щотижня" },
   { value: "180+", label: "коктейлів" },
   { value: "1000+", label: "вдячних гостей" },
 ];
