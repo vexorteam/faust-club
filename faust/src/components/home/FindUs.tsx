@@ -6,6 +6,7 @@ import { Reveal } from "@/components/layout/Reveal";
 import { Button } from "@/components/ui/Button";
 import { IconPin, IconPhone, IconMail, IconClock, IconArrowUpRight } from "@/components/ui/icon";
 import { site } from "@/data/site";
+import type { SiteSettingsView } from "@/types";
 import styles from "./FindUs.module.css";
 
 const getTodayWeekday = (timeZone: string): number => {
@@ -14,7 +15,7 @@ const getTodayWeekday = (timeZone: string): number => {
   return map[formatter.format(new Date())] ?? 0;
 };
 
-export const FindUs = () => {
+export const FindUs = ({ settings }: { settings: SiteSettingsView }) => {
   const [today, setToday] = useState<number | null>(null);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export const FindUs = () => {
             <div className={styles.pin} aria-hidden="true">
               <IconPin />
             </div>
-            <a href={site.contacts.mapsUrl} target="_blank" rel="noreferrer noopener" className={styles.mapLink}>
+            <a href={settings.contacts.mapsUrl} target="_blank" rel="noreferrer noopener" className={styles.mapLink}>
               Відкрити в Google Maps
               <IconArrowUpRight />
             </a>
@@ -46,7 +47,7 @@ export const FindUs = () => {
               <IconPin className={styles.rowIcon} />
               <div>
                 <div className={styles.rowLabel}>Адреса</div>
-                <div className={styles.rowValue}>{site.contacts.address}</div>
+                <div className={styles.rowValue}>{settings.contacts.address}</div>
               </div>
             </div>
 
@@ -55,7 +56,7 @@ export const FindUs = () => {
               <div>
                 <div className={styles.rowLabel}>Телефон</div>
                 <div className={styles.rowValue}>
-                  <a href={site.contacts.phoneHref}>{site.contacts.phone}</a>
+                  <a href={settings.contacts.phoneHref}>{settings.contacts.phone}</a>
                 </div>
               </div>
             </div>
@@ -65,7 +66,7 @@ export const FindUs = () => {
               <div>
                 <div className={styles.rowLabel}>Пошта</div>
                 <div className={styles.rowValue}>
-                  <a href={site.contacts.emailHref}>{site.contacts.email}</a>
+                  <a href={settings.contacts.emailHref}>{settings.contacts.email}</a>
                 </div>
               </div>
             </div>
@@ -75,7 +76,7 @@ export const FindUs = () => {
               <div style={{ width: "100%" }}>
                 <div className={styles.rowLabel}>Години роботи</div>
                 <div className={styles.hoursTable}>
-                  {site.hours.map((h) => (
+                  {settings.hours.map((h) => (
                     <div key={h.day} className={`${styles.hoursRow} ${today === h.day ? styles.hoursToday : ""}`}>
                       <span>{h.label}</span>
                       <span>{h.open ? `${h.open}–${h.close}` : "вихідний"}</span>
@@ -85,7 +86,7 @@ export const FindUs = () => {
               </div>
             </div>
 
-            <Button href={site.contacts.phoneHref} variant="primary" full>
+            <Button href={settings.contacts.phoneHref} variant="primary" full>
               Зв’язатися з нами
             </Button>
           </Reveal>

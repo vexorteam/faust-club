@@ -13,3 +13,25 @@
   font-size: 14px;
   color: var(--text-secondary);
 }
+
+/* Адаптив списка категорий под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .board {
+    gap: 20px; /* Уменьшаем вертикальный зазор между элементами управления */
+  }
+
+  .empty {
+    font-size: 13px;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .board {
+    gap: 16px;
+  }
+
+  .empty {
+    font-size: 12px;
+  }
+}

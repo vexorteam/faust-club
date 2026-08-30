@@ -14,8 +14,6 @@
   --accent-magenta: #f0558b;
   --accent-magenta-strong: #ff2e78;
   --danger: #ff8a8a;
-  /* «Відчинено зараз» in the hero. Green because that is the one thing on a
-     magenta site that must not read as an accent — it reports a fact. */
   --online: #4ade80;
   --online-soft: rgba(74, 222, 128, 0.2);
   --offline-soft: rgba(113, 131, 162, 0.2);
@@ -70,7 +68,9 @@
 }
 
 html {
+  -moz-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   scroll-behavior: auto;
   color-scheme: dark;
   min-width: 220px;
@@ -117,9 +117,9 @@ body {
 }
 
 .no-select {
-  user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
+  user-select: none;
 }
 
 img,
@@ -129,9 +129,9 @@ h1,
 h2,
 h3,
 .eyebrow {
-  user-select: none;
   -moz-user-select: none;
   -webkit-user-select: none;
+  user-select: none;
 }
 
 img,

@@ -1,14 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-/**
- * The two public pages, against whatever the API currently holds.
- *
- * Nothing here asserts an exact cocktail or price: the menu belongs to the
- * owner and changes weekly. What has to hold is that the showcase is filled
- * from the API at all, and that the pieces the contract promises (§5.3) reach
- * the markup — a category heading, a price, a photo with a description.
- */
-
 /** Same name `admin.spec.ts` reads: one variable moves the whole suite. */
 const API_URL = process.env.E2E_API_URL ?? "http://localhost:8000";
 

@@ -54,7 +54,7 @@ services:
       start_period: 20s
 
   # Migrations run as their own command, not from inside the application
-  # (Б8). The container exits when the schema is up to date, and the API is
+  # The container exits when the schema is up to date, and the API is
   # only allowed to start after it succeeded — so a deploy can never serve code
   # against a schema that is one migration behind.
   migrate:
@@ -101,9 +101,6 @@ services:
   web:
     build:
       context: ./faust
-      # The build runs in the host's network namespace so it can reach the API
-      # on the loopback address above. Nothing else about the image depends on
-      # it — the running container uses the compose network like every other.
       network: host
       args:
         # Next allow-lists photo hosts at build time, so this is baked in.
@@ -112,20 +109,12 @@ services:
         # Only for a stack raised locally, where photos come over plain http
         # from a private address. Leave it empty for a real deployment.
         LOCAL_MEDIA: ${LOCAL_MEDIA:-}
-        # The showcase is prerendered here, so the API has to be up and seeded
-        # by the time this image is built — a build that cannot reach it comes
-        # out with an empty menu baked in, and no revalidation ever fills it
-        # (a page that never fetched carries neither a tag nor a timer). The
-        # order of commands at the top of this file is what makes it work.
         MENU_API_URL: ${BUILD_MENU_API_URL:-}
     restart: unless-stopped
     environment:
       MENU_API_URL: http://api:8000
       REVALIDATE_SECRET: ${REVALIDATE_SECRET:?задайте REVALIDATE_SECRET у .env}
       NEXT_PUBLIC_SITE_URL: ${SITE_ORIGIN:-http://localhost}
-    # No `depends_on` on purpose. The public pages are static, so the site is
-    # readable while the API is still migrating or restarting — waiting for it
-    # would turn a backend restart into downtime for visitors.
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:3000/"]
       interval: 15s

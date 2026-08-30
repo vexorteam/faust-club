@@ -25,3 +25,36 @@
   opacity: 0.6;
   cursor: default;
 }
+
+/* Адаптив формы входа под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .form {
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .formError {
+    font-size: 13px;
+  }
+
+  .submit {
+    min-height: 44px; /* Смягчаем минимальную высоту для экономии места */
+    font-size: 14px;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .form {
+    gap: 10px;
+  }
+
+  .formError {
+    font-size: 12px;
+  }
+
+  .submit {
+    min-height: 40px;
+    font-size: 13px;
+  }
+}

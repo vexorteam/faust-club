@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useSyncExternalStore } from "react";
+import { useCallback, useRef, useSyncExternalStore } from "react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { Button } from "@/components/ui/Button";
+import { site } from "@/data/site";
 import { formatStatus, formatWeek, getOpenStatus, type OpenStatus } from "@/lib/hours";
+import type { SiteSettingsView } from "@/types";
 import styles from "./Hero.module.css";
 import clubPhoto from "../../../public/img/back.jpg";
-import { site } from "@/data/site";
 
 const container: Variants = {
   hidden: {},
@@ -30,54 +31,43 @@ const subscribeToClock = (onChange: () => void): (() => void) => {
   return () => window.clearInterval(timer);
 };
 
-/**
- * The status, cached for the minute it belongs to.
- *
- * `useSyncExternalStore` compares snapshots by identity, so handing back a
- * fresh object on every read would spin forever. Broken hours data costs this
- * one line, not the page.
- */
-let cachedMinute = -1;
-let cachedStatus: OpenStatus | null = null;
-
-const readStatus = (): OpenStatus | null => {
-  const minute = Math.floor(Date.now() / MINUTE_MS);
-
-  if (minute === cachedMinute) return cachedStatus;
-
-  cachedMinute = minute;
-
-  try {
-    cachedStatus = getOpenStatus();
-  } catch (error) {
-    console.error("[hero] не вдалося порахувати графік", error);
-    cachedStatus = null;
-  }
-
-  return cachedStatus;
-};
-
-/**
- * Nothing on the server. The home page is static, so a status worked out while
- * the image was built would still be announcing "відчинено зараз" at four in
- * the afternoon — and it is what the browser hydrates against, so it has to be
- * the same thing the first client render produces.
- */
 const noStatusYet = (): OpenStatus | null => null;
 
-const useOpenStatus = (): OpenStatus | null => useSyncExternalStore(subscribeToClock, readStatus, noStatusYet);
+const useOpenStatus = (hours: SiteSettingsView["hours"]): OpenStatus | null => {
+  const cache = useRef<{ minute: number; status: OpenStatus | null }>({ minute: -1, status: null });
 
-export const Hero = () => {
+  const read = useCallback((): OpenStatus | null => {
+    const minute = Math.floor(Date.now() / MINUTE_MS);
+
+    if (minute === cache.current.minute) return cache.current.status;
+
+    let status: OpenStatus | null;
+
+    try {
+      status = getOpenStatus(new Date(), site.timeZone, hours);
+    } catch (error) {
+      console.error("[hero] не вдалося порахувати графік", error);
+      status = null;
+    }
+
+    cache.current = { minute, status };
+
+    return status;
+  }, [hours]);
+
+  return useSyncExternalStore(subscribeToClock, read, noStatusYet);
+};
+
+export const Hero = ({ settings }: { settings: SiteSettingsView }) => {
   const shouldReduceMotion = useReducedMotion();
-  const status = useOpenStatus();
+  const status = useOpenStatus(settings.hours);
 
-  /** Days and opening time come from `site.hours`, never from a typed-out string. */
-  const week = formatWeek();
+  const week = formatWeek(settings.hours);
 
   const metaLine = (
     <span className={styles.meta} aria-live="polite">
       <span>
-        Вхід виключно {site.ageRestriction} · {site.contacts.addressShort}
+        Вхід виключно {settings.ageRestriction} · {settings.contacts.addressShort}
       </span>
 
       {status && (
@@ -100,10 +90,7 @@ export const Hero = () => {
           <span className={styles.beamText}>FAUST</span>
         </span>
       </h1>
-      <p className={styles.subtitle}>
-        Авторські коктейлі, особлива атмосфера та ритм, який задає настрій усьому вечору. Завітайте — і ви зрозумієте,
-        чому про нас говорить усе місто.
-      </p>
+      <p className={styles.subtitle}>{settings.description}</p>
       {metaLine}
       <div className={styles.actions}>
         <Button href="/menu" variant="primary" showArrow>
@@ -127,8 +114,7 @@ export const Hero = () => {
       </motion.h1>
 
       <motion.p variants={item} className={styles.subtitle}>
-        Авторські коктейлі, особлива атмосфера та ритм, який задає настрій усьому вечору. Завітайте — і ви зрозумієте,
-        чому про нас говорить усе місто.
+        {settings.description}
       </motion.p>
       <motion.div variants={item}>{metaLine}</motion.div>
 
@@ -144,7 +130,7 @@ export const Hero = () => {
   );
 
   return (
-    <section className={styles.hero} aria-label="Faust — нічний клуб у Києві">
+    <section className={styles.hero} aria-label="Faust — нічний клуб у Шепетівці">
       <div className={styles.backdrop} aria-hidden="true" />
 
       <div className={styles.photo} aria-hidden="true">

@@ -54,3 +54,51 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* Адаптив подтверждения действия под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .confirm {
+    padding: 10px; /* Сжимаем внутренние отступы подтверждающего блока */
+    gap: 8px;
+  }
+
+  .question {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .actions {
+    flex-direction: column; /* Переводим кнопки подтверждения и отмены в вертикальный стек */
+    gap: 6px;
+  }
+
+  .trigger,
+  .danger,
+  .cancel {
+    min-height: 40px; /* Смягчаем минимальную высоту для экономии места */
+    padding-inline: 12px;
+    font-size: 13px;
+    width: 100%; /* Растягиваем обе кнопки на всю ширину экрана для удобного нажатия */
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .confirm {
+    padding: 8px;
+  }
+
+  .question {
+    font-size: 12px;
+  }
+
+  .trigger,
+  .danger,
+  .cancel {
+    min-height: 36px;
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+}

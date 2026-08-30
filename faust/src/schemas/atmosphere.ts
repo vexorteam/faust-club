@@ -1,15 +1,5 @@
 import { z } from "zod";
 
-/**
- * Photos of the "Атмосфера" section on the home page (§5.2, §5.3.1).
- *
- * `label` and `imageAlt` are two different texts and both are required:
- * the first is the caption a visitor reads on the tile, the second is what a
- * screen reader says instead of the picture. Duplicating one into the other
- * makes the section useless for anyone who cannot see it, so the form asks for
- * them separately and explains the difference.
- */
-
 export const PHOTO_LABEL_MIN = 2;
 export const PHOTO_LABEL_MAX = 60;
 export const PHOTO_ALT_MIN = 5;
@@ -30,12 +20,6 @@ export const atmospherePhotoSchema = z.object({
 
 export const adminAtmosphereResponseSchema = z.object({ photos: z.array(atmospherePhotoSchema) });
 
-/**
- * `GET /api/v1/atmosphere` (§5.3) — the public feed of the home page grid.
- * Hidden tiles and the ordering are the API's business; the frontend renders
- * what it is given. A broken tile is dropped, like a broken menu item: one bad
- * record must not take the section down.
- */
 export const publicAtmospherePhotoSchema = z.object({
   id: z.string().min(1),
   label: z.string().trim().min(1).max(PHOTO_LABEL_MAX),

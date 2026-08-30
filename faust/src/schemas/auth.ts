@@ -1,13 +1,5 @@
 import { z } from "zod";
 
-/**
- * Login form and the auth part of the API contract (§5.4).
- *
- * The frontend validates the shape of what the visitor typed — nothing more.
- * Whether the credentials are correct is decided by the Python API alone, and
- * its answer never says which half was wrong.
- */
-
 const EMAIL_MESSAGE = "Вкажіть пошту у форматі name@example.com";
 const PASSWORD_MESSAGE = "Пароль — щонайменше 8 символів";
 

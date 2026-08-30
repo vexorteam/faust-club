@@ -2,14 +2,6 @@ import { apiRequest } from "@/lib/api";
 import { atmosphereResponseSchema } from "@/schemas/atmosphere";
 import type { AtmospherePhotoView } from "@/types";
 
-/**
- * Photos of the "Атмосфера" section, now owned by the owner rather than by the
- * repository: they are uploaded in the admin area and served by the API.
- *
- * The cache tag is its own — editing a photo must not invalidate the menu, and
- * the other way round (§5.3).
- */
-
 const REVALIDATE_SECONDS = 3600;
 
 export const getAtmospherePhotos = async (): Promise<AtmospherePhotoView[]> => {

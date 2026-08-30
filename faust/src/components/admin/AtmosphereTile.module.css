@@ -58,3 +58,67 @@
   border-color: var(--border-strong);
   color: var(--text-primary);
 }
+
+/* Адаптив плитки атмосферы под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .tile {
+    padding: 10px; /* Уменьшаем внутренние отступы карточки */
+    gap: 10px;
+  }
+
+  .preview {
+    height: 140px; /* Слегка уменьшаем высоту превью-картинки для экономии вертикального пространства */
+  }
+
+  .label {
+    font-size: 15px;
+  }
+
+  .alt {
+    font-size: 12px;
+  }
+
+  .controls {
+    gap: 6px;
+  }
+
+  .edit {
+    min-height: 40px; /* Смягчаем минимальную высоту для экономии места */
+    padding-inline: 12px;
+    font-size: 13px;
+    flex: 1; /* Растягиваем кнопку редактирования, чтобы она гармонично заполняла пространство */
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .tile {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .preview {
+    height: 120px;
+  }
+
+  .label {
+    font-size: 14px;
+  }
+
+  .alt {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .controls {
+    gap: 4px;
+  }
+
+  .edit {
+    min-height: 36px;
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+}

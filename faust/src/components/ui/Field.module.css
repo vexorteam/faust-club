@@ -52,3 +52,46 @@ textarea.control {
   resize: vertical;
   min-height: 120px;
 }
+
+@media (max-width: 360px) {
+  .field {
+    gap: 6px;
+  }
+
+  .label {
+    font-size: 11px;
+  }
+
+  .control {
+    padding: 11px 12px;
+    font-size: 14px;
+  }
+
+  .error {
+    font-size: 12px;
+  }
+
+  textarea.control {
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 240px) {
+  .control {
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+
+  .label {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  .error {
+    font-size: 11px;
+  }
+
+  textarea.control {
+    min-height: 80px;
+  }
+}

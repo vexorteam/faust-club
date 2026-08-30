@@ -91,3 +91,77 @@
     margin-left: 0;
   }
 }
+
+/* Адаптив строки категории под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .row {
+    gap: 8px 12px;
+    padding: 12px 0;
+  }
+
+  .identity {
+    flex-basis: 100%; /* На микро-экранах блок с названием и мета-данными занимает всю ширину сверху */
+  }
+
+  .label {
+    font-size: 15px;
+  }
+
+  .controls {
+    flex-basis: 100%;
+    width: 100%;
+    gap: 6px;
+    margin-left: 0;
+  }
+
+  .action,
+  .save {
+    min-height: 40px; /* Смягчаем минимальную высоту для экономии места */
+    padding-inline: 12px;
+    font-size: 13px;
+  }
+
+  .editor {
+    max-width: 100%; /* Форма редактирования категории заполняет всю ширину */
+  }
+
+  .editorActions {
+    flex-direction: column; /* Кнопки «Зберегти» и «Скасувати» в режиме редактирования идут друг под другом */
+    gap: 6px;
+  }
+
+  .editorActions .action,
+  .editorActions .save {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .row {
+    gap: 6px 8px;
+    padding: 10px 0;
+  }
+
+  .label {
+    font-size: 14px;
+  }
+
+  .meta,
+  .note {
+    font-size: 12px;
+  }
+
+  .controls {
+    gap: 4px;
+  }
+
+  .action,
+  .save {
+    min-height: 36px;
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+}

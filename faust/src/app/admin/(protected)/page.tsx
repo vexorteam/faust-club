@@ -4,14 +4,6 @@ import { AdminNotice } from "@/components/admin/AdminNotice";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ItemsBoard } from "@/components/admin/ItemsBoard";
 
-/**
- * The landing page of the admin area: the whole bar card, grouped by category.
- *
- * This is where the weekly work happens — a price, a switch, an order — so it is
- * the first thing the login form leads to. The guard is repeated here on
- * purpose: a layout is not a lock, every route checks the session itself (§3.5).
- */
-
 export const dynamic = "force-dynamic";
 
 const AdminItemsPage = async () => {

@@ -40,10 +40,6 @@ const item = {
 
 type Route = { body: unknown; status?: number; headers?: Record<string, string> };
 
-/**
- * The API answers per method and path, because a single call here often means
- * two requests: the session check and then the action itself.
- */
 const apiRoutes = (routes: Record<string, Route>) => {
   const fetchMock = vi.fn(async (url: string | URL, init?: RequestInit) => {
     const path = String(url).replace("http://api.test", "");

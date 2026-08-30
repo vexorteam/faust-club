@@ -54,3 +54,44 @@
   font-size: 13px;
   color: var(--danger);
 }
+
+/* Адаптив выпадающего списка под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .field {
+    gap: 6px;
+  }
+
+  .label {
+    font-size: 11px;
+  }
+
+  .control {
+    min-height: 42px; /* Смягчаем минимальную высоту для экономии пространства */
+    padding: 10px 12px; /* Уменьшаем внутренние отступы */
+    font-size: 14px;
+  }
+
+  .hint,
+  .error {
+    font-size: 12px;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .control {
+    min-height: 38px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .label {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  .hint,
+  .error {
+    font-size: 11px;
+  }
+}

@@ -5,13 +5,6 @@ import { fileURLToPath } from "node:url";
 
 /**
  * Runs the production build the same way the container does.
- *
- * `next start` cannot serve an `output: "standalone"` build — it says so and
- * then answers requests half-heartedly, which is a confusing way to find out.
- * The standalone server is a self-contained `server.js` that expects `public/`
- * and `.next/static` beside it; the Dockerfile copies them in, and so does
- * this, so that running the site locally and running it on the server exercise
- * the same code path.
  */
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");

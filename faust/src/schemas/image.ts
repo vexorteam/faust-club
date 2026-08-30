@@ -1,18 +1,8 @@
 import { z } from "zod";
 
-/**
- * Rules every photo upload obeys, shared by the file picker and the route
- * handler (§5.3.1, "Спільні правила для завантаження файлів").
- *
- * This is a convenience check, not a boundary: the API is the one that reads
- * magic bytes and decides. Checking here only spares a phone the upload of a
- * 6 MB frame that was never going to be accepted.
- */
-
 export const MAX_UPLOAD_MB = 5;
 export const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
 
-/** Same bound as the atmosphere caption (§5.2): `imageAlt` is 120 chars there too. */
 export const IMAGE_ALT_MIN = 5;
 export const IMAGE_ALT_MAX = 120;
 

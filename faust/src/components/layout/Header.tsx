@@ -7,9 +7,10 @@ import { site } from "@/data/site";
 import { Button } from "@/components/ui/Button";
 import { Logo, IconMenu } from "@/components/ui/icon";
 import { MobileNav } from "./MobileNav";
+import type { SiteSettingsView } from "@/types";
 import styles from "./Header.module.css";
 
-export const Header = () => {
+export const Header = ({ settings }: { settings: SiteSettingsView }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
@@ -31,7 +32,7 @@ export const Header = () => {
     <>
       <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
         <div className={`container ${styles.bar}`}>
-          <Link href="/" aria-label={`${site.name} — на головну`}>
+          <Link href="/" aria-label={`${settings.name} — на головну`}>
             <Logo className={styles.logo} />
           </Link>
 
@@ -66,7 +67,7 @@ export const Header = () => {
         </div>
       </header>
 
-      <MobileNav open={mobileOpen} onClose={() => setMobileOpen(false)} pathname={pathname} />
+      <MobileNav open={mobileOpen} onClose={() => setMobileOpen(false)} pathname={pathname} settings={settings} />
     </>
   );
 };

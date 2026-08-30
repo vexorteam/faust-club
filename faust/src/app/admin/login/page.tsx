@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { site } from "@/data/site";
+import { getSiteSettings } from "@/lib/settings";
 import { LoginForm } from "@/components/admin/LoginForm";
 import { redirectIfSignedIn } from "@/lib/session";
 import styles from "./page.module.css";
@@ -16,10 +16,12 @@ const LoginPage = async () => {
   // than in `proxy.ts`, which can only see that a cookie exists — see there.
   await redirectIfSignedIn();
 
+  const settings = await getSiteSettings();
+
   return (
     <main id="main" className={styles.screen}>
       <div className={styles.card}>
-        <span className="eyebrow">{site.name} · керування</span>
+        <span className="eyebrow">{settings.name} · керування</span>
         <h1 className={styles.title}>Вхід</h1>
         <p className={styles.hint}>Сторінка для персоналу клубу. Меню й фото редагуються звідси.</p>
 

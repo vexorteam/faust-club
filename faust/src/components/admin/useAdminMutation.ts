@@ -4,18 +4,6 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { useToast } from "./Toast";
 
-/**
- * Every write the admin UI performs, in one shape.
- *
- * The cookie is httpOnly, so nothing here talks to the Python API directly:
- * requests go to this application's own route handlers, which attach the token
- * server-side. On success the page is refreshed so the list shows what the
- * database now holds instead of what the browser guessed.
- *
- * `pendingKey` is the id of the row or form currently waiting, which is what
- * lets a single hook disable exactly one button instead of all of them.
- */
-
 const NETWORK_MESSAGE = "Не вдалося зʼєднатися з сервером. Зміни не збережені — спробуйте ще раз";
 
 const FALLBACK_MESSAGE = "Щось пішло не так. Спробуйте ще раз";

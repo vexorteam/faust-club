@@ -19,6 +19,8 @@ const SECTIONS = [
   { href: "/admin", label: "Позиції", owns: ["/admin/items"] },
   { href: "/admin/categories", label: "Категорії", owns: ["/admin/categories"] },
   { href: "/admin/atmosphere", label: "Атмосфера", owns: ["/admin/atmosphere"] },
+  { href: "/admin/testimonials", label: "Відгуки", owns: ["/admin/testimonials"] },
+  { href: "/admin/settings", label: "Налаштування", owns: ["/admin/settings"] },
 ] as const;
 
 const isCurrent = (pathname: string, href: string, owns: readonly string[]) =>

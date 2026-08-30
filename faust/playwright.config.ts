@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * Smoke tests of the pair "Next + Python API" (§13.5, крок Б7).
+ * Smoke tests of the pair "Next + Python API".
  *
  * These are not a second unit suite: Vitest already covers schemas, the API
  * client and the session. What only a browser can answer is whether the two

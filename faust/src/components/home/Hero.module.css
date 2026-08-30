@@ -31,7 +31,7 @@
 
 .photo {
   position: absolute;
-  inset: 0; /* Растягиваем на всю секцию, а не на 65% */
+  inset: 0;
   width: 100%;
   height: 100%;
   z-index: 0;
@@ -41,7 +41,6 @@
   content: "";
   position: absolute;
   inset: 0;
-  /* Градиент на всю ширину: слева сплошной цвет фона, плавно переходящий в прозрачность к правому центру */
   background: linear-gradient(
     to right,
     var(--ink) 0%,
@@ -49,6 +48,7 @@
     rgba(11, 11, 13, 0.7) 55%,
     rgba(11, 11, 13, 0.3) 100%
   );
+  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
   z-index: 1;
 }
@@ -144,7 +144,8 @@
 .meta {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: start;
+  flex-direction: column;
   gap: 20px;
   font-family: var(--font-mono);
   font-size: 13px;
@@ -202,18 +203,11 @@
 }
 
 @media (max-width: 767px) {
-  /* Фото лишається видимим і на вузькому екрані: воно займає верхню частину
-     секції, а текстовий блок притиснутий до низу й читається на суцільному тлі.
-     Смуга замість повної висоти — щоб широкий кадр не обрізало до вузького
-     стовпчика: у пропорції, ближчій до альбомної, у кадр потрапляє більше сцени. */
   .photo {
     inset: 0 0 auto;
     height: clamp(260px, 56svh, 520px);
   }
 
-  /* Контент іде на всю ширину, тому затемнення розвертаємо з горизонтального
-     на вертикальне: прозоро вгорі, суцільний --ink на нижній межі смуги —
-     так фото безшовно переходить у фон секції. */
   .photo::after {
     background: linear-gradient(
       to bottom,
@@ -222,6 +216,64 @@
       color-mix(in srgb, var(--ink) 70%, transparent) 72%,
       var(--ink) 100%
     );
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+}
+
+@media (max-width: 320px) {
+  .content {
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 16px;
+    padding-bottom: 32px;
+  }
+
+  .lockup {
+    font-size: clamp(1.8rem, 14vw, 2.5rem);
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  .meta {
+    font-size: 11px;
+    gap: 12px;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .actions > * {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 240px) {
+  .content {
+    padding-left: 6px;
+    padding-right: 6px;
+    gap: 10px;
+  }
+
+  .lockup {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.75rem;
+  }
+
+  .meta {
+    font-size: 10px;
   }
 }

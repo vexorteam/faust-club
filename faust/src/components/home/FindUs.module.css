@@ -148,3 +148,79 @@
     font-size: 14px;
   }
 }
+
+@media (max-width: 360px) {
+  .section {
+    padding-block: 40px;
+  }
+
+  .mapCard {
+    min-height: 240px;
+    padding: 16px;
+  }
+
+  .mapLink {
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+
+  .infoCard {
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  .row {
+    gap: 10px;
+  }
+
+  .rowIcon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .rowValue {
+    font-size: 14px;
+    word-break: break-word;
+  }
+
+  .hoursRow {
+    font-size: 13px;
+  }
+
+  .hoursToday {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 240px) {
+  .mapCard {
+    min-height: 200px;
+    padding: 12px;
+  }
+
+  .mapLink {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  .infoCard {
+    padding: 14px 10px;
+    gap: 12px;
+  }
+
+  .rowLabel {
+    font-size: 10.5px;
+  }
+
+  .rowValue {
+    font-size: 12.5px;
+  }
+
+  .hoursRow {
+    font-size: 12px;
+  }
+
+  .hoursToday {
+    font-size: 12px;
+  }
+}

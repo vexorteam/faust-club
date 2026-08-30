@@ -25,3 +25,29 @@
   border-color: var(--danger-strong);
   color: var(--danger);
 }
+
+@media (max-width: 360px) {
+  .stack {
+    padding-inline: 10px;
+    inset: auto 0 12px;
+  }
+
+  .toast {
+    max-width: 100%;
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 13px;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 240px) {
+  .stack {
+    padding-inline: 6px;
+  }
+
+  .toast {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}

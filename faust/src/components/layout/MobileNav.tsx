@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { site } from "@/data/site";
 import { Logo, IconClose, IconInstagram, IconTelegram, IconTiktok } from "@/components/ui/icon";
+import type { SiteSettingsView } from "@/types";
 import styles from "./MobileNav.module.css";
 
 const socialIcons = {
@@ -16,9 +17,10 @@ type MobileNavProps = {
   open: boolean;
   onClose: () => void;
   pathname: string;
+  settings: SiteSettingsView;
 };
 
-export const MobileNav = ({ open, onClose, pathname }: MobileNavProps) => {
+export const MobileNav = ({ open, onClose, pathname, settings }: MobileNavProps) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -102,11 +104,11 @@ export const MobileNav = ({ open, onClose, pathname }: MobileNavProps) => {
 
       <div className={styles.footer}>
         <span className={styles.contactLine}>
-          <a href={site.contacts.phoneHref}>{site.contacts.phone}</a>
+          <a href={settings.contacts.phoneHref}>{settings.contacts.phone}</a>
         </span>
-        <span className={styles.contactLine}>{site.contacts.addressShort}</span>
+        <span className={styles.contactLine}>{settings.contacts.addressShort}</span>
         <div className={styles.socials}>
-          {site.socials.map((social) => {
+          {settings.socials.map((social) => {
             const Icon = socialIcons[social.name as keyof typeof socialIcons];
             return (
               <a key={social.name} href={social.href} target="_blank" rel="noreferrer noopener" aria-label={social.name}>

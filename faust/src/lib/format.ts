@@ -1,12 +1,3 @@
-/**
- * Presentation of numbers, in one place.
- *
- * There are no kopecks behind a bar, so a price is a whole number of hryvnias
- * and stays one all the way to the screen — no `toFixed(2)` anywhere. The
- * spaces are non-breaking on purpose: "1 250 ₴" must never wrap into "1" on
- * one line and "250 ₴" on the next.
- */
-
 const NBSP = " ";
 
 const GROUP_SIZE = 3;

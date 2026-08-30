@@ -30,7 +30,17 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from faust_api.db import get_engine, get_session_factory
-from faust_api.models import AdminUser, AtmospherePhoto, MenuCategory, MenuItem, MenuItemBadge
+from faust_api.models import (
+    AdminUser,
+    AtmospherePhoto,
+    MenuCategory,
+    MenuItem,
+    MenuItemBadge,
+    OperatingHours,
+    SiteSettings,
+    SocialLink,
+    Testimonial,
+)
 from faust_api.security.passwords import hash_password
 from faust_api.services.images import ATMOSPHERE_FOLDER, MENU_FOLDER, store_photo
 from faust_api.settings import ConfigurationError, get_settings
@@ -145,6 +155,68 @@ PHOTOS: tuple[tuple[str, str, bool], ...] = (
     ("Танцпол", "Танцпол Faust під час нічного сету", True),
     ("Бар", "Барна стійка з підсвіткою й барменом за роботою", True),
     ("VIP-зона", "Кутовий диван VIP-зони з приглушеним світлом", False),
+)
+
+# The facts the frontend used to hard-code in `data/site.ts` (§13 follow-up).
+# Seeded once, exactly like the demo menu — the owner's edits from the panel
+# must survive every redeploy.
+DEFAULT_SETTINGS = {
+    "name": "Faust",
+    "tagline": "Нічний клуб у серці Шепетівки",
+    "description": (
+        "Faust — авторські коктейлі, особлива атмосфера та ритм, який задає настрій усьому вечору."
+    ),
+    "phone": "+380 66 727 9143",
+    "phone_href": "tel:+380667279143",
+    "email": "hello@faust.bar",
+    "email_href": "mailto:hello@faust.bar",
+    "address": "вул. Соборності, 6а, Шепетівка, 30405",
+    "address_short": "Соборності, 6а",
+    "maps_url": "https://maps.google.com/?q=50.1814,27.0637",
+    "maps_embed_query": "Соборності 6а, Шепетівка",
+    "latitude": 50.1814,
+    "longitude": 27.0637,
+    "age_restriction": "16+",
+}
+
+DEFAULT_SOCIALS: tuple[tuple[str, str, str], ...] = (
+    ("Instagram", "https://www.instagram.com/faust.club", "@faust.club"),
+    ("TikTok", "https://www.tiktok.com/@faustrahsb4", "@faustrahsb4"),
+)
+
+DAY_LABELS: tuple[str, ...] = (
+    "Понеділок",
+    "Вівторок",
+    "Середа",
+    "Четвер",
+    "П'ятниця",
+    "Субота",
+    "Неділя",
+)
+
+DEFAULT_HOURS: tuple[tuple[str | None, str | None, bool], ...] = (
+    ("18:00", "23:30", False),  # Пн
+    ("18:00", "23:30", False),  # Вт
+    ("18:00", "23:30", False),  # Ср
+    ("18:00", "23:30", False),  # Чт
+    ("18:00", "23:30", False),  # Пт
+    ("18:00", "23:30", False),  # Сб
+    (None, None, False),  # Нд — вихідний
+)
+
+DEFAULT_TESTIMONIALS: tuple[tuple[str, str, str], ...] = (
+    ("Найкращий звук у місті — без перебільшень.", "Софія М.", "гостя клубу"),
+    (
+        "Бар-команда — окрема причина повертатися. Коктейлі збалансовані, а не просто красиві на фото.",
+        "Дмитро К.",
+        "постійний гість",
+    ),
+    (
+        "Забронювали віп-стіл на день народження — сервіс на рівні, персонал уважний, "
+        "локація в самому центрі.",
+        "Анна Т.",
+        "приватна подія",
+    ),
 )
 
 PLACEHOLDER_SIZE = 900
@@ -294,10 +366,78 @@ async def ensure_atmosphere(session: AsyncSession) -> bool:
     return True
 
 
+async def ensure_settings(session: AsyncSession) -> bool:
+    """Writes the club's own facts, but only into a database that has none."""
+    count = await session.scalar(select(func.count()).select_from(SiteSettings))
+
+    if count:
+        logger.info("[seed] налаштування сайту вже є — не чіпаю")
+        return False
+
+    session.add(SiteSettings(**DEFAULT_SETTINGS))
+    logger.info("[seed] додано налаштування сайту")
+
+    return True
+
+
+async def ensure_socials(session: AsyncSession) -> bool:
+    count = await session.scalar(select(func.count()).select_from(SocialLink))
+
+    if count:
+        logger.info("[seed] у базі вже %s соцмереж — не чіпаю", count)
+        return False
+
+    for order, (name, href, handle) in enumerate(DEFAULT_SOCIALS, start=1):
+        session.add(SocialLink(name=name, href=href, handle=handle, order=order))
+
+    logger.info("[seed] додано %s соцмереж", len(DEFAULT_SOCIALS))
+
+    return True
+
+
+async def ensure_hours(session: AsyncSession) -> bool:
+    """All seven days at once — a partial week is not a state this table allows."""
+    count = await session.scalar(select(func.count()).select_from(OperatingHours))
+
+    if count:
+        logger.info("[seed] графік роботи вже є — не чіпаю")
+        return False
+
+    for day, (label, (open_, close_, closes_next_day)) in enumerate(
+        zip(DAY_LABELS, DEFAULT_HOURS, strict=True), start=1
+    ):
+        session.add(
+            OperatingHours(day=day, label=label, open=open_, close=close_, closes_next_day=closes_next_day)
+        )
+
+    logger.info("[seed] додано графік роботи на всі 7 днів")
+
+    return True
+
+
+async def ensure_testimonials(session: AsyncSession) -> bool:
+    count = await session.scalar(select(func.count()).select_from(Testimonial))
+
+    if count:
+        logger.info("[seed] у базі вже %s відгуків — не чіпаю", count)
+        return False
+
+    for order, (text, name, meta) in enumerate(DEFAULT_TESTIMONIALS, start=1):
+        session.add(Testimonial(text=text, name=name, meta=meta, order=order, visible=True))
+
+    logger.info("[seed] додано %s відгуків", len(DEFAULT_TESTIMONIALS))
+
+    return True
+
+
 async def seed(session: AsyncSession) -> None:
     await ensure_admin(session)
     await ensure_menu(session)
     await ensure_atmosphere(session)
+    await ensure_settings(session)
+    await ensure_socials(session)
+    await ensure_hours(session)
+    await ensure_testimonials(session)
     await session.commit()
 
 

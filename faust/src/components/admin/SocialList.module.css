@@ -1,0 +1,16 @@
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 640px;
+}
+
+.list {
+  list-style: none;
+  border-bottom: 1px solid var(--border);
+}
+
+.empty {
+  font-size: 14px;
+  color: var(--text-secondary);
+}

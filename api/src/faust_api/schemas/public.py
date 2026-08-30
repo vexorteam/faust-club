@@ -11,7 +11,16 @@ both levels are already sorted, and `price` is a whole number of hryvnias.
 
 import uuid
 
-from faust_api.models import AtmospherePhoto, MenuCategory, MenuItem, MenuItemBadge
+from faust_api.models import (
+    AtmospherePhoto,
+    MenuCategory,
+    MenuItem,
+    MenuItemBadge,
+    OperatingHours,
+    SiteSettings,
+    SocialLink,
+    Testimonial,
+)
 from faust_api.schemas.base import ApiModel
 from faust_api.services.images import photo_url
 
@@ -86,3 +95,103 @@ class PublicAtmospherePhoto(ApiModel):
 
 class AtmosphereResponse(ApiModel):
     photos: list[PublicAtmospherePhoto]
+
+
+class PublicContacts(ApiModel):
+    phone: str
+    phone_href: str
+    email: str
+    email_href: str
+    address: str
+    address_short: str
+    maps_url: str
+    maps_embed_query: str
+    latitude: float
+    longitude: float
+
+
+class PublicSocialLink(ApiModel):
+    name: str
+    href: str
+    handle: str
+
+    @classmethod
+    def of(cls, social: SocialLink) -> "PublicSocialLink":
+        return cls(name=social.name, href=social.href, handle=social.handle)
+
+
+class PublicOperatingHours(ApiModel):
+    day: int
+    label: str
+    open: str | None
+    close: str | None
+    closes_next_day: bool
+
+    @classmethod
+    def of(cls, hours: OperatingHours) -> "PublicOperatingHours":
+        return cls(
+            day=hours.day,
+            label=hours.label,
+            open=hours.open,
+            close=hours.close,
+            closes_next_day=hours.closes_next_day,
+        )
+
+
+class SettingsResponse(ApiModel):
+    """`GET /api/v1/settings` — everything the showcase used to hard-code (§13).
+
+    One call gets the whole club identity: name, contacts, socials and the
+    week's schedule, already sorted. Like `/menu` and `/atmosphere`, only Next
+    calls this — no CORS to configure.
+    """
+
+    name: str
+    tagline: str
+    description: str
+    age_restriction: str
+    contacts: PublicContacts
+    socials: list[PublicSocialLink]
+    hours: list[PublicOperatingHours]
+
+    @classmethod
+    def of(
+        cls, settings: SiteSettings, socials: list[SocialLink], hours: list[OperatingHours]
+    ) -> "SettingsResponse":
+        return cls(
+            name=settings.name,
+            tagline=settings.tagline,
+            description=settings.description,
+            age_restriction=settings.age_restriction,
+            contacts=PublicContacts(
+                phone=settings.phone,
+                phone_href=settings.phone_href,
+                email=settings.email,
+                email_href=settings.email_href,
+                address=settings.address,
+                address_short=settings.address_short,
+                maps_url=settings.maps_url,
+                maps_embed_query=settings.maps_embed_query,
+                latitude=settings.latitude,
+                longitude=settings.longitude,
+            ),
+            socials=[PublicSocialLink.of(social) for social in socials],
+            hours=[PublicOperatingHours.of(entry) for entry in hours],
+        )
+
+
+class PublicTestimonial(ApiModel):
+    id: uuid.UUID
+    text: str
+    name: str
+    meta: str
+
+    @classmethod
+    def of(cls, testimonial: Testimonial) -> "PublicTestimonial":
+        return cls(id=testimonial.id, text=testimonial.text, name=testimonial.name, meta=testimonial.meta)
+
+
+class TestimonialsResponse(ApiModel):
+    """`GET /api/v1/testimonials` — visible review cards, already sorted (§13 follow-up)."""
+
+    testimonials: list[PublicTestimonial]

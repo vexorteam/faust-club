@@ -1,11 +1,3 @@
-/**
- * Public shape of the showcase data, as it reaches the components.
- *
- * Kept structurally compatible with the static `MenuItem` / `MenuCategory`
- * from `data/menu.ts`: every extra field is optional, so `MenuSections`
- * renders both the API payload and the static fallback without a single edit.
- */
-
 export type MenuItemBadge = "new" | "hit";
 
 export type MenuItemView = {
@@ -48,4 +40,54 @@ export type AdminUser = {
   id: string;
   name: string;
   email: string;
+};
+
+/** One social profile the footer links to, as the public feed sends it. */
+export type SocialLinkView = {
+  name: string;
+  href: string;
+  handle: string;
+};
+
+/** One weekday of the club's schedule. `open`/`close` both null means closed. */
+export type OperatingHoursView = {
+  day: number;
+  label: string;
+  open: string | null;
+  close: string | null;
+  /** True when `close` falls on the calendar day after `day` — Friday 22:00→04:00. */
+  closesNextDay: boolean;
+};
+
+/**
+ * The club's own facts as `GET /api/v1/settings` answers, and as the static
+ * fallback in `data/site.ts` mirrors: name, contacts, socials, weekly hours.
+ */
+export type SiteSettingsView = {
+  name: string;
+  tagline: string;
+  description: string;
+  ageRestriction: string;
+  contacts: {
+    phone: string;
+    phoneHref: string;
+    email: string;
+    emailHref: string;
+    address: string;
+    addressShort: string;
+    mapsUrl: string;
+    mapsEmbedQuery: string;
+    latitude: number;
+    longitude: number;
+  };
+  socials: SocialLinkView[];
+  hours: OperatingHoursView[];
+};
+
+/** One review card of the "Відгуки" grid, as the public feed sends it. */
+export type TestimonialView = {
+  id: string;
+  text: string;
+  name: string;
+  meta: string;
 };

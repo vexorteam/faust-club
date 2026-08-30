@@ -1,0 +1,54 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 640px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: clamp(16px, 4vw, 24px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--ink-raised);
+}
+
+.sectionTitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.submit {
+  align-self: flex-start;
+  min-height: 48px;
+  padding-inline: 24px;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-brand);
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 599px) {
+  .pair {
+    grid-template-columns: 1fr;
+  }
+
+  .submit {
+    align-self: stretch;
+  }
+}

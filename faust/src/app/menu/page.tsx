@@ -1,18 +1,23 @@
 import type { Metadata } from "next";
 import { getMenu } from "@/lib/menu";
-import { site } from "@/data/site";
+import { getSiteSettings } from "@/lib/settings";
 import { MenuSections } from "@/components/menu/MenuSections";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
-  title: "Меню",
-  description: `Барна карта ${site.name}: авторські коктейлі, класика, шоти, вино, пиво та снеки.`,
-  alternates: { canonical: "/menu" },
-  openGraph: {
-    title: `Меню · ${site.name}`,
-    description: `Барна карта ${site.name}: авторські коктейлі, класика, шоти, вино, пиво та снеки.`,
-    url: "/menu",
-  },
+export const generateMetadata = async (): Promise<Metadata> => {
+  const settings = await getSiteSettings();
+  const description = `Барна карта ${settings.name}: авторські коктейлі, класика, шоти, вино, пиво та снеки.`;
+
+  return {
+    title: "Меню",
+    description,
+    alternates: { canonical: "/menu" },
+    openGraph: {
+      title: `Меню · ${settings.name}`,
+      description,
+      url: "/menu",
+    },
+  };
 };
 
 const MenuPage = async () => {

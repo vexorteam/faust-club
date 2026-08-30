@@ -4,11 +4,6 @@ import type { MenuCategoryView } from "@/types";
 
 const REVALIDATE_SECONDS = 3600;
 
-/**
- * With no backend around the club must not lose its site: in production the
- * page falls back to an empty state, in development to the static sample menu
- * so there is something to work against.
- */
 const getFallbackMenu = async (): Promise<MenuCategoryView[]> => {
   if (process.env.NODE_ENV === "production") return [];
 

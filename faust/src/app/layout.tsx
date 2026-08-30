@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "modern-normalize/modern-normalize.css";
 import { fontVariables } from "@/lib/fonts";
 import { site } from "@/data/site";
+import { getSiteSettings } from "@/lib/settings";
 import { siteUrl } from "@/lib/site-url";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -9,30 +10,34 @@ import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: {
-    default: `${site.name} — ${site.tagline}`,
-    template: `%s · ${site.name}`,
-  },
-  description: site.description,
-  keywords: ["нічний клуб", "Київ", "коктейлі", "діджеї", "клуб", "бар", site.name],
-  authors: [{ name: site.name }],
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    locale: site.locale,
-    url: siteUrl,
-    siteName: site.name,
-    title: `${site.name} — ${site.tagline}`,
-    description: site.description,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${site.name} — ${site.tagline}`,
-    description: site.description,
-  },
-  robots: { index: true, follow: true },
+export const generateMetadata = async (): Promise<Metadata> => {
+  const settings = await getSiteSettings();
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: {
+      default: `${settings.name} — ${settings.tagline}`,
+      template: `%s · ${settings.name}`,
+    },
+    description: settings.description,
+    keywords: ["нічний клуб", "Шепетівка", "коктейлі", "діджеї", "клуб", "бар", settings.name],
+    authors: [{ name: settings.name }],
+    alternates: { canonical: "/" },
+    openGraph: {
+      type: "website",
+      locale: site.locale,
+      url: siteUrl,
+      siteName: settings.name,
+      title: `${settings.name} — ${settings.tagline}`,
+      description: settings.description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${settings.name} — ${settings.tagline}`,
+      description: settings.description,
+    },
+    robots: { index: true, follow: true },
+  };
 };
 
 export const viewport: Viewport = {
@@ -42,50 +47,54 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "NightClub",
-  name: site.name,
-  description: site.description,
-  url: siteUrl,
-  telephone: site.contacts.phone,
-  email: site.contacts.email,
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: site.contacts.addressShort,
-    addressLocality: "Київ",
-    addressCountry: "UA",
-  },
-  geo: {
-    "@type": "GeoCoordinates",
-    latitude: site.contacts.coordinates.lat,
-    longitude: site.contacts.coordinates.lng,
-  },
-  sameAs: site.socials.map((s) => s.href),
-  openingHoursSpecification: site.hours
-    .filter((h) => h.open && h.close)
-    .map((h) => ({
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: h.label,
-      opens: h.open,
-      closes: h.close,
-    })),
-};
+const RootLayout = async ({ children }: { children: React.ReactNode }) => {
+  const settings = await getSiteSettings();
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => (
-  <html lang="uk" className={fontVariables}>
-    <body>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <a href="#main" className="skip-link">
-        Перейти до контенту
-      </a>
-      <SmoothScroll>
-        <SiteChrome header={<Header />} footer={<Footer />}>
-          {children}
-        </SiteChrome>
-      </SmoothScroll>
-    </body>
-  </html>
-);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NightClub",
+    name: settings.name,
+    description: settings.description,
+    url: siteUrl,
+    telephone: settings.contacts.phone,
+    email: settings.contacts.email,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: settings.contacts.addressShort,
+      addressLocality: "Шепетівка",
+      addressCountry: "UA",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: settings.contacts.latitude,
+      longitude: settings.contacts.longitude,
+    },
+    sameAs: settings.socials.map((s) => s.href),
+    openingHoursSpecification: settings.hours
+      .filter((h) => h.open && h.close)
+      .map((h) => ({
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: h.label,
+        opens: h.open,
+        closes: h.close,
+      })),
+  };
+
+  return (
+    <html lang="uk" className={fontVariables}>
+      <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <a href="#main" className="skip-link">
+          Перейти до контенту
+        </a>
+        <SmoothScroll>
+          <SiteChrome header={<Header settings={settings} />} footer={<Footer settings={settings} />}>
+            {children}
+          </SiteChrome>
+        </SmoothScroll>
+      </body>
+    </html>
+  );
+};
 
 export default RootLayout;

@@ -3,15 +3,6 @@ import type { z } from "zod";
 import { AppError, ValidationError, toActionResult } from "@/errors";
 import { describeUploadProblem } from "@/schemas/image";
 
-/**
- * Shared plumbing of the admin route handlers.
- *
- * Every write from the admin UI goes through the same three steps: read the
- * body, validate it with the schema the form itself used, call the API. The
- * answer is always the same envelope, so one client-side helper can handle all
- * of them — and a failure never carries a stack trace to the browser (§9).
- */
-
 const INVALID_MESSAGE = "Перевірте заповнені поля";
 
 export const readJsonBody = async (request: Request): Promise<unknown> => {
@@ -35,11 +26,6 @@ const collectFieldErrors = (issues: readonly z.core.$ZodIssue[]): Record<string,
   return errors;
 };
 
-/**
- * Validation on this side is a convenience, not a boundary: the API checks the
- * same bounds again and is the one that decides (§3.5). It exists so a typo
- * does not need a round trip to be reported.
- */
 export const parseBody = <T>(schema: z.ZodType<T>, payload: unknown): T => {
   const parsed = schema.safeParse(payload);
 
@@ -53,7 +39,6 @@ export const parseBody = <T>(schema: z.ZodType<T>, payload: unknown): T => {
 
 const UPLOAD_MESSAGE = "Не вдалося прочитати завантажений файл";
 
-/** Uploads arrive as `multipart/form-data`, never as JSON (§5.3.1). */
 export const readUpload = async (request: Request): Promise<FormData> => {
   try {
     return await request.formData();
@@ -62,11 +47,6 @@ export const readUpload = async (request: Request): Promise<FormData> => {
   }
 };
 
-/**
- * The `file` part, checked against the same rules the picker used. The API
- * checks magic bytes on top of this — the point here is only to fail fast and
- * name the field, so the message lands under the right input.
- */
 export const takeFile = (form: FormData, name = "file"): File => {
   const value = form.get(name);
   const file = value instanceof File ? value : null;

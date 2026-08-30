@@ -1,14 +1,6 @@
 import { z } from "zod";
 import { ApiUnavailableError, fromErrorCode, type AppError } from "@/errors";
 
-/**
- * The only place in the frontend that knows the Python API exists.
- *
- * Nothing else calls `fetch` against the backend: base URL, timeout, error
- * envelope parsing and response validation all live here, so swapping the
- * backend or adding retries stays a one-file change.
- */
-
 const DEFAULT_TIMEOUT_MS = 8000;
 
 const UNAVAILABLE_MESSAGE = "Сервер тимчасово недоступний. Спробуйте оновити сторінку за хвилину";
@@ -24,32 +16,16 @@ const errorEnvelopeSchema = z.object({
 
 export type ApiRequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
-  /**
-   * Serialized as JSON; never logged, because one of these carries a password.
-   * `FormData` is passed through untouched — that is how photos travel (§5.3.1).
-   */
   body?: unknown;
-  /** Session token, passed through as-is: for the frontend it is opaque (§5.4) */
   token?: string;
-  /**
-   * Extra request headers. One caller needs them: the sign-in proxy passes on
-   * the visitor's address, because the API counts attempts per address and its
-   * peer is this application, not the browser (§3.5).
-   */
   headers?: Record<string, string>;
   /** Caching directives passed straight to the Next fetch layer */
   next?: { tags?: string[]; revalidate?: number | false };
   cache?: RequestCache;
   timeoutMs?: number;
-  /**
-   * Called when the answer carries a renewed session token. Reading the
-   * headers is transport work; writing the cookie is not, so the renewal is
-   * handed over instead of applied here.
-   */
   onRenewal?: (renewal: SessionRenewal) => void;
 };
 
-/** A fresh token the API issues before the current one runs out (§13.4). */
 export type SessionRenewal = { token: string; expiresIn: number };
 
 /** Headers of the sliding renewal. Absent on all but the last day of a token. */
@@ -78,11 +54,6 @@ const readJson = async (response: Response, url: string): Promise<unknown> => {
   }
 };
 
-/**
- * Maps `{ error: { code, message } }` onto the class hierarchy. A response
- * that does not carry the envelope means the backend is not speaking the
- * contract — for the visitor that is indistinguishable from being down.
- */
 const toTypedError = (payload: unknown, status: number, url: string): AppError => {
   const envelope = errorEnvelopeSchema.safeParse(payload);
 

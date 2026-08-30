@@ -1,16 +1,3 @@
-/**
- * Category addresses.
- *
- * A slug is part of a public URL — `/menu#signature` — so it has to survive
- * being typed, pasted into Instagram and copied off a phone screen: latin
- * letters, digits and hyphens only. Ukrainian titles are transliterated by the
- * table below (the national standard for road signs and passports), because a
- * percent-encoded Cyrillic anchor is unreadable in a shared link.
- *
- * The owner can always overwrite what this produces — it is a starting point,
- * not a rule.
- */
-
 const TRANSLITERATION: Record<string, string> = {
   а: "a",
   б: "b",

@@ -1,9 +1,3 @@
-# syntax=docker/dockerfile:1
-
-# Three stages. Only the last one ships: Next builds a standalone server that
-# carries the pieces of node_modules it actually uses, so the runtime image has
-# no package manager, no sources and no dependency tree.
-
 FROM node:22-alpine AS deps
 
 WORKDIR /app
@@ -25,11 +19,6 @@ COPY . .
 ARG MEDIA_HOSTNAME
 ARG NEXT_PUBLIC_SITE_URL
 ARG LOCAL_MEDIA
-# The API has to be reachable during the build, because `/` and `/menu` are
-# prerendered here. An image built without it carries an empty showcase for
-# good: a page that never fetched has neither a cache tag nor an ISR timer, so
-# neither the revalidation webhook nor time itself will ever fill it in. That
-# is why the compose file raises `postgres` and `api` before building `web`.
 ARG MENU_API_URL
 
 ENV NEXT_TELEMETRY_DISABLED=1

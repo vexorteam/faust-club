@@ -29,3 +29,25 @@
 .off {
   color: var(--text-muted);
 }
+
+/* Адаптив переключателя под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .toggle {
+    min-width: 72px; /* Смягчаем минимальную ширину для экономии места */
+    min-height: 40px;
+    padding-inline: 10px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .toggle {
+    min-width: 60px;
+    min-height: 36px;
+    padding-inline: 8px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+}

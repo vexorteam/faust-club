@@ -21,7 +21,16 @@ from typing import Annotated, Any, Literal
 from pydantic import AfterValidator, BaseModel, Field, StringConstraints
 
 from faust_api.errors import ValidationError
-from faust_api.models import AtmospherePhoto, MenuCategory, MenuItem, MenuItemBadge
+from faust_api.models import (
+    AtmospherePhoto,
+    MenuCategory,
+    MenuItem,
+    MenuItemBadge,
+    OperatingHours,
+    SiteSettings,
+    SocialLink,
+    Testimonial,
+)
 from faust_api.models.atmosphere import LABEL_LENGTH as TILE_LABEL_MAX
 from faust_api.models.category import NOTE_LENGTH as NOTE_MAX
 from faust_api.models.category import SLUG_LENGTH as SLUG_MAX
@@ -30,6 +39,42 @@ from faust_api.models.item import COMPOSITION_LENGTH as DESCRIPTION_MAX
 from faust_api.models.item import IMAGE_ALT_LENGTH as IMAGE_ALT_MAX
 from faust_api.models.item import NAME_LENGTH as NAME_MAX
 from faust_api.models.item import VOLUME_LENGTH as VOLUME_MAX
+from faust_api.models.settings import (
+    ADDRESS_LENGTH as ADDRESS_MAX,
+)
+from faust_api.models.settings import (
+    ADDRESS_SHORT_LENGTH as ADDRESS_SHORT_MAX,
+)
+from faust_api.models.settings import (
+    AGE_RESTRICTION_LENGTH as AGE_RESTRICTION_MAX,
+)
+from faust_api.models.settings import (
+    DESCRIPTION_LENGTH as SITE_DESCRIPTION_MAX,
+)
+from faust_api.models.settings import (
+    EMAIL_LENGTH as EMAIL_MAX,
+)
+from faust_api.models.settings import (
+    NAME_LENGTH as SITE_NAME_MAX,
+)
+from faust_api.models.settings import (
+    PHONE_LENGTH as PHONE_MAX,
+)
+from faust_api.models.settings import (
+    SOCIAL_HANDLE_LENGTH as SOCIAL_HANDLE_MAX,
+)
+from faust_api.models.settings import (
+    SOCIAL_NAME_LENGTH as SOCIAL_NAME_MAX,
+)
+from faust_api.models.settings import (
+    TAGLINE_LENGTH as TAGLINE_MAX,
+)
+from faust_api.models.settings import (
+    URL_LENGTH as URL_MAX,
+)
+from faust_api.models.testimonial import META_LENGTH as TESTIMONIAL_META_MAX
+from faust_api.models.testimonial import NAME_LENGTH as TESTIMONIAL_NAME_MAX
+from faust_api.models.testimonial import TEXT_LENGTH as TESTIMONIAL_TEXT_MAX
 from faust_api.schemas.base import ApiModel
 from faust_api.services.images import photo_url
 
@@ -323,6 +368,236 @@ class AtmospherePhotosResponse(ApiModel):
 
 class AtmospherePhotoResponse(ApiModel):
     photo: AdminAtmospherePhoto
+
+
+# ── Site settings ─────────────────────────────────────────────────────────
+
+SiteName = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=LABEL_MIN, max_length=SITE_NAME_MAX)
+]
+Tagline = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=LABEL_MIN, max_length=TAGLINE_MAX)
+]
+SiteDescription = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=LABEL_MIN, max_length=SITE_DESCRIPTION_MAX)
+]
+Phone = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=PHONE_MAX)]
+Email = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=EMAIL_MAX)]
+Address = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=ADDRESS_MAX)]
+AddressShort = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=ADDRESS_SHORT_MAX)
+]
+Url = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=URL_MAX)]
+AgeRestriction = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=AGE_RESTRICTION_MAX)
+]
+
+
+class SiteSettingsPatch(ApiModel):
+    """Any subset of the club's own facts — the same inline-save pattern as a category."""
+
+    name: Annotated[SiteName | None, AfterValidator(not_null)] = None
+    tagline: Annotated[Tagline | None, AfterValidator(not_null)] = None
+    description: Annotated[SiteDescription | None, AfterValidator(not_null)] = None
+    phone: Annotated[Phone | None, AfterValidator(not_null)] = None
+    phone_href: Annotated[Phone | None, AfterValidator(not_null)] = None
+    email: Annotated[Email | None, AfterValidator(not_null)] = None
+    email_href: Annotated[Email | None, AfterValidator(not_null)] = None
+    address: Annotated[Address | None, AfterValidator(not_null)] = None
+    address_short: Annotated[AddressShort | None, AfterValidator(not_null)] = None
+    maps_url: Annotated[Url | None, AfterValidator(not_null)] = None
+    maps_embed_query: Annotated[Address | None, AfterValidator(not_null)] = None
+    latitude: Annotated[float | None, AfterValidator(not_null)] = None
+    longitude: Annotated[float | None, AfterValidator(not_null)] = None
+    age_restriction: Annotated[AgeRestriction | None, AfterValidator(not_null)] = None
+
+
+class AdminSiteSettings(ApiModel):
+    id: uuid.UUID
+    name: str
+    tagline: str
+    description: str
+    phone: str
+    phone_href: str
+    email: str
+    email_href: str
+    address: str
+    address_short: str
+    maps_url: str
+    maps_embed_query: str
+    latitude: float
+    longitude: float
+    age_restriction: str
+
+    @classmethod
+    def of(cls, settings: SiteSettings) -> "AdminSiteSettings":
+        return cls(
+            id=settings.id,
+            name=settings.name,
+            tagline=settings.tagline,
+            description=settings.description,
+            phone=settings.phone,
+            phone_href=settings.phone_href,
+            email=settings.email,
+            email_href=settings.email_href,
+            address=settings.address,
+            address_short=settings.address_short,
+            maps_url=settings.maps_url,
+            maps_embed_query=settings.maps_embed_query,
+            latitude=settings.latitude,
+            longitude=settings.longitude,
+            age_restriction=settings.age_restriction,
+        )
+
+
+class SiteSettingsResponse(ApiModel):
+    settings: AdminSiteSettings
+
+
+# ── Social links ──────────────────────────────────────────────────────────
+
+
+class SocialCreate(ApiModel):
+    name: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=SOCIAL_NAME_MAX)
+    ]
+    href: Url
+    handle: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=SOCIAL_HANDLE_MAX)
+    ]
+
+
+class SocialPatch(ApiModel):
+    name: Annotated[
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=SOCIAL_NAME_MAX)]
+        | None,
+        AfterValidator(not_null),
+    ] = None
+    href: Annotated[Url | None, AfterValidator(not_null)] = None
+    handle: Annotated[
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=SOCIAL_HANDLE_MAX)]
+        | None,
+        AfterValidator(not_null),
+    ] = None
+
+
+class AdminSocialLink(ApiModel):
+    id: uuid.UUID
+    name: str
+    href: str
+    handle: str
+    order: int
+
+    @classmethod
+    def of(cls, social: SocialLink) -> "AdminSocialLink":
+        return cls(id=social.id, name=social.name, href=social.href, handle=social.handle, order=social.order)
+
+
+class SocialLinksResponse(ApiModel):
+    socials: list[AdminSocialLink]
+
+
+class SocialLinkResponse(ApiModel):
+    social: AdminSocialLink
+
+
+# ── Operating hours ───────────────────────────────────────────────────────
+
+DayTime = Annotated[
+    Annotated[str, StringConstraints(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")] | None,
+    AfterValidator(blank_to_none),
+]
+
+
+class HoursPatch(ApiModel):
+    """A day is either open with both times set, or closed with neither."""
+
+    open: DayTime = None
+    close: DayTime = None
+    closes_next_day: bool | None = None
+
+
+class AdminOperatingHours(ApiModel):
+    id: uuid.UUID
+    day: int
+    label: str
+    open: str | None
+    close: str | None
+    closes_next_day: bool
+
+    @classmethod
+    def of(cls, hours: OperatingHours) -> "AdminOperatingHours":
+        return cls(
+            id=hours.id,
+            day=hours.day,
+            label=hours.label,
+            open=hours.open,
+            close=hours.close,
+            closes_next_day=hours.closes_next_day,
+        )
+
+
+class OperatingHoursResponse(ApiModel):
+    hours: list[AdminOperatingHours]
+
+
+class OperatingHoursDayResponse(ApiModel):
+    hours: AdminOperatingHours
+
+
+# ── Testimonials ──────────────────────────────────────────────────────────
+
+TestimonialText = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=LABEL_MIN, max_length=TESTIMONIAL_TEXT_MAX)
+]
+TestimonialName = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=TESTIMONIAL_NAME_MAX)
+]
+TestimonialMeta = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=TESTIMONIAL_META_MAX)
+]
+
+
+class TestimonialCreate(ApiModel):
+    text: TestimonialText
+    name: TestimonialName
+    meta: TestimonialMeta
+    visible: bool = True
+
+
+class TestimonialPatch(ApiModel):
+    text: Annotated[TestimonialText | None, AfterValidator(not_null)] = None
+    name: Annotated[TestimonialName | None, AfterValidator(not_null)] = None
+    meta: Annotated[TestimonialMeta | None, AfterValidator(not_null)] = None
+    visible: Annotated[bool | None, AfterValidator(not_null)] = None
+
+
+class AdminTestimonial(ApiModel):
+    id: uuid.UUID
+    text: str
+    name: str
+    meta: str
+    order: int
+    visible: bool
+
+    @classmethod
+    def of(cls, testimonial: Testimonial) -> "AdminTestimonial":
+        return cls(
+            id=testimonial.id,
+            text=testimonial.text,
+            name=testimonial.name,
+            meta=testimonial.meta,
+            order=testimonial.order,
+            visible=testimonial.visible,
+        )
+
+
+class TestimonialsResponse(ApiModel):
+    testimonials: list[AdminTestimonial]
+
+
+class TestimonialResponse(ApiModel):
+    testimonial: AdminTestimonial
 
 
 # ── Uploads ───────────────────────────────────────────────────────────────

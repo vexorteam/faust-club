@@ -1,14 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
 
-/**
- * The two scenarios the owner actually performs: signing in (§5.4) and
- * changing a price so it shows up on the showcase (§6.3).
- *
- * Credentials come from the environment. They are never committed: this suite
- * runs against a seeded database, and whoever seeded it knows the password
- * (§3.5).
- */
-
 const EMAIL = process.env.E2E_ADMIN_EMAIL;
 const PASSWORD = process.env.E2E_ADMIN_PASSWORD;
 const API_URL = process.env.E2E_API_URL ?? "http://localhost:8000";

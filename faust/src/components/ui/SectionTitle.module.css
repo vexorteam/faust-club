@@ -32,3 +32,33 @@
 .center .description {
   margin-inline: auto;
 }
+
+@media (max-width: 360px) {
+  .wrap {
+    gap: 10px;
+  }
+
+  .heading {
+    font-size: clamp(1.5rem, 7.5vw, 2.2rem);
+    line-height: 1.15;
+  }
+
+  .description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 240px) {
+  .wrap {
+    gap: 8px;
+  }
+
+  .heading {
+    font-size: 1.3rem;
+  }
+
+  .description {
+    font-size: 0.85rem;
+  }
+}

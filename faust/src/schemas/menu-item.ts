@@ -1,14 +1,6 @@
 import { z } from "zod";
 import { IMAGE_ALT_MAX, imageAltSchema } from "@/schemas/image";
 
-/**
- * Menu items: the admin form and the admin API contract (§5.3.1).
- *
- * The bounds repeat what the API enforces on its own. That is not duplication
- * for its own sake — the API is the real boundary, this copy only spares the
- * owner a round trip to learn that a name is too long.
- */
-
 export const ITEM_NAME_MIN = 2;
 export const ITEM_NAME_MAX = 80;
 export const ITEM_DESCRIPTION_MAX = 200;
@@ -76,16 +68,6 @@ export const menuItemFormSchema = z.object({
   available: z.boolean(),
 });
 
-/**
- * `PATCH /admin/items/{id}` — any subset, including `categoryId`, because
- * changing it is how an item moves to another category.
- *
- * `imageAlt` lives here and not in the create form: a position gets its
- * description together with its first photo, and this is how the description
- * is corrected afterwards without re-uploading the frame (§13.4). Absent means
- * "leave it alone" — the field is never sent empty, because a photo whose
- * description was wiped is a photo a screen reader has to skip.
- */
 export const menuItemPatchSchema = menuItemFormSchema
   .partial()
   .extend({ imageAlt: imageAltSchema.optional() })

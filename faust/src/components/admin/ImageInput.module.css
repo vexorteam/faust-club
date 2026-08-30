@@ -106,3 +106,46 @@
   font-size: 13px;
   color: var(--text-muted);
 }
+
+/* Адаптив загрузчика картинок под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .field {
+    gap: 8px;
+  }
+
+  .frame {
+    max-width: 100%; /* Позволяем фрейму предпросмотра занимать всю доступную ширину */
+  }
+
+  .controls {
+    flex-direction: column; /* Переводим кнопки управления в вертикальный стек */
+    gap: 8px;
+  }
+
+  .picker,
+  .upload,
+  .reset {
+    min-height: 40px; /* Смягчаем минимальную высоту */
+    padding-inline: 14px;
+    font-size: 13.5px;
+    width: 100%; /* Растягиваем кнопки на всю ширину экрана для удобного нажатия */
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .picker,
+  .upload,
+  .reset {
+    min-height: 36px;
+    padding-inline: 10px;
+    font-size: 12.5px;
+  }
+
+  .hint,
+  .error {
+    font-size: 12px;
+  }
+}

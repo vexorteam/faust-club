@@ -1,15 +1,5 @@
 import { z } from "zod";
 
-/**
- * Menu categories: the form the owner fills in and the shape the admin API
- * answers with (contract §5.3.1).
- *
- * Unlike the public menu parser, these schemas are strict. On the showcase a
- * broken entry is dropped so the rest of the card survives; in the admin area
- * the owner has to see exactly what the database holds — silently hiding a row
- * would look like something disappeared on its own.
- */
-
 export const CATEGORY_LABEL_MIN = 2;
 export const CATEGORY_LABEL_MAX = 60;
 export const CATEGORY_NOTE_MAX = 120;

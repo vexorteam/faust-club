@@ -2,10 +2,13 @@
   padding-block: clamp(48px, 8vh, 100px);
 }
 
+.carousel {
+  margin-top: 40px;
+}
+
 .grid {
   display: grid;
   gap: 20px;
-  margin-top: 40px;
 }
 
 .grid > div {
@@ -100,4 +103,31 @@
   .grid {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--border-strong);
+  cursor: pointer;
+  transition: background var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+
+.dot:hover {
+  background: var(--text-muted);
+}
+
+.dotActive {
+  background: var(--gradient-brand);
+  transform: scale(1.3);
 }

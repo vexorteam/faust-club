@@ -44,3 +44,47 @@
     align-self: stretch;
   }
 }
+
+/* Адаптив формы создания категории под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .form {
+    gap: 12px;
+    padding: 12px; /* Уменьшаем внутренние отступы контейнера формы */
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .pair {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .submit {
+    min-height: 42px; /* Смягчаем минимальную высоту для экономии места */
+    padding-inline: 16px;
+    font-size: 14px;
+    width: 100%; /* Гарантируем полное заполнение ширины */
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .form {
+    gap: 10px;
+    padding: 8px;
+  }
+
+  .title {
+    font-size: 15px;
+  }
+
+  .submit {
+    min-height: 38px;
+    padding-inline: 12px;
+    font-size: 13px;
+  }
+}

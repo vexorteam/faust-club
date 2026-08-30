@@ -2,6 +2,7 @@ import Link from "next/link";
 import { site } from "@/data/site";
 import { Logo, IconInstagram, IconTelegram, IconTiktok } from "@/components/ui/icon";
 import { Beam } from "@/components/ui/Beam";
+import type { SiteSettingsView } from "@/types";
 import styles from "./Footer.module.css";
 
 const socialIcons = {
@@ -10,7 +11,7 @@ const socialIcons = {
   TikTok: IconTiktok,
 } as const;
 
-export const Footer = () => {
+export const Footer = ({ settings }: { settings: SiteSettingsView }) => {
   const year = new Date().getFullYear();
 
   return (
@@ -20,11 +21,11 @@ export const Footer = () => {
 
         <div className={styles.top}>
           <div className={styles.brandCol}>
-            <Link href="/" aria-label={`${site.name} — на головну`}>
+            <Link href="/" aria-label={`${settings.name} — на головну`}>
               <Logo className={styles.logo} />
             </Link>
-            <p className={styles.tagline}>{site.description}</p>
-            <span className={styles.badge}>Вхід виключно · {site.ageRestriction}</span>
+            <p className={styles.tagline}>{settings.description}</p>
+            <span className={styles.badge}>Вхід виключно · {settings.ageRestriction}</span>
           </div>
 
           <div className={styles.cols}>
@@ -43,13 +44,13 @@ export const Footer = () => {
               <h3>Контакти</h3>
               <ul>
                 <li>
-                  <a href={site.contacts.phoneHref}>{site.contacts.phone}</a>
+                  <a href={settings.contacts.phoneHref}>{settings.contacts.phone}</a>
                 </li>
                 <li>
-                  <a href={site.contacts.emailHref}>{site.contacts.email}</a>
+                  <a href={settings.contacts.emailHref}>{settings.contacts.email}</a>
                 </li>
                 <li>
-                  <address>{site.contacts.address}</address>
+                  <address>{settings.contacts.address}</address>
                 </li>
               </ul>
             </div>
@@ -57,7 +58,7 @@ export const Footer = () => {
             <div className={styles.col}>
               <h3>Ми в соцмережах</h3>
               <div className={styles.socials}>
-                {site.socials.map((social) => {
+                {settings.socials.map((social) => {
                   const Icon = socialIcons[social.name as keyof typeof socialIcons];
                   return (
                     <a
@@ -78,11 +79,13 @@ export const Footer = () => {
 
         <div className={styles.bottom}>
           <span>
-            © {year} {site.name}. Всі права захищені.
+            © {year} {settings.name}. Всі права захищені.
           </span>
+
           <div className={styles.bottomLinks}>
             <Link href="/menu">Меню</Link>
-            <a href={site.contacts.mapsUrl} target="_blank" rel="noreferrer noopener">
+
+            <a href={settings.contacts.mapsUrl} target="_blank" rel="noreferrer noopener">
               Як нас знайти
             </a>
           </div>

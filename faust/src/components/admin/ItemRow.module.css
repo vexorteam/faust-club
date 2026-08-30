@@ -90,3 +90,71 @@
     margin-left: 0;
   }
 }
+
+/* Адаптив строки позиции меню под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .row {
+    gap: 8px 12px;
+    padding: 12px 0;
+  }
+
+  .identity {
+    flex-basis: 100%; /* На микро-экранах название и объем занимают всю ширину сверху */
+  }
+
+  .name {
+    font-size: 14px;
+    gap: 6px;
+  }
+
+  .badge {
+    font-size: 9.5px;
+    padding: 1px 6px;
+  }
+
+  .price {
+    font-size: 14px;
+  }
+
+  .controls {
+    flex-basis: 100%;
+    width: 100%;
+    gap: 6px;
+    margin-left: 0;
+  }
+
+  .edit {
+    min-height: 40px;
+    padding-inline: 12px;
+    font-size: 13px;
+    flex: 1; /* Позволяем кнопке редактирования растягиваться для удобного нажатия */
+    justify-content: center;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .row {
+    gap: 6px 8px;
+    padding: 10px 0;
+  }
+
+  .name {
+    font-size: 13px;
+  }
+
+  .volume,
+  .price {
+    font-size: 13px;
+  }
+
+  .controls {
+    gap: 4px;
+  }
+
+  .edit {
+    min-height: 36px;
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+}

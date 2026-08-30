@@ -20,12 +20,12 @@ from typing import Literal
 from sqlalchemy import ColumnElement, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from faust_api.models import AtmospherePhoto, MenuCategory, MenuItem
+from faust_api.models import AtmospherePhoto, MenuCategory, MenuItem, SocialLink, Testimonial
 
 Direction = Literal["up", "down"]
 
-type Ordered = MenuCategory | MenuItem | AtmospherePhoto
-"""The three entities that keep a hand-arranged order."""
+type Ordered = MenuCategory | MenuItem | AtmospherePhoto | SocialLink | Testimonial
+"""The entities that keep a hand-arranged order."""
 
 FIRST_ORDER = 1
 

@@ -10,11 +10,6 @@ import styles from "./MenuSections.module.css";
 /** A position with no photo keeps its place in the grid: a letter stands in for it. */
 const monogramOf = (name: string): string => name.trim().charAt(0).toUpperCase();
 
-/**
- * A position that ran out stays on the showcase, dimmed, with its price still
- * readable (§5.3). An absent flag means it is on the card, so only an explicit
- * `false` counts.
- */
 const soldOut = (item: MenuItemView): boolean => item.available === false;
 
 /** The same two words the admin list uses, so one thing is called one name. */

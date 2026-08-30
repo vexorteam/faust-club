@@ -26,40 +26,37 @@ import {
   type AtmospherePatch,
   type AtmospherePhoto,
 } from "@/schemas/atmosphere";
-
-/**
- * Every admin endpoint of the Python API (§5.3.1), one function each.
- *
- * Transport still belongs to `lib/api.ts` — this module only knows which paths
- * exist, which schema each answer matches and that every call needs a live
- * session. Server Components call these directly for reads; writes come in
- * through the route handlers under `app/api/admin/*`, because only a route
- * handler is allowed to touch cookies.
- *
- * Nothing here triggers revalidation: the API fires the webhook itself after
- * every change (§5.3), and a second source of invalidation would only race
- * with the first.
- */
+import {
+  adminHoursDayResponseSchema,
+  adminHoursListResponseSchema,
+  adminSocialResponseSchema,
+  adminSocialsResponseSchema,
+  siteSettingsResponseSchema,
+  type AdminHours,
+  type AdminSiteSettings,
+  type AdminSocial,
+  type HoursInput,
+  type SiteSettingsPatch,
+  type SocialInput,
+  type SocialPatch,
+} from "@/schemas/settings";
+import {
+  adminTestimonialResponseSchema,
+  adminTestimonialsResponseSchema,
+  type AdminTestimonial,
+  type TestimonialInput,
+  type TestimonialPatch,
+} from "@/schemas/testimonial";
 
 const ADMIN_PATH = "/api/v1/admin";
 
 const EXPIRED_MESSAGE = "Сесія завершилась. Увійдіть ще раз";
 
-/**
- * A photo taken on a phone is megabytes over a bar's uplink, and the API still
- * has to rotate and re-encode it. The eight seconds the rest of the endpoints
- * get would report a failure while the upload is still going fine.
- */
 const UPLOAD_TIMEOUT_MS = 30000;
 
 /** Answers that carry nothing worth reading: DELETE and the move endpoints. */
 const acknowledgedSchema = z.unknown();
 
-/**
- * Guard in front of every call. `requireAdmin()` is what makes the check real —
- * it asks the API whether the token is still alive instead of trusting the
- * cookie's existence.
- */
 const authorize = async (): Promise<string> => {
   await requireAdmin();
 
@@ -105,8 +102,6 @@ const adminRequest = async <T>(
   return result;
 };
 
-/* ── Categories ─────────────────────────────────────────────────────────── */
-
 export const listCategories = async (): Promise<AdminCategory[]> => {
   const { categories } = await adminRequest("/categories", adminCategoriesResponseSchema);
 
@@ -131,11 +126,6 @@ export const updateCategory = async (id: string, patch: CategoryPatch): Promise<
   return category;
 };
 
-/**
- * The API refuses to delete a category that still holds items. Its own wording
- * is generic, so the count is looked up here and the owner is told what to do
- * about it — which items, and how many.
- */
 const explainNotEmpty = async (id: string, fallback: CategoryNotEmptyError): Promise<CategoryNotEmptyError> => {
   try {
     const categories = await listCategories();
@@ -159,15 +149,12 @@ export const deleteCategory = async (id: string): Promise<void> => {
   }
 };
 
-/** At the edge of the list the API answers 200 and changes nothing (§5.3.1). */
 export const moveCategory = async (id: string, direction: MoveDirection): Promise<void> => {
   await adminRequest(`/categories/${id}/move`, acknowledgedSchema, {
     method: "POST",
     body: { direction },
   });
 };
-
-/* ── Menu items ─────────────────────────────────────────────────────────── */
 
 export const listItemGroups = async (): Promise<AdminItemGroup[]> => {
   const { categories } = await adminRequest("/items", adminItemsResponseSchema);
@@ -210,12 +197,6 @@ export const moveItem = async (id: string, direction: MoveDirection): Promise<vo
   });
 };
 
-/**
- * Photo of a position. The API stores the file, strips its metadata, rotates it
- * by EXIF and answers with the ready URL — the frontend never learns the key.
- * The description travels with the picture, because the two are only useful
- * together (§5.3.1).
- */
 export const uploadItemImage = async (id: string, file: File, alt: string): Promise<ItemImage> =>
   adminRequest(`/items/${id}/image`, itemImageResponseSchema, {
     method: "POST",
@@ -228,30 +209,18 @@ export const deleteItemImage = async (id: string): Promise<void> => {
   await adminRequest(`/items/${id}/image`, acknowledgedSchema, { method: "DELETE" });
 };
 
-/* ── Atmosphere photos ──────────────────────────────────────────────────── */
-
 export const listAtmospherePhotos = async (): Promise<AtmospherePhoto[]> => {
   const { photos } = await adminRequest("/atmosphere", adminAtmosphereResponseSchema);
 
   return photos;
 };
 
-/**
- * There is no single-photo endpoint in the contract, and inventing one just to
- * fill an edit form would put the frontend ahead of the backend. The list is
- * short — it is cheaper to read it and pick.
- */
 export const findAtmospherePhoto = async (id: string): Promise<AtmospherePhoto | null> => {
   const photos = await listAtmospherePhotos();
 
   return photos.find((photo) => photo.id === id) ?? null;
 };
 
-/**
- * A tile is born with its picture: `POST /admin/atmosphere` takes the file, the
- * caption and the screen-reader description in one multipart request, because a
- * tile without a photo is nothing to show (§5.2).
- */
 export const createAtmospherePhoto = async (file: File, label: string, alt: string): Promise<AtmospherePhoto> => {
   const { photo } = await adminRequest("/atmosphere", adminAtmospherePhotoResponseSchema, {
     method: "POST",
@@ -288,6 +257,106 @@ export const deleteAtmospherePhoto = async (id: string): Promise<void> => {
 
 export const moveAtmospherePhoto = async (id: string, direction: MoveDirection): Promise<void> => {
   await adminRequest(`/atmosphere/${id}/move`, acknowledgedSchema, {
+    method: "POST",
+    body: { direction },
+  });
+};
+
+export const getSiteSettingsAdmin = async (): Promise<AdminSiteSettings> => {
+  const { settings } = await adminRequest("/settings", siteSettingsResponseSchema);
+
+  return settings;
+};
+
+export const updateSiteSettings = async (patch: SiteSettingsPatch): Promise<AdminSiteSettings> => {
+  const { settings } = await adminRequest("/settings", siteSettingsResponseSchema, {
+    method: "PATCH",
+    body: patch,
+  });
+
+  return settings;
+};
+
+export const listHours = async (): Promise<AdminHours[]> => {
+  const { hours } = await adminRequest("/settings/hours", adminHoursListResponseSchema);
+
+  return hours;
+};
+
+export const updateHours = async (day: number, patch: HoursInput): Promise<AdminHours> => {
+  const { hours } = await adminRequest(`/settings/hours/${day}`, adminHoursDayResponseSchema, {
+    method: "PATCH",
+    body: patch,
+  });
+
+  return hours;
+};
+
+export const listSocials = async (): Promise<AdminSocial[]> => {
+  const { socials } = await adminRequest("/settings/socials", adminSocialsResponseSchema);
+
+  return socials;
+};
+
+export const createSocial = async (input: SocialInput): Promise<AdminSocial> => {
+  const { social } = await adminRequest("/settings/socials", adminSocialResponseSchema, {
+    method: "POST",
+    body: input,
+  });
+
+  return social;
+};
+
+export const updateSocial = async (id: string, patch: SocialPatch): Promise<AdminSocial> => {
+  const { social } = await adminRequest(`/settings/socials/${id}`, adminSocialResponseSchema, {
+    method: "PATCH",
+    body: patch,
+  });
+
+  return social;
+};
+
+export const deleteSocial = async (id: string): Promise<void> => {
+  await adminRequest(`/settings/socials/${id}`, acknowledgedSchema, { method: "DELETE" });
+};
+
+export const moveSocial = async (id: string, direction: MoveDirection): Promise<void> => {
+  await adminRequest(`/settings/socials/${id}/move`, acknowledgedSchema, {
+    method: "POST",
+    body: { direction },
+  });
+};
+
+export const listTestimonials = async (): Promise<AdminTestimonial[]> => {
+  const { testimonials } = await adminRequest("/testimonials", adminTestimonialsResponseSchema);
+
+  return testimonials;
+};
+
+export const createTestimonial = async (input: TestimonialInput): Promise<AdminTestimonial> => {
+  const { testimonial } = await adminRequest("/testimonials", adminTestimonialResponseSchema, {
+    method: "POST",
+    body: input,
+  });
+
+  return testimonial;
+};
+
+export const updateTestimonial = async (id: string, patch: TestimonialPatch): Promise<AdminTestimonial> => {
+  const { testimonial } = await adminRequest(`/testimonials/${id}`, adminTestimonialResponseSchema, {
+    method: "PATCH",
+    body: patch,
+  });
+
+  return testimonial;
+};
+
+export const deleteTestimonial = async (id: string): Promise<void> => {
+  await adminRequest(`/testimonials/${id}`, acknowledgedSchema, { method: "DELETE" });
+};
+
+export const moveTestimonial = async (id: string, direction: MoveDirection): Promise<void> => {
+  await adminRequest(`/testimonials/${id}/move`, acknowledgedSchema, {
     method: "POST",
     body: { direction },
   });

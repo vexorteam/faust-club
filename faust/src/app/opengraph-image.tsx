@@ -1,11 +1,13 @@
 import { ImageResponse } from "next/og";
-import { site } from "@/data/site";
+import { getSiteSettings } from "@/lib/settings";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const OpengraphImage = () =>
-  new ImageResponse(
+const OpengraphImage = async () => {
+  const settings = await getSiteSettings();
+
+  return new ImageResponse(
     (
       <div
         style={{
@@ -32,12 +34,13 @@ const OpengraphImage = () =>
           <span style={{ color: "#a7aebe", fontSize: 24, letterSpacing: 4 }}>NIGHT CLUB</span>
         </div>
         <div style={{ display: "flex", color: "#ffffff", fontSize: 130, fontWeight: 800, letterSpacing: -2 }}>
-          FAUST
+          {settings.name.toUpperCase()}
         </div>
-        <div style={{ display: "flex", color: "#a7aebe", fontSize: 28, marginTop: 12 }}>{site.tagline}</div>
+        <div style={{ display: "flex", color: "#a7aebe", fontSize: 28, marginTop: 12 }}>{settings.tagline}</div>
       </div>
     ),
     { ...size },
   );
+};
 
 export default OpengraphImage;

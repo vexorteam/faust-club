@@ -4,28 +4,12 @@ import { setSessionCookie } from "@/lib/session";
 import { loginResponseSchema, loginSchema } from "@/schemas/auth";
 import { AppError, UnauthorizedError, toActionResult } from "@/errors";
 
-/**
- * Proxy for `POST /api/v1/auth/login`.
- *
- * The password lives for exactly one hop — browser → here → API — and is
- * never logged or stored. The token never travels back to the browser in the
- * body either: it goes straight into an httpOnly cookie (§5.4).
- */
-
 /** One message for a wrong password and for an unknown address alike. */
 const CREDENTIALS_MESSAGE = "Невірна пошта або пароль";
 
 const rejected = (code: string, message: string, status: number) =>
   NextResponse.json({ ok: false, code, message }, { status });
 
-/**
- * The visitor's address, as the edge proxy saw it.
- *
- * The API limits sign-in attempts per address, and the peer it sees is this
- * application: without passing the chain on, every guest would share one
- * bucket and a stranger with five wrong guesses would lock the owner out.
- * The API believes the header only from a proxy it trusts (`TRUSTED_PROXIES`).
- */
 const forwardedFor = (request: Request): Record<string, string> => {
   const chain = request.headers.get("x-forwarded-for");
 

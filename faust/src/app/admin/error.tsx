@@ -4,17 +4,6 @@ import Link from "next/link";
 import { useEffect } from "react";
 import styles from "./error.module.css";
 
-/**
- * Error boundary of the admin area.
- *
- * Most of what can go wrong here is the Python API being unreachable, and that
- * deserves an explanation rather than a white screen: the owner needs to know
- * that nothing they typed broke anything and that pressing the button again is
- * a reasonable thing to do.
- *
- * The visitor gets a human sentence; the full context goes to the console (§3.4).
- */
-
 const AdminError = ({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) => {
   useEffect(() => {
     console.error("[admin] the page could not be rendered", error);

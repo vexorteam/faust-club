@@ -1,7 +1,8 @@
 import { site } from "@/data/site";
 import { ConfigurationError } from "@/errors";
+import type { OperatingHoursView } from "@/types";
 
-type DayRule = (typeof site.hours)[number];
+type DayRule = OperatingHoursView;
 
 export type OpenStatus =
   { isOpen: true; closesAt: string } | { isOpen: false; nextOpen: { label: string; time: string } };
@@ -44,18 +45,22 @@ const getZonedParts = (date: Date, timeZone: string): { weekday: number; minutes
   return { weekday, minutes };
 };
 
-const ruleFor = (weekday: number): DayRule => {
-  const rule = site.hours.find((h) => h.day === weekday);
-  if (!rule) throw new ConfigurationError(`У site.hours немає правила для дня тижня ${weekday}`);
+const ruleFor = (hours: readonly DayRule[], weekday: number): DayRule => {
+  const rule = hours.find((h) => h.day === weekday);
+  if (!rule) throw new ConfigurationError(`У графіку немає правила для дня тижня ${weekday}`);
   return rule;
 };
 
-export const getOpenStatus = (date: Date = new Date(), timeZone: string = site.timeZone): OpenStatus => {
+export const getOpenStatus = (
+  date: Date = new Date(),
+  timeZone: string = site.timeZone,
+  hours: readonly DayRule[] = site.hours,
+): OpenStatus => {
   const { weekday, minutes } = getZonedParts(date, timeZone);
 
-  const today = ruleFor(weekday);
+  const today = ruleFor(hours, weekday);
   const yesterdayWeekday = weekday === 1 ? 7 : weekday - 1;
-  const yesterday = ruleFor(yesterdayWeekday);
+  const yesterday = ruleFor(hours, yesterdayWeekday);
 
   if (today.open && today.close) {
     const openMin = toMinutes(today.open);
@@ -75,7 +80,7 @@ export const getOpenStatus = (date: Date = new Date(), timeZone: string = site.t
 
   for (let offset = 0; offset < 7; offset++) {
     const candidateWeekday = ((weekday - 1 + offset) % 7) + 1;
-    const candidate = ruleFor(candidateWeekday);
+    const candidate = ruleFor(hours, candidateWeekday);
     if (!candidate.open) continue;
 
     if (offset === 0) {
@@ -90,7 +95,7 @@ export const getOpenStatus = (date: Date = new Date(), timeZone: string = site.t
     return { isOpen: false, nextOpen: { label, time: candidate.open } };
   }
 
-  throw new ConfigurationError("У site.hours немає жодного робочого дня");
+  throw new ConfigurationError("У графіку немає жодного робочого дня");
 };
 
 export const formatStatus = (status: OpenStatus): string => {
@@ -98,11 +103,9 @@ export const formatStatus = (status: OpenStatus): string => {
   return `Наступна ніч: ${status.nextOpen.label}, ${status.nextOpen.time}`;
 };
 
-/* ── The working week, straight from the data ──────────────────────────── */
-
 const SHORT_DAYS: Record<number, string> = { 1: "Пн", 2: "Вт", 3: "Ср", 4: "Чт", 5: "Пт", 6: "Сб", 7: "Нд" };
 
-const openDays = (): readonly DayRule[] => site.hours.filter((rule) => rule.open !== null);
+const openDays = (hours: readonly DayRule[]): readonly DayRule[] => hours.filter((rule) => rule.open !== null);
 
 /**
  * "Чт–Сб", or "Чт, Сб" when the nights are not next to each other.
@@ -111,8 +114,8 @@ const openDays = (): readonly DayRule[] => site.hours.filter((rule) => rule.open
  * the footer and the JSON-LD say another is worse than a hero that says
  * nothing: the visitor turns up on the wrong night.
  */
-export const formatWorkingDays = (): string => {
-  const days = openDays();
+export const formatWorkingDays = (hours: readonly DayRule[] = site.hours): string => {
+  const days = openDays(hours);
 
   if (days.length === 0) return "";
 
@@ -125,11 +128,12 @@ export const formatWorkingDays = (): string => {
 };
 
 /** The opening time, when every working night shares one. Otherwise `null`. */
-export const openingTime = (): string | null => {
-  const times = new Set(openDays().map((rule) => rule.open));
+export const openingTime = (hours: readonly DayRule[] = site.hours): string | null => {
+  const times = new Set(openDays(hours).map((rule) => rule.open));
 
   return times.size === 1 ? ([...times][0] ?? null) : null;
 };
 
 /** "Чт–Сб · 22:00" — the line the hero shows before any clock is consulted. */
-export const formatWeek = (): string => [formatWorkingDays(), openingTime()].filter(Boolean).join(" · ");
+export const formatWeek = (hours: readonly DayRule[] = site.hours): string =>
+  [formatWorkingDays(hours), openingTime(hours)].filter(Boolean).join(" · ");

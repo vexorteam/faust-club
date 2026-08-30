@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MAX_UPLOAD_BYTES, describeUploadProblem } from "@/schemas/image";
 
-/**
- * The check that happens before a single byte leaves the phone. It is not the
- * boundary — the API reads magic bytes — but it decides what the owner is told
- * and whether a doomed upload is attempted at all.
- */
-
 const file = (over: Partial<{ name: string; size: number; type: string }> = {}) => ({
   name: "IMG_0421.jpg",
   size: 2 * 1024 * 1024,

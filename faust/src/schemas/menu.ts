@@ -1,16 +1,5 @@
 import { z } from "zod";
 
-/**
- * Runtime shape of `GET /api/v1/menu` (contract §5.3).
- *
- * The parser is deliberately forgiving in one direction only: a broken entry
- * is dropped and logged, the rest of the menu still reaches the page. A single
- * mistyped cocktail must not take the whole bar card down. Fields that carry
- * no meaning on their own (image, volume, badge) fall back to a neutral value
- * instead of killing the item; `name` and `price` do not — an item without
- * them is not a menu item.
- */
-
 const MAX_PRICE = 99999;
 
 const optionalText = (max: number) =>

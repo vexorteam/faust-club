@@ -34,3 +34,52 @@
   font-size: 15px;
   font-weight: 600;
 }
+
+/* Адаптив шапки админки под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .header {
+    align-items: flex-start; /* Переключаем выравнивание, чтобы элементы корректно шли друг за другом */
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: clamp(20px, 7vw, 24px); /* Смягчаем размеры заголовка под микро-экраны */
+  }
+
+  .description {
+    font-size: 13px;
+  }
+
+  .action {
+    min-height: 42px; /* Смягчаем минимальную высоту для экономии пространства */
+    padding-inline: 16px;
+    font-size: 14px;
+    width: 100%; /* Растягиваем кнопку действия на всю ширину экрана */
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .header {
+    margin-bottom: 16px;
+    gap: 10px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .description {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .action {
+    min-height: 38px;
+    padding-inline: 12px;
+    font-size: 13px;
+  }
+}

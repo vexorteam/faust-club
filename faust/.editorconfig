@@ -9,7 +9,7 @@ max_line_length = 120
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-# JavaScript/TypeScript - синхронизировано с Prettier
+# JavaScript/TypeScript
 [*.{js,jsx,ts,tsx,cjs,mjs,cts,mts}]
 indent_size = 2
 

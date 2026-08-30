@@ -2,13 +2,6 @@ import { adminRoute, parseBody, readJsonBody } from "@/lib/admin-route";
 import { deleteAtmospherePhoto, updateAtmospherePhoto } from "@/lib/admin";
 import { atmospherePatchSchema } from "@/schemas/atmosphere";
 
-/**
- * Caption, screen-reader description and visibility of an atmosphere tile.
- *
- * Replacing the picture itself is a separate multipart endpoint and belongs to
- * step 11 — here a photo is only ever read.
- */
-
 export const dynamic = "force-dynamic";
 
 type Context = { params: Promise<{ id: string }> };

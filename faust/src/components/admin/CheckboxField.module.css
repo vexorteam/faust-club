@@ -28,3 +28,53 @@
   font-size: 13px;
   color: var(--text-muted);
 }
+
+/* Адаптив чекбокса под узкие экраны (до 360px) и микро-девайсы (до 220px) */
+@media (max-width: 360px) {
+  .row {
+    gap: 10px;
+    min-height: 40px; /* Смягчаем минимальную высоту, сохраняя комфортную зону для пальца */
+  }
+
+  .box {
+    width: 18px;
+    height: 18px;
+  }
+
+  .text {
+    font-size: 14px;
+  }
+
+  .hint {
+    padding-left: 28px; /* Немного уменьшаем отступ синхронно с чекбоксом */
+    font-size: 12px;
+  }
+}
+
+/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
+@media (max-width: 240px) {
+  .field {
+    gap: 2px;
+  }
+
+  .row {
+    gap: 8px;
+    min-height: 36px;
+  }
+
+  .box {
+    width: 16px;
+    height: 16px;
+  }
+
+  .text {
+    font-size: 13px;
+  }
+
+  .hint {
+    /* На микро-экранах жертвуем выравниванием по тексту ради спасения ширины строки */
+    padding-left: 0;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+}
