@@ -6,7 +6,6 @@ const downloadGroups = {
   ],
 
   white: ['./img/faust-icon-white.png', './img/faust-logo-white.png', './img/faust-logo-gradient-white.png'],
-
   black: ['./img/faust-icon-black.png', './img/faust-logo-gradient-black.png'],
 };
 
