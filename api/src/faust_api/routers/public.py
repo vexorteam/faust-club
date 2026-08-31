@@ -1,14 +1,3 @@
-"""The two endpoints the showcase is built from (§5.3).
-
-Neither is called from a browser: Next fetches them while building the pages
-and while revalidating, so there is no CORS to configure and no session to
-check. What they must be is cheap and complete — the menu is the hottest query
-in the project, and everything the page needs has to arrive in one answer.
-
-Both filter the hidden rows and sort by `order` here, because the frontend
-renders the arrays exactly as they come.
-"""
-
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -43,12 +32,6 @@ Session = Annotated[AsyncSession, Depends(get_session)]
 
 @router.get("/menu", response_model=MenuResponse)
 async def read_menu(session: Session) -> MenuResponse:
-    """The whole bar card in one query.
-
-    `selectinload` instead of a loop over categories: this endpoint runs on
-    every build and every revalidation, and N+1 here is N+1 on the critical
-    path of the site.
-    """
     categories = await session.scalars(
         select(MenuCategory)
         .where(MenuCategory.visible.is_(True))
@@ -71,12 +54,6 @@ async def read_atmosphere(session: Session) -> AtmosphereResponse:
 
 @router.get("/settings", response_model=SettingsResponse)
 async def read_settings(session: Session) -> SettingsResponse:
-    """Name, contacts, socials and weekly hours — one call, already sorted.
-
-    The seed guarantees exactly one `SiteSettings` row and all seven days of
-    `OperatingHours` (§13); a missing one means the database was never seeded,
-    which is an operator problem, not something a visitor request can fix.
-    """
     settings = await session.scalar(select(SiteSettings).limit(1))
 
     if settings is None:

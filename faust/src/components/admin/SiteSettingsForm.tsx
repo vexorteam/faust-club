@@ -19,15 +19,6 @@ import {
 import { useAdminMutation } from "./useAdminMutation";
 import styles from "./SiteSettingsForm.module.css";
 
-/**
- * The club's own facts, in one form: what used to be hard-coded in
- * `data/site.ts` and is now the owner's to edit (§13 follow-up).
- *
- * One save button for the whole card rather than per-field autosave — these
- * fields read together (a phone number without its `tel:` link is a bug half
- * fixed), so a stray keystroke should not go live before the rest is right.
- */
-
 type FieldErrors = Partial<Record<keyof SiteSettingsInput, string>>;
 
 const asFormState = (settings: AdminSiteSettings): SiteSettingsInput => ({

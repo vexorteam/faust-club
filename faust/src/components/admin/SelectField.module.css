@@ -55,7 +55,6 @@
   color: var(--danger);
 }
 
-/* Адаптив выпадающего списка под узкие экраны (до 360px) и микро-девайсы (до 220px) */
 @media (max-width: 360px) {
   .field {
     gap: 6px;
@@ -66,8 +65,8 @@
   }
 
   .control {
-    min-height: 42px; /* Смягчаем минимальную высоту для экономии пространства */
-    padding: 10px 12px; /* Уменьшаем внутренние отступы */
+    min-height: 42px;
+    padding: 10px 12px;
     font-size: 14px;
   }
 
@@ -77,7 +76,6 @@
   }
 }
 
-/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
 @media (max-width: 240px) {
   .control {
     min-height: 38px;

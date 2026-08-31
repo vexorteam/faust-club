@@ -1,11 +1,3 @@
-"""The club's own facts: name, contacts, socials, weekly hours (§5.3.1).
-
-Three sub-resources, one router, because the admin panel shows them on a
-single page. `SiteSettings` is a singleton patched in place; `OperatingHours`
-is seven fixed rows, each patched by its `day`; `SocialLink` is the one part
-of this page with real CRUD — the owner may add a channel or drop one.
-"""
-
 import uuid
 from typing import Annotated
 
@@ -79,9 +71,6 @@ async def load_day(session: AsyncSession, day: int) -> OperatingHours:
     return hours
 
 
-# ── Site settings ─────────────────────────────────────────────────────────
-
-
 @router.get("", response_model=SiteSettingsResponse)
 async def read_settings(session: Session) -> SiteSettingsResponse:
     return SiteSettingsResponse(settings=AdminSiteSettings.of(await load_settings(session)))
@@ -101,9 +90,6 @@ async def update_settings(
     revalidation.add_task(request_revalidation, "settings")
 
     return SiteSettingsResponse(settings=AdminSiteSettings.of(settings))
-
-
-# ── Operating hours ───────────────────────────────────────────────────────
 
 
 @router.get("/hours", response_model=OperatingHoursResponse)
@@ -134,9 +120,6 @@ async def update_hours(
     revalidation.add_task(request_revalidation, "settings")
 
     return OperatingHoursDayResponse(hours=AdminOperatingHours.of(hours))
-
-
-# ── Social links ──────────────────────────────────────────────────────────
 
 
 @router.get("/socials", response_model=SocialLinksResponse)

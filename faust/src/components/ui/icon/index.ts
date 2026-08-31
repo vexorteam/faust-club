@@ -1,4 +1,5 @@
 export { Logo } from "./Logo";
+export { IconGlobe } from "./Globe";
 export { IconMenu } from "./Menu";
 export { IconClose } from "./Close";
 export { IconPin } from "./Pin";

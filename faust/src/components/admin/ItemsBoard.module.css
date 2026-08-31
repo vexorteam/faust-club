@@ -96,14 +96,13 @@
   text-decoration: underline;
 }
 
-/* Адаптив панели управления позициями под узкие экраны (до 360px) и микро-девайсы (до 220px) */
 @media (max-width: 360px) {
   .board {
     gap: 20px;
   }
 
   .input {
-    max-width: 100%; /* Позволяем полю поиска полностью заполнять ширину экрана */
+    max-width: 100%;
     min-height: 42px;
     padding: 10px 12px;
     font-size: 14px;
@@ -130,7 +129,6 @@
   }
 }
 
-/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
 @media (max-width: 240px) {
   .input {
     min-height: 38px;

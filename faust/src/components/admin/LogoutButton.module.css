@@ -19,7 +19,6 @@
   cursor: default;
 }
 
-/* Адаптив кнопки выхода под узкие экраны (до 360px) и микро-девайсы (до 220px) */
 @media (max-width: 360px) {
   .button {
     min-height: 40px;
@@ -28,7 +27,6 @@
   }
 }
 
-/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
 @media (max-width: 240px) {
   .button {
     min-height: 36px;

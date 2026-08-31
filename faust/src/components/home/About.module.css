@@ -73,9 +73,8 @@
   object-fit: cover;
   object-position: center;
 
-  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 95%);;
-  mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
   -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
+  mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
 }
 
 .visual::after {

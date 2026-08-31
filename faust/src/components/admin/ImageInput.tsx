@@ -6,23 +6,6 @@ import { IMAGE_ACCEPT_ATTRIBUTE, MAX_UPLOAD_MB, describeUploadProblem } from "@/
 import { ConfirmAction } from "./ConfirmAction";
 import styles from "./ImageInput.module.css";
 
-/**
- * The picture picker of the admin area — one component for a menu position and
- * for an atmosphere tile.
- *
- * The chosen frame is shown before anything is sent, straight from the file the
- * owner picked: standing at the bar with a phone, you want to see that you
- * grabbed the right shot before waiting on an upload. Size and format are
- * checked here too, so a 7 MB frame is refused in the same second instead of
- * after the whole thing crawled up the wire — but the real check is the API's,
- * which reads magic bytes and can be lied to by no file name.
- *
- * Two ways to use it. With `onUpload` the photo is sent on its own, right away
- * (an item or tile that already exists). Without it the parent form submits the
- * file together with the rest of the fields — that is how a new tile is born,
- * because a tile without a picture does not exist.
- */
-
 export type ImageInputProps = {
   /** Photo the API already stores, if any */
   image?: string | null;

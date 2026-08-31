@@ -59,15 +59,14 @@
   color: var(--text-primary);
 }
 
-/* Адаптив плитки атмосферы под узкие экраны (до 360px) и микро-девайсы (до 220px) */
 @media (max-width: 360px) {
   .tile {
-    padding: 10px; /* Уменьшаем внутренние отступы карточки */
+    padding: 10px;
     gap: 10px;
   }
 
   .preview {
-    height: 140px; /* Слегка уменьшаем высоту превью-картинки для экономии вертикального пространства */
+    height: 140px;
   }
 
   .label {
@@ -83,16 +82,15 @@
   }
 
   .edit {
-    min-height: 40px; /* Смягчаем минимальную высоту для экономии места */
+    min-height: 40px;
     padding-inline: 12px;
     font-size: 13px;
-    flex: 1; /* Растягиваем кнопку редактирования, чтобы она гармонично заполняла пространство */
+    flex: 1;
     justify-content: center;
     box-sizing: border-box;
   }
 }
 
-/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
 @media (max-width: 240px) {
   .tile {
     padding: 8px;

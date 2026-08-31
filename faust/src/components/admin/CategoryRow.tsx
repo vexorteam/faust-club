@@ -17,15 +17,6 @@ import { StateToggle } from "./StateToggle";
 import { useAdminMutation } from "./useAdminMutation";
 import styles from "./CategoryRow.module.css";
 
-/**
- * One category: renamed in place, reordered and hidden without leaving the
- * page.
- *
- * Changing the address of a category that already exists breaks every link that
- * points at it — the anchor `/menu#signature` in a story, on a sticker, in a
- * chat — so the row says so out loud the moment the field is edited.
- */
-
 export type CategoryRowProps = {
   category: AdminCategory;
   isFirst: boolean;

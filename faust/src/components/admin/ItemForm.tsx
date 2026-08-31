@@ -14,28 +14,6 @@ import { SelectField } from "./SelectField";
 import { useAdminMutation } from "./useAdminMutation";
 import styles from "./ItemForm.module.css";
 
-/**
- * One form for both creating and editing a position.
- *
- * The category select is required, because an item without a category has
- * nowhere to appear on the showcase. Changing it here *is* the "move to another
- * category" feature — after saving, the item is gone from the old group and
- * present in the new one.
- *
- * Values live in state, so a failed request leaves everything the owner typed
- * on screen. Losing a filled-in form because the bar's wifi blinked is not an
- * acceptable way to report an error.
- *
- * The photo is a second request either way: the upload endpoint needs an id, so
- * a new position is created first and the picture follows immediately. If the
- * picture is the part that fails, the position is already saved — the form says
- * so and stays on the item, instead of pretending nothing happened.
- *
- * Its description travels with whichever request owns it: with the upload when
- * a new frame was picked, and inside the `PATCH` otherwise (§13.4). So a typo
- * in the description is fixed on its own, without re-uploading the photo.
- */
-
 const BADGE_OPTIONS = [
   { value: "", label: "Без мітки" },
   { value: "new", label: "Нове" },
@@ -153,7 +131,6 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
     setPhotoError(undefined);
     setAltError(undefined);
 
-    /** Without a new frame the description has no upload to travel with (§13.4). */
     const body = alt && !photoFile ? { ...parsed.data, imageAlt: alt } : parsed.data;
 
     const saved = item ? "Збережено" : "Позицію додано";

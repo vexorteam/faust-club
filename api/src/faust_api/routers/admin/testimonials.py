@@ -1,9 +1,3 @@
-"""Review cards of the "Відгуки" grid: create, edit, hide, reorder, delete.
-
-Text-only sibling of `atmosphere.py` — same hand-ordered list, same move/hide
-pattern, no file upload because a testimonial has no picture.
-"""
-
 import uuid
 from typing import Annotated
 

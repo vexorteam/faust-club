@@ -107,34 +107,32 @@
   color: var(--text-muted);
 }
 
-/* Адаптив загрузчика картинок под узкие экраны (до 360px) и микро-девайсы (до 220px) */
 @media (max-width: 360px) {
   .field {
     gap: 8px;
   }
 
   .frame {
-    max-width: 100%; /* Позволяем фрейму предпросмотра занимать всю доступную ширину */
+    max-width: 100%;
   }
 
   .controls {
-    flex-direction: column; /* Переводим кнопки управления в вертикальный стек */
+    flex-direction: column;
     gap: 8px;
   }
 
   .picker,
   .upload,
   .reset {
-    min-height: 40px; /* Смягчаем минимальную высоту */
+    min-height: 40px;
     padding-inline: 14px;
     font-size: 13.5px;
-    width: 100%; /* Растягиваем кнопки на всю ширину экрана для удобного нажатия */
+    width: 100%;
     justify-content: center;
     box-sizing: border-box;
   }
 }
 
-/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
 @media (max-width: 240px) {
   .picker,
   .upload,

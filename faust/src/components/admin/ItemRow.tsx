@@ -9,15 +9,6 @@ import { StateToggle } from "./StateToggle";
 import { useAdminMutation } from "./useAdminMutation";
 import styles from "./ItemRow.module.css";
 
-/**
- * One line of the menu list.
- *
- * Everything that gets changed weekly happens here without opening a form: the
- * availability switch and the order arrows save on press. Editing the price
- * still needs the form, which keeps the path «сайт → зміна ціни» at four
- * interactions (§6.3).
- */
-
 const BADGE_LABELS: Record<"new" | "hit", string> = { new: "Нове", hit: "Хіт" };
 
 export type ItemRowProps = {

@@ -139,13 +139,6 @@ class PublicOperatingHours(ApiModel):
 
 
 class SettingsResponse(ApiModel):
-    """`GET /api/v1/settings` — everything the showcase used to hard-code (§13).
-
-    One call gets the whole club identity: name, contacts, socials and the
-    week's schedule, already sorted. Like `/menu` and `/atmosphere`, only Next
-    calls this — no CORS to configure.
-    """
-
     name: str
     tagline: str
     description: str
@@ -192,6 +185,4 @@ class PublicTestimonial(ApiModel):
 
 
 class TestimonialsResponse(ApiModel):
-    """`GET /api/v1/testimonials` — visible review cards, already sorted (§13 follow-up)."""
-
     testimonials: list[PublicTestimonial]

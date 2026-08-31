@@ -5,7 +5,6 @@ const DEFAULT_TIMEOUT_MS = 8000;
 
 const UNAVAILABLE_MESSAGE = "Сервер тимчасово недоступний. Спробуйте оновити сторінку за хвилину";
 
-/** Shape every endpoint uses to report a failure (contract §5.3). */
 const errorEnvelopeSchema = z.object({
   error: z.object({
     code: z.string().min(1),

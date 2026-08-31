@@ -3,15 +3,10 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { site } from "@/data/site";
-import { Logo, IconClose, IconInstagram, IconTelegram, IconTiktok } from "@/components/ui/icon";
+import { Logo, IconClose } from "@/components/ui/icon";
+import { resolveSocialIcon } from "@/lib/social-icons";
 import type { SiteSettingsView } from "@/types";
 import styles from "./MobileNav.module.css";
-
-const socialIcons = {
-  Instagram: IconInstagram,
-  Telegram: IconTelegram,
-  TikTok: IconTiktok,
-} as const;
 
 type MobileNavProps = {
   open: boolean;
@@ -109,10 +104,10 @@ export const MobileNav = ({ open, onClose, pathname, settings }: MobileNavProps)
         <span className={styles.contactLine}>{settings.contacts.addressShort}</span>
         <div className={styles.socials}>
           {settings.socials.map((social) => {
-            const Icon = socialIcons[social.name as keyof typeof socialIcons];
+            const Icon = resolveSocialIcon(social.name);
             return (
               <a key={social.name} href={social.href} target="_blank" rel="noreferrer noopener" aria-label={social.name}>
-                {Icon && <Icon />}
+                <Icon />
               </a>
             );
           })}

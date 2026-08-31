@@ -35,16 +35,15 @@
   font-weight: 600;
 }
 
-/* Адаптив шапки админки под узкие экраны (до 360px) и микро-девайсы (до 220px) */
 @media (max-width: 360px) {
   .header {
-    align-items: flex-start; /* Переключаем выравнивание, чтобы элементы корректно шли друг за другом */
+    align-items: flex-start;
     gap: 12px;
     margin-bottom: 20px;
   }
 
   .title {
-    font-size: clamp(20px, 7vw, 24px); /* Смягчаем размеры заголовка под микро-экраны */
+    font-size: clamp(20px, 7vw, 24px);
   }
 
   .description {
@@ -52,16 +51,15 @@
   }
 
   .action {
-    min-height: 42px; /* Смягчаем минимальную высоту для экономии пространства */
+    min-height: 42px;
     padding-inline: 16px;
     font-size: 14px;
-    width: 100%; /* Растягиваем кнопку действия на всю ширину экрана */
+    width: 100%;
     justify-content: center;
     box-sizing: border-box;
   }
 }
 
-/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
 @media (max-width: 240px) {
   .header {
     margin-bottom: 16px;

@@ -30,30 +30,28 @@
   background: var(--ink-elevated);
 }
 
-/* Адаптив уведомления админки под узкие экраны (до 360px) и микро-девайсы (до 220px) */
 @media (max-width: 360px) {
   .notice {
-    padding: 12px; /* Уменьшаем внутренние отступы контейнера */
+    padding: 12px;
     gap: 12px;
   }
 
   .text {
-    flex-basis: 100%; /* На микро-экранах текст и кнопка идут в вертикальный стек */
+    flex-basis: 100%;
     font-size: 13.5px;
     line-height: 1.45;
   }
 
   .action {
-    min-height: 40px; /* Смягчаем минимальную высоту для экономии пространства */
+    min-height: 40px;
     padding-inline: 14px;
     font-size: 13.5px;
-    width: 100%; /* Растягиваем кнопку действия на всю ширину блока */
+    width: 100%;
     justify-content: center;
     box-sizing: border-box;
   }
 }
 
-/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
 @media (max-width: 240px) {
   .notice {
     padding: 10px;

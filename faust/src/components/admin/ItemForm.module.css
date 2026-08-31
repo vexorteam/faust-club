@@ -72,7 +72,6 @@
   }
 }
 
-/* Адаптив формы позиции меню под узкие экраны (до 360px) и микро-девайсы (до 220px) */
 @media (max-width: 360px) {
   .form {
     gap: 14px;
@@ -89,16 +88,16 @@
   }
 
   .actions {
-    flex-direction: column; /* Переводим кнопки «Зберегти» и «Скасувати» в вертикальный стек */
+    flex-direction: column;
     gap: 8px;
   }
 
   .submit,
   .cancel {
-    min-height: 42px; /* Смягчаем минимальную высоту для экономии места */
+    min-height: 42px;
     padding-inline: 16px;
     font-size: 14px;
-    width: 100%; /* Растягиваем обе кнопки на всю ширину экрана */
+    width: 100%;
     justify-content: center;
     box-sizing: border-box;
   }
@@ -108,7 +107,6 @@
   }
 }
 
-/* Экстремальный режим под ультра-узкие экраны от 220px до 240px */
 @media (max-width: 240px) {
   .form {
     gap: 12px;
