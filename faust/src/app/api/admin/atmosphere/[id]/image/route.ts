@@ -1,6 +1,6 @@
-import { adminRoute, readUpload, takeFile, takeText } from "@/lib/admin-route";
-import { replaceAtmosphereImage } from "@/lib/admin";
-import { imageAltSchema } from "@/schemas/image";
+import { replaceAtmosphereImage } from "@/lib/admin"
+import { adminRoute, readUpload, takeFile, takeText } from "@/lib/admin-route"
+import { imageAltSchema } from "@/schemas/image"
 
 /**
  * `POST /api/admin/atmosphere/{id}/image` — a new picture for an existing tile.
@@ -9,16 +9,16 @@ import { imageAltSchema } from "@/schemas/image";
  * the picture means removing the tile.
  */
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
 
-type Context = { params: Promise<{ id: string }> };
+type Context = { params: Promise<{ id: string }> }
 
 export const POST = async (request: Request, { params }: Context) =>
   adminRoute(async () => {
-    const { id } = await params;
-    const form = await readUpload(request);
-    const file = takeFile(form);
-    const alt = takeText(form, "alt", imageAltSchema);
+    const { id } = await params
+    const form = await readUpload(request)
+    const file = takeFile(form)
+    const alt = takeText(form, "alt", imageAltSchema)
 
-    return replaceAtmosphereImage(id, file, alt);
-  });
+    return replaceAtmosphereImage(id, file, alt)
+  })

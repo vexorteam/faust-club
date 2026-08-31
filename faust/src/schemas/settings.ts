@@ -1,21 +1,21 @@
-import { z } from "zod";
+import { z } from "zod"
 
-export const SITE_NAME_MAX = 60;
-export const TAGLINE_MAX = 120;
-export const SITE_DESCRIPTION_MAX = 300;
-export const PHONE_MAX = 30;
-export const EMAIL_MAX = 120;
-export const ADDRESS_MAX = 160;
-export const ADDRESS_SHORT_MAX = 80;
-export const URL_MAX = 300;
-export const AGE_RESTRICTION_MAX = 10;
-export const SOCIAL_NAME_MAX = 40;
-export const SOCIAL_HANDLE_MAX = 60;
+export const SITE_NAME_MAX = 60
+export const TAGLINE_MAX = 120
+export const SITE_DESCRIPTION_MAX = 300
+export const PHONE_MAX = 30
+export const EMAIL_MAX = 120
+export const ADDRESS_MAX = 160
+export const ADDRESS_SHORT_MAX = 80
+export const URL_MAX = 300
+export const AGE_RESTRICTION_MAX = 10
+export const SOCIAL_NAME_MAX = 40
+export const SOCIAL_HANDLE_MAX = 60
 
-const requiredText = (max: number, message: string) => z.string().trim().min(1, message).max(max, message);
+const requiredText = (max: number, message: string) => z.string().trim().min(1, message).max(max, message)
 
-const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
-const TIME_MESSAGE = "Час у форматі ГГ:ХВ, наприклад 18:00";
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
+const TIME_MESSAGE = "Час у форматі ГГ:ХВ, наприклад 18:00"
 
 export const siteSettingsFormSchema = z.object({
   name: requiredText(SITE_NAME_MAX, `Назва — від 1 до ${SITE_NAME_MAX} символів`),
@@ -32,28 +32,28 @@ export const siteSettingsFormSchema = z.object({
   latitude: z.coerce.number().min(-90).max(90),
   longitude: z.coerce.number().min(-180).max(180),
   ageRestriction: requiredText(AGE_RESTRICTION_MAX, "Наприклад, 16+"),
-});
+})
 
 export const siteSettingsPatchSchema = siteSettingsFormSchema
   .partial()
-  .refine((patch) => Object.keys(patch).length > 0, "Немає що змінювати");
+  .refine(patch => Object.keys(patch).length > 0, "Немає що змінювати")
 
 export const adminSiteSettingsSchema = z.object({
   id: z.string().min(1),
   ...siteSettingsFormSchema.shape,
-});
+})
 
-export const siteSettingsResponseSchema = z.object({ settings: adminSiteSettingsSchema });
+export const siteSettingsResponseSchema = z.object({ settings: adminSiteSettingsSchema })
 
 export const socialFormSchema = z.object({
   name: requiredText(SOCIAL_NAME_MAX, `Назва мережі — від 1 до ${SOCIAL_NAME_MAX} символів`),
   href: requiredText(URL_MAX, "Посилання на профіль"),
   handle: requiredText(SOCIAL_HANDLE_MAX, `Позначка — від 1 до ${SOCIAL_HANDLE_MAX} символів`),
-});
+})
 
 export const socialPatchSchema = socialFormSchema
   .partial()
-  .refine((patch) => Object.keys(patch).length > 0, "Немає що змінювати");
+  .refine(patch => Object.keys(patch).length > 0, "Немає що змінювати")
 
 export const adminSocialSchema = z.object({
   id: z.string().min(1),
@@ -61,32 +61,32 @@ export const adminSocialSchema = z.object({
   href: z.string().trim().min(1).max(URL_MAX),
   handle: z.string().trim().min(1).max(SOCIAL_HANDLE_MAX),
   order: z.number().int(),
-});
+})
 
-export const adminSocialsResponseSchema = z.object({ socials: z.array(adminSocialSchema) });
-export const adminSocialResponseSchema = z.object({ social: adminSocialSchema });
+export const adminSocialsResponseSchema = z.object({ socials: z.array(adminSocialSchema) })
+export const adminSocialResponseSchema = z.object({ social: adminSocialSchema })
 
 export const publicSocialSchema = z.object({
   name: z.string().trim().min(1).max(SOCIAL_NAME_MAX),
   href: z.string().trim().min(1).max(URL_MAX),
   handle: z.string().trim().min(1).max(SOCIAL_HANDLE_MAX),
-});
+})
 
 const optionalTime = z
   .string()
   .trim()
   .nullish()
-  .transform((value) => (value ? value : null))
-  .refine((value) => value === null || TIME_PATTERN.test(value), TIME_MESSAGE);
+  .transform(value => (value ? value : null))
+  .refine(value => value === null || TIME_PATTERN.test(value), TIME_MESSAGE)
 
 export const hoursFormSchema = z
   .object({ open: optionalTime, close: optionalTime, closesNextDay: z.boolean() })
-  .refine((value) => (value.open === null) === (value.close === null), {
+  .refine(value => (value.open === null) === (value.close === null), {
     message: "Час відкриття й закриття вказуються разом, або жодного — вихідний день",
     path: ["open"],
-  });
+  })
 
-export const hoursPatchSchema = hoursFormSchema;
+export const hoursPatchSchema = hoursFormSchema
 
 export const adminHoursSchema = z.object({
   id: z.string().min(1),
@@ -95,10 +95,10 @@ export const adminHoursSchema = z.object({
   open: z.string().nullable(),
   close: z.string().nullable(),
   closesNextDay: z.boolean(),
-});
+})
 
-export const adminHoursListResponseSchema = z.object({ hours: z.array(adminHoursSchema) });
-export const adminHoursDayResponseSchema = z.object({ hours: adminHoursSchema });
+export const adminHoursListResponseSchema = z.object({ hours: z.array(adminHoursSchema) })
+export const adminHoursDayResponseSchema = z.object({ hours: adminHoursSchema })
 
 export const publicHoursSchema = z.object({
   day: z.number().int().min(1).max(7),
@@ -106,7 +106,7 @@ export const publicHoursSchema = z.object({
   open: z.string().nullable(),
   close: z.string().nullable(),
   closesNextDay: z.boolean(),
-});
+})
 
 export const publicContactsSchema = z.object({
   phone: z.string().trim().min(1),
@@ -119,7 +119,7 @@ export const publicContactsSchema = z.object({
   mapsEmbedQuery: z.string().trim().min(1),
   latitude: z.number(),
   longitude: z.number(),
-});
+})
 
 export const settingsResponseSchema = z.object({
   name: z.string().trim().min(1),
@@ -129,19 +129,19 @@ export const settingsResponseSchema = z.object({
   contacts: publicContactsSchema,
   socials: z.array(publicSocialSchema),
   hours: z.array(publicHoursSchema),
-});
+})
 
-export type SiteSettingsInput = z.output<typeof siteSettingsFormSchema>;
-export type SiteSettingsPatch = z.output<typeof siteSettingsPatchSchema>;
-export type AdminSiteSettings = z.output<typeof adminSiteSettingsSchema>;
+export type SiteSettingsInput = z.output<typeof siteSettingsFormSchema>
+export type SiteSettingsPatch = z.output<typeof siteSettingsPatchSchema>
+export type AdminSiteSettings = z.output<typeof adminSiteSettingsSchema>
 
-export type SocialInput = z.output<typeof socialFormSchema>;
-export type SocialPatch = z.output<typeof socialPatchSchema>;
-export type AdminSocial = z.output<typeof adminSocialSchema>;
+export type SocialInput = z.output<typeof socialFormSchema>
+export type SocialPatch = z.output<typeof socialPatchSchema>
+export type AdminSocial = z.output<typeof adminSocialSchema>
 
-export type HoursInput = z.output<typeof hoursFormSchema>;
-export type AdminHours = z.output<typeof adminHoursSchema>;
+export type HoursInput = z.output<typeof hoursFormSchema>
+export type AdminHours = z.output<typeof adminHoursSchema>
 
-export type PublicSettings = z.output<typeof settingsResponseSchema>;
-export type PublicSocial = z.output<typeof publicSocialSchema>;
-export type PublicHours = z.output<typeof publicHoursSchema>;
+export type PublicSettings = z.output<typeof settingsResponseSchema>
+export type PublicSocial = z.output<typeof publicSocialSchema>
+export type PublicHours = z.output<typeof publicHoursSchema>

@@ -12,13 +12,13 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "E2E_ADMIN_EMAIL='lol@gmail.com' E2E_ADMIN_PASSWORD='test_password' E2E_API_URL='http://127.0.0.1:8000' playwright test"
   },
   "dependencies": {
     "lenis": "^1.1.20",
     "modern-normalize": "^3.0.1",
     "motion": "^11.15.0",
-    "next": "16.2.11",
+    "next": "^16.3.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "zod": "^4.4.3"
@@ -37,7 +37,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-multiline-arrays": "^4.1.11",
     "typescript": "^5",
-    "vitest": "^2.1.8"
+    "vitest": "^4.1.11"
   },
   "browserslist": [
     "last 2 Chrome versions",

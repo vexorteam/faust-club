@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { usePathname } from "next/navigation"
+import type { ReactNode } from "react"
 
 /**
  * Decides who gets the club's chrome.
@@ -15,19 +15,19 @@ export const SiteChrome = ({
   footer,
   children,
 }: {
-  header: ReactNode;
-  footer: ReactNode;
-  children: ReactNode;
+  header: ReactNode
+  footer: ReactNode
+  children: ReactNode
 }) => {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
-  if (pathname?.startsWith("/admin")) return <>{children}</>;
+  if (pathname?.startsWith("/admin")) return <>{children}</>
 
   return (
     <>
       {header}
-      <main id="main">{children}</main>
+      <main id='main'>{children}</main>
       {footer}
     </>
-  );
-};
+  )
+}

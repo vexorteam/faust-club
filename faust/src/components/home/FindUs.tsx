@@ -1,48 +1,75 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { SectionTitle } from "@/components/ui/SectionTitle";
-import { Reveal } from "@/components/layout/Reveal";
-import { Button } from "@/components/ui/Button";
-import { IconPin, IconPhone, IconMail, IconClock, IconArrowUpRight } from "@/components/ui/icon";
-import { site } from "@/data/site";
-import type { SiteSettingsView } from "@/types";
-import styles from "./FindUs.module.css";
+import { useEffect, useState } from "react"
+import type { SiteSettingsView } from "@/types"
+
+import { Reveal } from "@/components/layout/Reveal"
+import { Button } from "@/components/ui/Button"
+import { IconArrowUpRight, IconClock, IconMail, IconPhone, IconPin } from "@/components/ui/icon"
+import { SectionTitle } from "@/components/ui/SectionTitle"
+import { site } from "@/data/site"
+import styles from "./FindUs.module.css"
 
 const getTodayWeekday = (timeZone: string): number => {
-  const formatter = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" });
-  const map: Record<string, number> = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
-  return map[formatter.format(new Date())] ?? 0;
-};
+  const formatter = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" })
+  const map: Record<string, number> = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 }
+  return map[formatter.format(new Date())] ?? 0
+}
 
 export const FindUs = ({ settings }: { settings: SiteSettingsView }) => {
-  const [today, setToday] = useState<number | null>(null);
+  const [today, setToday] = useState<number | null>(null)
 
   useEffect(() => {
-    const timeout = setTimeout(() => setToday(getTodayWeekday(site.timeZone)), 0);
-    return () => clearTimeout(timeout);
-  }, []);
+    const timeout = setTimeout(() => setToday(getTodayWeekday(site.timeZone)), 0)
+    return () => clearTimeout(timeout)
+  }, [])
 
   return (
-    <section id="contacts" className={styles.section} aria-labelledby="findus-heading">
-      <div className="container">
+    <section
+      id='contacts'
+      className={styles.section}
+      aria-labelledby='findus-heading'
+    >
+      <div className='container'>
         <Reveal>
-          <SectionTitle id="findus-heading" eyebrow="Візит" title="Знайти" accent="Faust" />
+          <SectionTitle
+            id='findus-heading'
+            eyebrow='Візит'
+            title='Знайти'
+            accent='Faust'
+          />
         </Reveal>
 
         <div className={styles.grid}>
-          <Reveal delay={0.05} className={styles.mapCard}>
-            <div className={styles.mapGrid} aria-hidden="true" />
-            <div className={styles.pin} aria-hidden="true">
+          <Reveal
+            delay={0.05}
+            className={styles.mapCard}
+          >
+            <div
+              className={styles.mapGrid}
+              aria-hidden='true'
+            />
+            <div
+              className={styles.pin}
+              aria-hidden='true'
+            >
               <IconPin />
             </div>
-            <a href={settings.contacts.mapsUrl} target="_blank" rel="noreferrer noopener" className={styles.mapLink}>
+            <a
+              href={settings.contacts.mapsUrl}
+              target='_blank'
+              rel='noreferrer noopener'
+              className={styles.mapLink}
+            >
               Відкрити в Google Maps
               <IconArrowUpRight />
             </a>
           </Reveal>
 
-          <Reveal delay={0.1} className={styles.infoCard}>
+          <Reveal
+            delay={0.1}
+            className={styles.infoCard}
+          >
             <div className={styles.row}>
               <IconPin className={styles.rowIcon} />
               <div>
@@ -76,8 +103,11 @@ export const FindUs = ({ settings }: { settings: SiteSettingsView }) => {
               <div style={{ width: "100%" }}>
                 <div className={styles.rowLabel}>Години роботи</div>
                 <div className={styles.hoursTable}>
-                  {settings.hours.map((h) => (
-                    <div key={h.day} className={`${styles.hoursRow} ${today === h.day ? styles.hoursToday : ""}`}>
+                  {settings.hours.map(h => (
+                    <div
+                      key={h.day}
+                      className={`${styles.hoursRow} ${today === h.day ? styles.hoursToday : ""}`}
+                    >
                       <span>{h.label}</span>
                       <span>{h.open ? `${h.open}–${h.close}` : "вихідний"}</span>
                     </div>
@@ -86,12 +116,16 @@ export const FindUs = ({ settings }: { settings: SiteSettingsView }) => {
               </div>
             </div>
 
-            <Button href={settings.contacts.phoneHref} variant="primary" full>
+            <Button
+              href={settings.contacts.phoneHref}
+              variant='primary'
+              full
+            >
               Зв’язатися з нами
             </Button>
           </Reveal>
         </div>
       </div>
     </section>
-  );
-};
+  )
+}

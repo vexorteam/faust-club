@@ -1,13 +1,14 @@
-"use client";
+"use client"
 
-import { useEffect } from "react";
-import { Button } from "@/components/ui/Button";
-import styles from "./not-found.module.css";
+import { useEffect } from "react"
+
+import { Button } from "@/components/ui/Button"
+import styles from "./not-found.module.css"
 
 const PublicError = ({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) => {
   useEffect(() => {
-    console.error("[site] the page could not be rendered", error);
-  }, [error]);
+    console.error("[site] the page could not be rendered", error)
+  }, [error])
 
   return (
     <section className={styles.section}>
@@ -19,16 +20,23 @@ const PublicError = ({ error, reset }: { error: Error & { digest?: string }; res
           відчиняються за розкладом і без сайту.
         </p>
         <div className={styles.actions}>
-          <Button type="button" variant="primary" onClick={reset}>
+          <Button
+            type='button'
+            variant='primary'
+            onClick={reset}
+          >
             Спробувати ще раз
           </Button>
-          <Button href="/" variant="ghost">
+          <Button
+            href='/'
+            variant='ghost'
+          >
             На головну
           </Button>
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default PublicError;
+export default PublicError

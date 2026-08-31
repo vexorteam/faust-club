@@ -1,24 +1,25 @@
-"use client";
+"use client"
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { SectionTitle } from "@/components/ui/SectionTitle";
-import { Reveal } from "@/components/layout/Reveal";
-import { IconQuote } from "@/components/ui/icon";
-import type { TestimonialView } from "@/types";
-import styles from "./Testimonials.module.css";
+import { useEffect, useMemo, useRef, useState } from "react"
+import { AnimatePresence, motion, useReducedMotion } from "motion/react"
+import type { TestimonialView } from "@/types"
+
+import { Reveal } from "@/components/layout/Reveal"
+import { IconQuote } from "@/components/ui/icon"
+import { SectionTitle } from "@/components/ui/SectionTitle"
+import styles from "./Testimonials.module.css"
 
 /** Cards per page — matches the 3-column grid at desktop width. */
-const PAGE_SIZE = 3;
-const ROTATE_MS = 5000;
+const PAGE_SIZE = 3
+const ROTATE_MS = 5000
 
 const chunk = <T,>(items: T[], size: number): T[][] => {
-  const pages: T[][] = [];
+  const pages: T[][] = []
 
-  for (let i = 0; i < items.length; i += size) pages.push(items.slice(i, i + size));
+  for (let i = 0; i < items.length; i += size) pages.push(items.slice(i, i + size))
 
-  return pages;
-};
+  return pages
+}
 
 const Card = ({ testimonial }: { testimonial: TestimonialView }) => (
   <figure className={styles.card}>
@@ -26,7 +27,10 @@ const Card = ({ testimonial }: { testimonial: TestimonialView }) => (
     <IconQuote className={styles.quoteIcon} />
     <blockquote className={styles.text}>{testimonial.text}</blockquote>
     <figcaption className={styles.author}>
-      <span className={styles.avatar} aria-hidden="true">
+      <span
+        className={styles.avatar}
+        aria-hidden='true'
+      >
         {testimonial.name.charAt(0)}
       </span>
       <span>
@@ -35,39 +39,52 @@ const Card = ({ testimonial }: { testimonial: TestimonialView }) => (
       </span>
     </figcaption>
   </figure>
-);
+)
 
 export const Testimonials = ({ testimonials }: { testimonials: TestimonialView[] }) => {
-  const shouldReduceMotion = useReducedMotion();
-  const pages = useMemo(() => chunk(testimonials, PAGE_SIZE), [testimonials]);
-  const [rawPage, setPage] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const pageCount = pages.length;
-  const page = pageCount === 0 ? 0 : rawPage % pageCount;
+  const shouldReduceMotion = useReducedMotion()
+  const pages = useMemo(() => chunk(testimonials, PAGE_SIZE), [testimonials])
+  const [rawPage, setPage] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const pageCount = pages.length
+  const page = pageCount === 0 ? 0 : rawPage % pageCount
 
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    if (pageCount <= 1 || paused || shouldReduceMotion) return;
+    if (pageCount <= 1 || paused || shouldReduceMotion) return
 
     timerRef.current = setInterval(() => {
-      setPage((current) => current + 1);
-    }, ROTATE_MS);
+      setPage(current => current + 1)
+    }, ROTATE_MS)
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [pageCount, paused, shouldReduceMotion]);
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [
+    pageCount,
+    paused,
+    shouldReduceMotion,
+  ])
 
-  if (testimonials.length === 0) return null;
+  if (testimonials.length === 0) return null
 
-  const current = pages[page] ?? [];
+  const current = pages[page] ?? []
 
   return (
-    <section id="reviews" className={styles.section} aria-labelledby="testimonials-heading">
-      <div className="container">
+    <section
+      id='reviews'
+      className={styles.section}
+      aria-labelledby='testimonials-heading'
+    >
+      <div className='container'>
         <Reveal>
-          <SectionTitle id="testimonials-heading" eyebrow="Відгуки" title="Не вірте нам" accent="повірте гостям" />
+          <SectionTitle
+            id='testimonials-heading'
+            eyebrow='Відгуки'
+            title='Не вірте нам'
+            accent='повірте гостям'
+          />
         </Reveal>
 
         <div
@@ -79,34 +96,55 @@ export const Testimonials = ({ testimonials }: { testimonials: TestimonialView[]
         >
           {shouldReduceMotion ? (
             <div className={styles.grid}>
-              {current.map((t) => (
-                <Card key={t.id} testimonial={t} />
+              {current.map(t => (
+                <Card
+                  key={t.id}
+                  testimonial={t}
+                />
               ))}
             </div>
           ) : (
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence
+              mode='wait'
+              initial={false}
+            >
               <motion.div
                 key={page}
                 className={styles.grid}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                transition={{
+                  duration: 0.45,
+                  ease: [
+                    0.16,
+                    1,
+                    0.3,
+                    1,
+                  ],
+                }}
               >
-                {current.map((t) => (
-                  <Card key={t.id} testimonial={t} />
+                {current.map(t => (
+                  <Card
+                    key={t.id}
+                    testimonial={t}
+                  />
                 ))}
               </motion.div>
             </AnimatePresence>
           )}
 
           {pageCount > 1 && (
-            <div className={styles.dots} role="tablist" aria-label="Сторінки відгуків">
+            <div
+              className={styles.dots}
+              role='tablist'
+              aria-label='Сторінки відгуків'
+            >
               {pages.map((_, index) => (
                 <button
                   key={index}
-                  type="button"
-                  role="tab"
+                  type='button'
+                  role='tab'
                   aria-selected={index === page}
                   aria-label={`Показати відгуки ${index + 1} з ${pageCount}`}
                   className={index === page ? `${styles.dot} ${styles.dotActive}` : styles.dot}
@@ -118,5 +156,5 @@ export const Testimonials = ({ testimonials }: { testimonials: TestimonialView[]
         </div>
       </div>
     </section>
-  );
-};
+  )
+}

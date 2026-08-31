@@ -1,43 +1,45 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
-import { Field } from "@/components/ui/Field";
-import { ITEM_DESCRIPTION_MAX, ITEM_NAME_MAX, ITEM_VOLUME_MAX, menuItemFormSchema } from "@/schemas/menu-item";
-import type { AdminMenuItem } from "@/schemas/menu-item";
-import { IMAGE_ALT_MAX, imageAltSchema } from "@/schemas/image";
-import { CheckboxField } from "./CheckboxField";
-import { ConfirmAction } from "./ConfirmAction";
-import { ImageInput } from "./ImageInput";
-import { SelectField } from "./SelectField";
-import { useAdminMutation } from "./useAdminMutation";
-import styles from "./ItemForm.module.css";
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import type { AdminMenuItem } from "@/schemas/menu-item"
+import type { FormEvent } from "react"
+
+import { Field } from "@/components/ui/Field"
+import { IMAGE_ALT_MAX, imageAltSchema } from "@/schemas/image"
+import { ITEM_DESCRIPTION_MAX, ITEM_NAME_MAX, ITEM_VOLUME_MAX, menuItemFormSchema } from "@/schemas/menu-item"
+import { CheckboxField } from "./CheckboxField"
+import { ConfirmAction } from "./ConfirmAction"
+import { ImageInput } from "./ImageInput"
+import styles from "./ItemForm.module.css"
+import { SelectField } from "./SelectField"
+import { useAdminMutation } from "./useAdminMutation"
 
 const BADGE_OPTIONS = [
   { value: "", label: "Без мітки" },
   { value: "new", label: "Нове" },
   { value: "hit", label: "Хіт" },
-] as const;
+] as const
 
-type FieldName = "categoryId" | "name" | "description" | "price" | "volume" | "badge";
+type FieldName = "categoryId" | "name" | "description" | "price" | "volume" | "badge"
 
-type FieldErrors = Partial<Record<FieldName, string>>;
+type FieldErrors = Partial<Record<FieldName, string>>
 
 type FormValues = {
-  categoryId: string;
-  name: string;
-  description: string;
-  price: string;
-  volume: string;
-  badge: string;
-  available: boolean;
-};
+  categoryId: string
+  name: string
+  description: string
+  price: string
+  volume: string
+  badge: string
+  available: boolean
+}
 
 export type ItemFormProps = {
-  categories: readonly { id: string; label: string }[];
-  item?: AdminMenuItem;
-};
+  categories: readonly { id: string; label: string }[]
+  item?: AdminMenuItem
+}
 
 const initialValues = (categories: readonly { id: string }[], item?: AdminMenuItem): FormValues => ({
   categoryId: item?.categoryId ?? categories[0]?.id ?? "",
@@ -47,57 +49,57 @@ const initialValues = (categories: readonly { id: string }[], item?: AdminMenuIt
   volume: item?.volume ?? "",
   badge: item?.badge ?? "",
   available: item?.available ?? true,
-});
+})
 
 const collectFieldErrors = (issues: readonly { path: readonly PropertyKey[]; message: string }[]): FieldErrors => {
-  const errors: FieldErrors = {};
+  const errors: FieldErrors = {}
 
   for (const issue of issues) {
-    const field = issue.path[0];
+    const field = issue.path[0]
 
     if (typeof field === "string" && !(field in errors)) {
-      errors[field as FieldName] = issue.message;
+      errors[field as FieldName] = issue.message
     }
   }
 
-  return errors;
-};
+  return errors
+}
 
 /** The id of the position the API answered with, so its photo can follow. */
 const readItemId = (data: unknown): string | null => {
-  if (typeof data !== "object" || data === null) return null;
+  if (typeof data !== "object" || data === null) return null
 
-  const { id } = data as { id?: unknown };
+  const { id } = data as { id?: unknown }
 
-  return typeof id === "string" && id.length > 0 ? id : null;
-};
+  return typeof id === "string" && id.length > 0 ? id : null
+}
 
 export const ItemForm = ({ categories, item }: ItemFormProps) => {
-  const router = useRouter();
-  const { mutate, pendingKey } = useAdminMutation();
-  const [values, setValues] = useState<FormValues>(() => initialValues(categories, item));
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [photoAlt, setPhotoAlt] = useState(item?.imageAlt ?? "");
-  const [photoError, setPhotoError] = useState<string | undefined>(undefined);
-  const [altError, setAltError] = useState<string | undefined>(undefined);
+  const router = useRouter()
+  const { mutate, pendingKey } = useAdminMutation()
+  const [values, setValues] = useState<FormValues>(() => initialValues(categories, item))
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoAlt, setPhotoAlt] = useState(item?.imageAlt ?? "")
+  const [photoError, setPhotoError] = useState<string | undefined>(undefined)
+  const [altError, setAltError] = useState<string | undefined>(undefined)
 
   /** A stored photo needs its description as much as a freshly picked one. */
-  const describesPhoto = Boolean(photoFile) || Boolean(item?.image);
+  const describesPhoto = Boolean(photoFile) || Boolean(item?.image)
 
   const update = <K extends keyof FormValues>(key: K, value: FormValues[K]) =>
-    setValues((current) => ({ ...current, [key]: value }));
+    setValues(current => ({ ...current, [key]: value }))
 
   /** A picture nobody can describe is a picture a screen reader has to skip. */
   const checkAlt = (): string | null => {
-    const parsed = imageAltSchema.safeParse(photoAlt);
+    const parsed = imageAltSchema.safeParse(photoAlt)
 
-    if (parsed.success) return parsed.data;
+    if (parsed.success) return parsed.data
 
-    setAltError(parsed.error.issues[0]?.message);
+    setAltError(parsed.error.issues[0]?.message)
 
-    return null;
-  };
+    return null
+  }
 
   /**
    * The photo is a second request, so the confirmation belongs to it: the save
@@ -105,173 +107,177 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
    * while the frame is still on its way would be a lie with a picture missing.
    */
   const sendPhoto = async (id: string, alt: string, success: string) => {
-    const body = new FormData();
+    const body = new FormData()
 
-    body.set("file", photoFile as File);
-    body.set("alt", alt);
+    body.set("file", photoFile as File)
+    body.set("alt", alt)
 
-    return mutate("photo", { url: `/api/admin/items/${id}/image`, method: "POST", body }, { success, refresh: false });
-  };
+    return mutate("photo", { url: `/api/admin/items/${id}/image`, method: "POST", body }, { success, refresh: false })
+  }
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    const parsed = menuItemFormSchema.safeParse(values);
+    const parsed = menuItemFormSchema.safeParse(values)
 
     if (!parsed.success) {
-      setFieldErrors(collectFieldErrors(parsed.error.issues));
-      return;
+      setFieldErrors(collectFieldErrors(parsed.error.issues))
+      return
     }
 
-    const alt = describesPhoto ? checkAlt() : "";
+    const alt = describesPhoto ? checkAlt() : ""
 
-    if (describesPhoto && !alt) return;
+    if (describesPhoto && !alt) return
 
-    setFieldErrors({});
-    setPhotoError(undefined);
-    setAltError(undefined);
+    setFieldErrors({})
+    setPhotoError(undefined)
+    setAltError(undefined)
 
-    const body = alt && !photoFile ? { ...parsed.data, imageAlt: alt } : parsed.data;
+    const body = alt && !photoFile ? { ...parsed.data, imageAlt: alt } : parsed.data
 
-    const saved = item ? "Збережено" : "Позицію додано";
+    const saved = item ? "Збережено" : "Позицію додано"
 
     const outcome = await mutate(
       "save",
       item
         ? { url: `/api/admin/items/${item.id}`, method: "PATCH", body }
         : { url: "/api/admin/items", method: "POST", body: parsed.data },
-      { success: photoFile ? undefined : saved, refresh: false },
-    );
+      { success: photoFile ? undefined : saved, refresh: false }
+    )
 
     if (!outcome.ok) {
-      if (outcome.fieldErrors) setFieldErrors(outcome.fieldErrors as FieldErrors);
-      return;
+      if (outcome.fieldErrors) setFieldErrors(outcome.fieldErrors as FieldErrors)
+      return
     }
 
     if (photoFile && alt) {
-      const id = item?.id ?? readItemId(outcome.data);
+      const id = item?.id ?? readItemId(outcome.data)
 
       if (!id) {
-        setPhotoError("Позицію збережено, але фото завантажити не вдалося. Відкрийте позицію й спробуйте ще раз");
-        return;
+        setPhotoError("Позицію збережено, але фото завантажити не вдалося. Відкрийте позицію й спробуйте ще раз")
+        return
       }
 
-      const uploaded = await sendPhoto(id, alt, saved);
+      const uploaded = await sendPhoto(id, alt, saved)
 
       /** Saved without its photo — say so and stay, so the upload can be retried */
       if (!uploaded.ok) {
-        if (!item) router.push(`/admin/items/${id}`);
+        if (!item) router.push(`/admin/items/${id}`)
 
-        return;
+        return
       }
     }
 
-    router.push("/admin");
-    router.refresh();
-  };
+    router.push("/admin")
+    router.refresh()
+  }
 
   const removePhoto = async () => {
-    if (!item) return;
+    if (!item) return
 
     const outcome = await mutate(
       "photo",
       { url: `/api/admin/items/${item.id}/image`, method: "DELETE" },
-      { success: "Фото видалено" },
-    );
+      { success: "Фото видалено" }
+    )
 
-    if (outcome.ok) setPhotoError(undefined);
-  };
+    if (outcome.ok) setPhotoError(undefined)
+  }
 
   const remove = async () => {
-    if (!item) return;
+    if (!item) return
 
     const outcome = await mutate(
       "delete",
       { url: `/api/admin/items/${item.id}`, method: "DELETE" },
-      { success: `«${item.name}» видалено`, refresh: false },
-    );
+      { success: `«${item.name}» видалено`, refresh: false }
+    )
 
-    if (!outcome.ok) return;
+    if (!outcome.ok) return
 
-    router.push("/admin");
-    router.refresh();
-  };
+    router.push("/admin")
+    router.refresh()
+  }
 
-  const saving = pendingKey === "save";
-  const uploading = pendingKey === "photo";
+  const saving = pendingKey === "save"
+  const uploading = pendingKey === "photo"
 
   return (
-    <form className={styles.form} onSubmit={onSubmit} noValidate>
+    <form
+      className={styles.form}
+      onSubmit={onSubmit}
+      noValidate
+    >
       <SelectField
-        label="Категорія"
+        label='Категорія'
         required
         value={values.categoryId}
         error={fieldErrors.categoryId}
         options={
           categories.length > 0
-            ? categories.map((category) => ({ value: category.id, label: category.label }))
+            ? categories.map(category => ({ value: category.id, label: category.label }))
             : [{ value: "", label: "Категорій ще немає" }]
         }
         hint={item ? "Зміна категорії переносить позицію в інший розділ меню" : undefined}
-        onChange={(event) => update("categoryId", event.target.value)}
+        onChange={event => update("categoryId", event.target.value)}
       />
 
       <Field
-        label="Назва"
-        name="name"
+        label='Назва'
+        name='name'
         required
         maxLength={ITEM_NAME_MAX}
         value={values.name}
         error={fieldErrors.name}
-        onChange={(event) => update("name", event.target.value)}
+        onChange={event => update("name", event.target.value)}
       />
 
       <Field
-        as="textarea"
-        label="Склад"
-        name="description"
+        as='textarea'
+        label='Склад'
+        name='description'
         maxLength={ITEM_DESCRIPTION_MAX}
-        placeholder="джин, лайм, тонік, розмарин"
+        placeholder='джин, лайм, тонік, розмарин'
         value={values.description}
         error={fieldErrors.description}
-        onChange={(event) => update("description", event.target.value)}
+        onChange={event => update("description", event.target.value)}
       />
 
       <div className={styles.pair}>
         <Field
-          label="Ціна, ₴"
-          name="price"
+          label='Ціна, ₴'
+          name='price'
           required
-          inputMode="numeric"
+          inputMode='numeric'
           value={values.price}
           error={fieldErrors.price}
-          onChange={(event) => update("price", event.target.value)}
+          onChange={event => update("price", event.target.value)}
         />
 
         <Field
           label="Об'єм"
-          name="volume"
+          name='volume'
           maxLength={ITEM_VOLUME_MAX}
-          placeholder="250 мл"
+          placeholder='250 мл'
           value={values.volume}
           error={fieldErrors.volume}
-          onChange={(event) => update("volume", event.target.value)}
+          onChange={event => update("volume", event.target.value)}
         />
       </div>
 
       <SelectField
-        label="Мітка"
+        label='Мітка'
         value={values.badge}
         error={fieldErrors.badge}
         options={BADGE_OPTIONS}
-        onChange={(event) => update("badge", event.target.value)}
+        onChange={event => update("badge", event.target.value)}
       />
 
       <CheckboxField
-        label="Є в наявності"
+        label='Є в наявності'
         checked={values.available}
-        hint="Знята позиція лишається в меню приглушеною, з підписом «немає»"
-        onChange={(event) => update("available", event.target.checked)}
+        hint='Знята позиція лишається в меню приглушеною, з підписом «немає»'
+        onChange={event => update("available", event.target.checked)}
       />
 
       <div className={styles.photo}>
@@ -279,9 +285,9 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
           image={item?.image}
           imageAlt={item?.imageAlt}
           file={photoFile}
-          onSelect={(file) => {
-            setPhotoFile(file);
-            setPhotoError(undefined);
+          onSelect={file => {
+            setPhotoFile(file)
+            setPhotoError(undefined)
           }}
           onRemove={item?.image ? () => void removePhoto() : undefined}
           removing={pendingKey === "photo"}
@@ -292,16 +298,16 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
 
         {describesPhoto && (
           <Field
-            as="textarea"
-            label="Опис фото для скрінрідера"
+            as='textarea'
+            label='Опис фото для скрінрідера'
             required
             maxLength={IMAGE_ALT_MAX}
-            placeholder="Коктейль Faust Sour у келиху купе"
+            placeholder='Коктейль Faust Sour у келиху купе'
             error={altError}
             value={photoAlt}
-            onChange={(event) => {
-              setPhotoAlt(event.target.value);
-              setAltError(undefined);
+            onChange={event => {
+              setPhotoAlt(event.target.value)
+              setAltError(undefined)
             }}
           />
         )}
@@ -312,11 +318,18 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
       </div>
 
       <div className={styles.actions}>
-        <button type="submit" className={styles.submit} disabled={saving || uploading}>
+        <button
+          type='submit'
+          className={styles.submit}
+          disabled={saving || uploading}
+        >
           {uploading ? "Завантажуємо фото…" : saving ? "Зберігаємо…" : item ? "Зберегти" : "Опублікувати"}
         </button>
 
-        <Link href="/admin" className={styles.cancel}>
+        <Link
+          href='/admin'
+          className={styles.cancel}
+        >
           Скасувати
         </Link>
       </div>
@@ -324,7 +337,7 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
       {item && (
         <div className={styles.danger}>
           <ConfirmAction
-            label="Видалити позицію"
+            label='Видалити позицію'
             question={`Видалити «${item.name}»? Скасувати неможливо`}
             pending={pendingKey === "delete"}
             onConfirm={() => void remove()}
@@ -332,5 +345,5 @@ export const ItemForm = ({ categories, item }: ItemFormProps) => {
         </div>
       )}
     </form>
-  );
-};
+  )
+}

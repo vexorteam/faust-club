@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
-import { getMenu } from "@/lib/menu";
-import { getSiteSettings } from "@/lib/settings";
-import { MenuSections } from "@/components/menu/MenuSections";
-import styles from "./page.module.css";
+import type { Metadata } from "next"
+
+import { MenuSections } from "@/components/menu/MenuSections"
+import { getMenu } from "@/lib/menu"
+import { getSiteSettings } from "@/lib/settings"
+import styles from "./page.module.css"
 
 export const generateMetadata = async (): Promise<Metadata> => {
-  const settings = await getSiteSettings();
-  const description = `Барна карта ${settings.name}: авторські коктейлі, класика, шоти, вино, пиво та снеки.`;
+  const settings = await getSiteSettings()
+  const description = `Барна карта ${settings.name}: авторські коктейлі, класика, шоти, вино, пиво та снеки.`
 
   return {
     title: "Меню",
@@ -17,16 +18,16 @@ export const generateMetadata = async (): Promise<Metadata> => {
       description,
       url: "/menu",
     },
-  };
-};
+  }
+}
 
 const MenuPage = async () => {
-  const categories = await getMenu();
+  const categories = await getMenu()
 
   return (
     <>
       <div className={`container ${styles.head}`}>
-        <span className="eyebrow">Барна карта</span>
+        <span className='eyebrow'>Барна карта</span>
         <h1 className={styles.title}>Меню Faust</h1>
         <p className={styles.subtitle}>
           Від авторських коктейлів до класики та безалкогольних варіантів — усе, що наливають і подають у Faust.
@@ -43,7 +44,7 @@ const MenuPage = async () => {
         </div>
       )}
     </>
-  );
-};
+  )
+}
 
-export default MenuPage;
+export default MenuPage

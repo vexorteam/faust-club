@@ -1,32 +1,41 @@
-import type { Metadata } from "next";
-import { requireAdminOrRedirect } from "@/lib/session";
-import { getSiteSettingsAdmin, listHours, listSocials } from "@/lib/admin";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { SiteSettingsForm } from "@/components/admin/SiteSettingsForm";
-import { HoursList } from "@/components/admin/HoursList";
-import { SocialList } from "@/components/admin/SocialList";
-import styles from "./page.module.css";
+import type { Metadata } from "next"
+
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
+import { HoursList } from "@/components/admin/HoursList"
+import { SiteSettingsForm } from "@/components/admin/SiteSettingsForm"
+import { SocialList } from "@/components/admin/SocialList"
+import { getSiteSettingsAdmin, listHours, listSocials } from "@/lib/admin"
+import { requireAdminOrRedirect } from "@/lib/session"
+import styles from "./page.module.css"
 
 /** The club's own facts: name, contacts, weekly hours, social links. */
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Налаштування",
   robots: { index: false, follow: false, nocache: true },
-};
+}
 
 const SettingsPage = async () => {
-  await requireAdminOrRedirect();
+  await requireAdminOrRedirect()
 
-  const [settings, hours, socials] = await Promise.all([getSiteSettingsAdmin(), listHours(), listSocials()]);
+  const [
+    settings,
+    hours,
+    socials,
+  ] = await Promise.all([
+    getSiteSettingsAdmin(),
+    listHours(),
+    listSocials(),
+  ])
 
   return (
     <section>
       <AdminPageHeader
-        eyebrow="сайт"
-        title="Налаштування"
-        description="Назва, контакти, години роботи й соцмережі клубу — те, що бачать усі відвідувачі сайту."
+        eyebrow='сайт'
+        title='Налаштування'
+        description='Назва, контакти, години роботи й соцмережі клубу — те, що бачать усі відвідувачі сайту.'
       />
 
       <SiteSettingsForm settings={settings} />
@@ -41,7 +50,7 @@ const SettingsPage = async () => {
         <SocialList socials={socials} />
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default SettingsPage;
+export default SettingsPage

@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { requireAdminOrRedirect } from "@/lib/session";
-import { getItem, listCategories } from "@/lib/admin";
-import { NotFoundError } from "@/errors";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { ItemForm } from "@/components/admin/ItemForm";
-import type { AdminMenuItem } from "@/schemas/menu-item";
+import { notFound } from "next/navigation"
+import type { AdminMenuItem } from "@/schemas/menu-item"
+import type { Metadata } from "next"
+
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
+import { ItemForm } from "@/components/admin/ItemForm"
+import { NotFoundError } from "@/errors"
+import { getItem, listCategories } from "@/lib/admin"
+import { requireAdminOrRedirect } from "@/lib/session"
 
 /**
  * Editing one position.
@@ -14,36 +15,43 @@ import type { AdminMenuItem } from "@/schemas/menu-item";
  * was deleted from another device, and that is not a failure.
  */
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Позиція",
   robots: { index: false, follow: false, nocache: true },
-};
+}
 
 const loadItem = async (id: string): Promise<AdminMenuItem> => {
   try {
-    return await getItem(id);
+    return await getItem(id)
   } catch (error) {
-    if (error instanceof NotFoundError) notFound();
+    if (error instanceof NotFoundError) notFound()
 
-    throw error;
+    throw error
   }
-};
+}
 
 const EditItemPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  await requireAdminOrRedirect();
+  await requireAdminOrRedirect()
 
-  const { id } = await params;
-  const [item, categories] = await Promise.all([loadItem(id), listCategories()]);
+  const { id } = await params
+  const [item, categories] = await Promise.all([loadItem(id), listCategories()])
 
   return (
     <section>
-      <AdminPageHeader eyebrow="меню" title={item.name} description="Зміни видно на сайті за кілька секунд." />
+      <AdminPageHeader
+        eyebrow='меню'
+        title={item.name}
+        description='Зміни видно на сайті за кілька секунд.'
+      />
 
-      <ItemForm categories={categories} item={item} />
+      <ItemForm
+        categories={categories}
+        item={item}
+      />
     </section>
-  );
-};
+  )
+}
 
-export default EditItemPage;
+export default EditItemPage

@@ -1,4 +1,4 @@
-import localFont from "next/font/local";
+import localFont from "next/font/local"
 
 export const unbounded = localFont({
   src: [
@@ -12,7 +12,7 @@ export const unbounded = localFont({
   variable: "--font-unbounded",
   display: "swap",
   preload: true,
-});
+})
 
 export const onest = localFont({
   src: [
@@ -26,7 +26,7 @@ export const onest = localFont({
   variable: "--font-onest",
   display: "swap",
   preload: true,
-});
+})
 
 export const jetbrainsMono = localFont({
   src: [
@@ -46,6 +46,6 @@ export const jetbrainsMono = localFont({
   variable: "--font-jetbrains-mono",
   display: "swap",
   preload: false,
-});
+})
 
-export const fontVariables = `${unbounded.variable} ${onest.variable} ${jetbrainsMono.variable}`;
+export const fontVariables = `${unbounded.variable} ${onest.variable} ${jetbrainsMono.variable}`

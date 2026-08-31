@@ -1,17 +1,20 @@
-import type { Metadata, Viewport } from "next";
-import "modern-normalize/modern-normalize.css";
-import { fontVariables } from "@/lib/fonts";
-import { site } from "@/data/site";
-import { getSiteSettings } from "@/lib/settings";
-import { siteUrl } from "@/lib/site-url";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { SmoothScroll } from "@/components/layout/SmoothScroll";
-import { SiteChrome } from "@/components/layout/SiteChrome";
-import "./globals.css";
+import type { Metadata, Viewport } from "next"
+
+import "modern-normalize/modern-normalize.css"
+
+import { Footer } from "@/components/layout/Footer"
+import { Header } from "@/components/layout/Header"
+import { SiteChrome } from "@/components/layout/SiteChrome"
+import { SmoothScroll } from "@/components/layout/SmoothScroll"
+import { site } from "@/data/site"
+import { fontVariables } from "@/lib/fonts"
+import { getSiteSettings } from "@/lib/settings"
+import { siteUrl } from "@/lib/site-url"
+
+import "./globals.css"
 
 export const generateMetadata = async (): Promise<Metadata> => {
-  const settings = await getSiteSettings();
+  const settings = await getSiteSettings()
 
   return {
     metadataBase: new URL(siteUrl),
@@ -20,7 +23,15 @@ export const generateMetadata = async (): Promise<Metadata> => {
       template: `%s · ${settings.name}`,
     },
     description: settings.description,
-    keywords: ["нічний клуб", "Шепетівка", "коктейлі", "діджеї", "клуб", "бар", settings.name],
+    keywords: [
+      "нічний клуб",
+      "Шепетівка",
+      "коктейлі",
+      "діджеї",
+      "клуб",
+      "бар",
+      settings.name,
+    ],
     authors: [{ name: settings.name }],
     alternates: { canonical: "/" },
     openGraph: {
@@ -37,18 +48,18 @@ export const generateMetadata = async (): Promise<Metadata> => {
       description: settings.description,
     },
     robots: { index: true, follow: true },
-  };
-};
+  }
+}
 
 export const viewport: Viewport = {
   themeColor: site.themeColor,
   width: "device-width",
   initialScale: 1,
   colorScheme: "dark",
-};
+}
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
-  const settings = await getSiteSettings();
+  const settings = await getSiteSettings()
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -69,32 +80,44 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       latitude: settings.contacts.latitude,
       longitude: settings.contacts.longitude,
     },
-    sameAs: settings.socials.map((s) => s.href),
+    sameAs: settings.socials.map(s => s.href),
     openingHoursSpecification: settings.hours
-      .filter((h) => h.open && h.close)
-      .map((h) => ({
+      .filter(h => h.open && h.close)
+      .map(h => ({
         "@type": "OpeningHoursSpecification",
         dayOfWeek: h.label,
         opens: h.open,
         closes: h.close,
       })),
-  };
+  }
 
   return (
-    <html lang="uk" className={fontVariables}>
+    <html
+      lang='uk'
+      className={fontVariables}
+    >
       <body>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        <a href="#main" className="skip-link">
+        <script
+          type='application/ld+json'
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <a
+          href='#main'
+          className='skip-link'
+        >
           Перейти до контенту
         </a>
         <SmoothScroll>
-          <SiteChrome header={<Header settings={settings} />} footer={<Footer settings={settings} />}>
+          <SiteChrome
+            header={<Header settings={settings} />}
+            footer={<Footer settings={settings} />}
+          >
             {children}
           </SiteChrome>
         </SmoothScroll>
       </body>
     </html>
-  );
-};
+  )
+}
 
-export default RootLayout;
+export default RootLayout

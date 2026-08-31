@@ -1,10 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest"
+
 import {
   adminItemsResponseSchema,
   adminMenuItemSchema,
   menuItemFormSchema,
   menuItemPatchSchema,
-} from "@/schemas/menu-item";
+} from "@/schemas/menu-item"
 
 const valid = {
   categoryId: "9f3a1c7e",
@@ -14,91 +15,91 @@ const valid = {
   volume: "250 мл",
   badge: "hit",
   available: true,
-};
+}
 
 const firstMessage = (input: unknown): string | undefined => {
-  const parsed = menuItemFormSchema.safeParse(input);
+  const parsed = menuItemFormSchema.safeParse(input)
 
-  return parsed.success ? undefined : parsed.error.issues[0]?.message;
-};
+  return parsed.success ? undefined : parsed.error.issues[0]?.message
+}
 
 describe("menuItemFormSchema", () => {
   it("accepts what the form sends and hands over a number", () => {
-    const parsed = menuItemFormSchema.parse(valid);
+    const parsed = menuItemFormSchema.parse(valid)
 
-    expect(parsed.price).toBe(320);
-    expect(parsed.badge).toBe("hit");
-    expect(parsed.available).toBe(true);
-  });
+    expect(parsed.price).toBe(320)
+    expect(parsed.badge).toBe("hit")
+    expect(parsed.available).toBe(true)
+  })
 
   it("rejects a free drink and a negative price alike", () => {
-    expect(firstMessage({ ...valid, price: "0" })).toBe("Ціна — від 1 до 99999 ₴");
-    expect(firstMessage({ ...valid, price: "-100" })).toBe("Ціна — від 1 до 99999 ₴");
-  });
+    expect(firstMessage({ ...valid, price: "0" })).toBe("Ціна — від 1 до 99999 ₴")
+    expect(firstMessage({ ...valid, price: "-100" })).toBe("Ціна — від 1 до 99999 ₴")
+  })
 
   it("refuses kopecks instead of silently rounding them", () => {
-    expect(firstMessage({ ...valid, price: "320.50" })).toBe("Ціна — ціле число гривень");
-  });
+    expect(firstMessage({ ...valid, price: "320.50" })).toBe("Ціна — ціле число гривень")
+  })
 
   it("understands a price typed with a space or a comma", () => {
-    expect(menuItemFormSchema.parse({ ...valid, price: "1 250" }).price).toBe(1250);
-    expect(menuItemFormSchema.parse({ ...valid, price: "1250,00" }).price).toBe(1250);
-  });
+    expect(menuItemFormSchema.parse({ ...valid, price: "1 250" }).price).toBe(1250)
+    expect(menuItemFormSchema.parse({ ...valid, price: "1250,00" }).price).toBe(1250)
+  })
 
   it("asks for a price instead of reading an empty field as zero", () => {
-    expect(firstMessage({ ...valid, price: "" })).toBe("Ціна — ціле число гривень");
-    expect(firstMessage({ ...valid, price: "дорого" })).toBe("Ціна — ціле число гривень");
-  });
+    expect(firstMessage({ ...valid, price: "" })).toBe("Ціна — ціле число гривень")
+    expect(firstMessage({ ...valid, price: "дорого" })).toBe("Ціна — ціле число гривень")
+  })
 
   it("insists on a category, because an item has nowhere else to live", () => {
-    expect(firstMessage({ ...valid, categoryId: "" })).toBe("Оберіть категорію");
-  });
+    expect(firstMessage({ ...valid, categoryId: "" })).toBe("Оберіть категорію")
+  })
 
   it("keeps names within the bounds the API enforces", () => {
-    expect(firstMessage({ ...valid, name: "Я" })).toBe("Назва — від 2 до 80 символів");
-    expect(firstMessage({ ...valid, name: "я".repeat(81) })).toBe("Назва — від 2 до 80 символів");
-  });
+    expect(firstMessage({ ...valid, name: "Я" })).toBe("Назва — від 2 до 80 символів")
+    expect(firstMessage({ ...valid, name: "я".repeat(81) })).toBe("Назва — від 2 до 80 символів")
+  })
 
   it("turns empty optional text into null, not into an empty string", () => {
-    const parsed = menuItemFormSchema.parse({ ...valid, description: "", volume: "   ", badge: "" });
+    const parsed = menuItemFormSchema.parse({ ...valid, description: "", volume: "   ", badge: "" })
 
-    expect(parsed.description).toBeNull();
-    expect(parsed.volume).toBeNull();
-    expect(parsed.badge).toBeNull();
-  });
-});
+    expect(parsed.description).toBeNull()
+    expect(parsed.volume).toBeNull()
+    expect(parsed.badge).toBeNull()
+  })
+})
 
 describe("menuItemPatchSchema", () => {
   it("takes a single field — that is how the availability switch saves", () => {
-    expect(menuItemPatchSchema.parse({ available: false })).toEqual({ available: false });
-  });
+    expect(menuItemPatchSchema.parse({ available: false })).toEqual({ available: false })
+  })
 
   it("takes a moved item's new category on its own", () => {
-    expect(menuItemPatchSchema.parse({ categoryId: "other" })).toEqual({ categoryId: "other" });
-  });
+    expect(menuItemPatchSchema.parse({ categoryId: "other" })).toEqual({ categoryId: "other" })
+  })
 
   it("refuses an empty patch instead of writing nothing", () => {
-    expect(menuItemPatchSchema.safeParse({}).success).toBe(false);
-  });
+    expect(menuItemPatchSchema.safeParse({}).success).toBe(false)
+  })
 
   it("takes a photo description in the patch, so a typo is fixed without re-uploading", () => {
-    const parsed = menuItemPatchSchema.safeParse({ imageAlt: "Коктейль Faust Sour у келиху купе" });
+    const parsed = menuItemPatchSchema.safeParse({ imageAlt: "Коктейль Faust Sour у келиху купе" })
 
-    expect(parsed.success).toBe(true);
-    expect(parsed.success && parsed.data.imageAlt).toBe("Коктейль Faust Sour у келиху купе");
-  });
+    expect(parsed.success).toBe(true)
+    expect(parsed.success && parsed.data.imageAlt).toBe("Коктейль Faust Sour у келиху купе")
+  })
 
   it("refuses a photo description too short to describe anything", () => {
-    expect(menuItemPatchSchema.safeParse({ imageAlt: "фото" }).success).toBe(false);
-  });
+    expect(menuItemPatchSchema.safeParse({ imageAlt: "фото" }).success).toBe(false)
+  })
 
   it("leaves the stored description alone when the patch does not mention it", () => {
-    const parsed = menuItemPatchSchema.safeParse({ price: 555 });
+    const parsed = menuItemPatchSchema.safeParse({ price: 555 })
 
-    expect(parsed.success).toBe(true);
-    expect(parsed.success && "imageAlt" in parsed.data).toBe(false);
-  });
-});
+    expect(parsed.success).toBe(true)
+    expect(parsed.success && "imageAlt" in parsed.data).toBe(false)
+  })
+})
 
 describe("adminMenuItemSchema", () => {
   const item = {
@@ -113,22 +114,22 @@ describe("adminMenuItemSchema", () => {
     badge: null,
     available: false,
     order: 3,
-  };
+  }
 
   it("reads an item that carries nothing optional", () => {
-    expect(adminMenuItemSchema.parse(item)).toMatchObject({ price: 280, available: false, image: null });
-  });
+    expect(adminMenuItemSchema.parse(item)).toMatchObject({ price: 280, available: false, image: null })
+  })
 
   it("is strict on purpose: a malformed row must not be hidden from the owner", () => {
-    expect(adminMenuItemSchema.safeParse({ ...item, price: "280" }).success).toBe(false);
-    expect(adminMenuItemSchema.safeParse({ ...item, available: undefined }).success).toBe(false);
-  });
+    expect(adminMenuItemSchema.safeParse({ ...item, price: "280" }).success).toBe(false)
+    expect(adminMenuItemSchema.safeParse({ ...item, available: undefined }).success).toBe(false)
+  })
 
   it("reads the grouped list the admin page renders", () => {
     const parsed = adminItemsResponseSchema.parse({
       categories: [{ id: "cat-1", slug: "signature", label: "Авторські", visible: true, items: [item] }],
-    });
+    })
 
-    expect(parsed.categories[0]?.items).toHaveLength(1);
-  });
-});
+    expect(parsed.categories[0]?.items).toHaveLength(1)
+  })
+})

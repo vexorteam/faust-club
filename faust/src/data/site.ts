@@ -42,6 +42,6 @@ export const site = {
     { label: "Відгуки", href: "/#reviews" },
     { label: "Контакти", href: "/#contacts" },
   ],
-} as const;
+} as const
 
-export type SiteConfig = typeof site;
+export type SiteConfig = typeof site

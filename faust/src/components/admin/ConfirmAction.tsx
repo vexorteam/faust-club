@@ -1,7 +1,8 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import styles from "./ConfirmAction.module.css";
+import { useState } from "react"
+
+import styles from "./ConfirmAction.module.css"
 
 /**
  * Deletion, in two presses.
@@ -14,12 +15,12 @@ import styles from "./ConfirmAction.module.css";
 
 export type ConfirmActionProps = {
   /** Text of the resting button: «Видалити» */
-  label: string;
-  question: string;
-  confirmLabel?: string;
-  pending?: boolean;
-  onConfirm: () => void;
-};
+  label: string
+  question: string
+  confirmLabel?: string
+  pending?: boolean
+  onConfirm: () => void
+}
 
 export const ConfirmAction = ({
   label,
@@ -28,38 +29,52 @@ export const ConfirmAction = ({
   pending,
   onConfirm,
 }: ConfirmActionProps) => {
-  const [asking, setAsking] = useState(false);
+  const [asking, setAsking] = useState(false)
 
   if (!asking) {
     return (
-      <button type="button" className={styles.trigger} disabled={pending} onClick={() => setAsking(true)}>
+      <button
+        type='button'
+        className={styles.trigger}
+        disabled={pending}
+        onClick={() => setAsking(true)}
+      >
         {label}
       </button>
-    );
+    )
   }
 
   return (
-    <div className={styles.confirm} role="group" aria-label={question}>
+    <div
+      className={styles.confirm}
+      role='group'
+      aria-label={question}
+    >
       <p className={styles.question}>{question}</p>
 
       <div className={styles.actions}>
         <button
-          type="button"
+          type='button'
           className={styles.danger}
           autoFocus
           disabled={pending}
           onClick={() => {
-            setAsking(false);
-            onConfirm();
+            setAsking(false)
+            onConfirm()
           }}
         >
           {pending ? "Видаляємо…" : confirmLabel}
         </button>
 
-        <button type="button" className={styles.cancel} disabled={pending} onClick={() => setAsking(false)}>
+        <button
+          type='button'
+          className={styles.cancel}
+          disabled={pending}
+          onClick={() => setAsking(false)}
+        >
           Скасувати
         </button>
       </div>
     </div>
-  );
-};
+  )
+}

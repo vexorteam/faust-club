@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { adminAtmosphereResponseSchema, atmosphereFormSchema, atmospherePatchSchema } from "@/schemas/atmosphere";
+import { describe, expect, it } from "vitest"
+
+import { adminAtmosphereResponseSchema, atmosphereFormSchema, atmospherePatchSchema } from "@/schemas/atmosphere"
 
 const photo = {
   id: "3c1f",
@@ -8,13 +9,13 @@ const photo = {
   imageAlt: "Танцпол Faust під час нічного сету",
   order: 1,
   visible: true,
-};
+}
 
 const firstMessage = (input: unknown): string | undefined => {
-  const parsed = atmosphereFormSchema.safeParse(input);
+  const parsed = atmosphereFormSchema.safeParse(input)
 
-  return parsed.success ? undefined : parsed.error.issues[0]?.message;
-};
+  return parsed.success ? undefined : parsed.error.issues[0]?.message
+}
 
 describe("atmosphereFormSchema", () => {
   it("accepts a caption and a description that are not the same text", () => {
@@ -22,40 +23,40 @@ describe("atmosphereFormSchema", () => {
       label: "Бар",
       imageAlt: "Барна стійка з підсвіткою й барменом за роботою",
       visible: true,
-    });
+    })
 
-    expect(parsed.label).not.toBe(parsed.imageAlt);
-  });
+    expect(parsed.label).not.toBe(parsed.imageAlt)
+  })
 
   it("insists on a description, because it replaces the picture", () => {
     expect(firstMessage({ label: "Бар", imageAlt: "", visible: true })).toBe(
-      "Опис для скрінрідера — від 5 до 120 символів",
-    );
-  });
+      "Опис для скрінрідера — від 5 до 120 символів"
+    )
+  })
 
   it("keeps the caption short enough for a tile", () => {
     expect(firstMessage({ label: "б".repeat(61), imageAlt: photo.imageAlt, visible: true })).toBe(
-      "Підпис — від 2 до 60 символів",
-    );
-  });
-});
+      "Підпис — від 2 до 60 символів"
+    )
+  })
+})
 
 describe("atmospherePatchSchema", () => {
   it("renames a tile without touching the photo", () => {
-    expect(atmospherePatchSchema.parse({ label: "VIP-зона" })).toEqual({ label: "VIP-зона" });
-  });
+    expect(atmospherePatchSchema.parse({ label: "VIP-зона" })).toEqual({ label: "VIP-зона" })
+  })
 
   it("refuses an empty patch", () => {
-    expect(atmospherePatchSchema.safeParse({}).success).toBe(false);
-  });
-});
+    expect(atmospherePatchSchema.safeParse({}).success).toBe(false)
+  })
+})
 
 describe("adminAtmosphereResponseSchema", () => {
   it("reads the list the admin grid renders", () => {
-    expect(adminAtmosphereResponseSchema.parse({ photos: [photo] }).photos).toHaveLength(1);
-  });
+    expect(adminAtmosphereResponseSchema.parse({ photos: [photo] }).photos).toHaveLength(1)
+  })
 
   it("does not accept a tile without a picture", () => {
-    expect(adminAtmosphereResponseSchema.safeParse({ photos: [{ ...photo, image: null }] }).success).toBe(false);
-  });
-});
+    expect(adminAtmosphereResponseSchema.safeParse({ photos: [{ ...photo, image: null }] }).success).toBe(false)
+  })
+})

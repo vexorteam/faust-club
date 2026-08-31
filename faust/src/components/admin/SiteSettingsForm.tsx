@@ -1,7 +1,9 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Field } from "@/components/ui/Field";
+import { useState } from "react"
+import type { AdminSiteSettings, SiteSettingsInput } from "@/schemas/settings"
+
+import { Field } from "@/components/ui/Field"
 import {
   ADDRESS_MAX,
   ADDRESS_SHORT_MAX,
@@ -10,16 +12,14 @@ import {
   PHONE_MAX,
   SITE_DESCRIPTION_MAX,
   SITE_NAME_MAX,
+  siteSettingsFormSchema,
   TAGLINE_MAX,
   URL_MAX,
-  siteSettingsFormSchema,
-  type AdminSiteSettings,
-  type SiteSettingsInput,
-} from "@/schemas/settings";
-import { useAdminMutation } from "./useAdminMutation";
-import styles from "./SiteSettingsForm.module.css";
+} from "@/schemas/settings"
+import styles from "./SiteSettingsForm.module.css"
+import { useAdminMutation } from "./useAdminMutation"
 
-type FieldErrors = Partial<Record<keyof SiteSettingsInput, string>>;
+type FieldErrors = Partial<Record<keyof SiteSettingsInput, string>>
 
 const asFormState = (settings: AdminSiteSettings): SiteSettingsInput => ({
   name: settings.name,
@@ -36,96 +36,96 @@ const asFormState = (settings: AdminSiteSettings): SiteSettingsInput => ({
   latitude: settings.latitude,
   longitude: settings.longitude,
   ageRestriction: settings.ageRestriction,
-});
+})
 
 export const SiteSettingsForm = ({ settings }: { settings: AdminSiteSettings }) => {
-  const { mutate, pendingKey } = useAdminMutation();
-  const [form, setForm] = useState<SiteSettingsInput>(() => asFormState(settings));
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const { mutate, pendingKey } = useAdminMutation()
+  const [form, setForm] = useState<SiteSettingsInput>(() => asFormState(settings))
+  const [errors, setErrors] = useState<FieldErrors>({})
 
   const set = <K extends keyof SiteSettingsInput>(key: K, value: SiteSettingsInput[K]) =>
-    setForm((prev) => ({ ...prev, [key]: value }));
+    setForm(prev => ({ ...prev, [key]: value }))
 
   const save = async () => {
-    const parsed = siteSettingsFormSchema.safeParse(form);
+    const parsed = siteSettingsFormSchema.safeParse(form)
 
     if (!parsed.success) {
-      const collected: FieldErrors = {};
+      const collected: FieldErrors = {}
 
       for (const issue of parsed.error.issues) {
-        const field = issue.path[0];
+        const field = issue.path[0]
 
         if (typeof field === "string" && !collected[field as keyof SiteSettingsInput]) {
-          collected[field as keyof SiteSettingsInput] = issue.message;
+          collected[field as keyof SiteSettingsInput] = issue.message
         }
       }
 
-      setErrors(collected);
-      return;
+      setErrors(collected)
+      return
     }
 
-    setErrors({});
+    setErrors({})
 
     const outcome = await mutate(
       "save",
       { url: "/api/admin/settings", method: "PATCH", body: parsed.data },
-      { success: "Налаштування збережено" },
-    );
+      { success: "Налаштування збережено" }
+    )
 
-    if (!outcome.ok && outcome.fieldErrors) setErrors(outcome.fieldErrors as FieldErrors);
-  };
+    if (!outcome.ok && outcome.fieldErrors) setErrors(outcome.fieldErrors as FieldErrors)
+  }
 
-  const pending = pendingKey === "save";
+  const pending = pendingKey === "save"
 
   return (
     <form
       className={styles.form}
       noValidate
-      onSubmit={(event) => {
-        event.preventDefault();
-        void save();
+      onSubmit={event => {
+        event.preventDefault()
+        void save()
       }}
     >
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Загальне</h2>
         <div className={styles.pair}>
           <Field
-            label="Назва клубу"
+            label='Назва клубу'
             required
             maxLength={SITE_NAME_MAX}
             value={form.name}
             error={errors.name}
-            onChange={(event) => set("name", event.target.value)}
+            onChange={event => set("name", event.target.value)}
           />
           <Field
-            label="Вікові обмеження"
+            label='Вікові обмеження'
             required
             maxLength={AGE_RESTRICTION_MAX}
-            placeholder="16+"
+            placeholder='16+'
             value={form.ageRestriction}
             error={errors.ageRestriction}
-            onChange={(event) => set("ageRestriction", event.target.value)}
+            onChange={event => set("ageRestriction", event.target.value)}
           />
         </div>
 
         <Field
-          label="Слоган"
+          label='Слоган'
           required
           maxLength={TAGLINE_MAX}
           value={form.tagline}
           error={errors.tagline}
-          onChange={(event) => set("tagline", event.target.value)}
+          onChange={event => set("tagline", event.target.value)}
         />
 
         <Field
-          as="textarea"
-          label="Опис (для головного екрана й соцмереж)"
+          as='textarea'
+          label='Опис (для головного екрана й соцмереж)'
           required
           rows={3}
           maxLength={SITE_DESCRIPTION_MAX}
           value={form.description}
           error={errors.description}
-          onChange={(event) => set("description", event.target.value)}
+          onChange={event => set("description", event.target.value)}
         />
       </div>
 
@@ -133,62 +133,62 @@ export const SiteSettingsForm = ({ settings }: { settings: AdminSiteSettings }) 
         <h2 className={styles.sectionTitle}>Контакти</h2>
         <div className={styles.pair}>
           <Field
-            label="Телефон"
+            label='Телефон'
             required
             maxLength={PHONE_MAX}
-            placeholder="+380 66 727 9143"
+            placeholder='+380 66 727 9143'
             value={form.phone}
             error={errors.phone}
-            onChange={(event) => set("phone", event.target.value)}
+            onChange={event => set("phone", event.target.value)}
           />
           <Field
-            label="Посилання tel:"
+            label='Посилання tel:'
             required
             maxLength={PHONE_MAX}
-            placeholder="tel:+380667279143"
+            placeholder='tel:+380667279143'
             value={form.phoneHref}
             error={errors.phoneHref}
-            onChange={(event) => set("phoneHref", event.target.value)}
+            onChange={event => set("phoneHref", event.target.value)}
           />
         </div>
 
         <div className={styles.pair}>
           <Field
-            label="Пошта"
+            label='Пошта'
             required
             maxLength={EMAIL_MAX}
-            placeholder="hello@faust.bar"
+            placeholder='hello@faust.bar'
             value={form.email}
             error={errors.email}
-            onChange={(event) => set("email", event.target.value)}
+            onChange={event => set("email", event.target.value)}
           />
           <Field
-            label="Посилання mailto:"
+            label='Посилання mailto:'
             required
             maxLength={EMAIL_MAX}
-            placeholder="mailto:hello@faust.bar"
+            placeholder='mailto:hello@faust.bar'
             value={form.emailHref}
             error={errors.emailHref}
-            onChange={(event) => set("emailHref", event.target.value)}
+            onChange={event => set("emailHref", event.target.value)}
           />
         </div>
 
         <div className={styles.pair}>
           <Field
-            label="Повна адреса"
+            label='Повна адреса'
             required
             maxLength={ADDRESS_MAX}
             value={form.address}
             error={errors.address}
-            onChange={(event) => set("address", event.target.value)}
+            onChange={event => set("address", event.target.value)}
           />
           <Field
-            label="Коротка адреса"
+            label='Коротка адреса'
             required
             maxLength={ADDRESS_SHORT_MAX}
             value={form.addressShort}
             error={errors.addressShort}
-            onChange={(event) => set("addressShort", event.target.value)}
+            onChange={event => set("addressShort", event.target.value)}
           />
         </div>
       </div>
@@ -196,46 +196,50 @@ export const SiteSettingsForm = ({ settings }: { settings: AdminSiteSettings }) 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Карта</h2>
         <Field
-          label="Посилання на Google Maps"
+          label='Посилання на Google Maps'
           required
           maxLength={URL_MAX}
           value={form.mapsUrl}
           error={errors.mapsUrl}
-          onChange={(event) => set("mapsUrl", event.target.value)}
+          onChange={event => set("mapsUrl", event.target.value)}
         />
         <Field
-          label="Рядок пошуку для вбудованої карти"
+          label='Рядок пошуку для вбудованої карти'
           required
           maxLength={ADDRESS_MAX}
           value={form.mapsEmbedQuery}
           error={errors.mapsEmbedQuery}
-          onChange={(event) => set("mapsEmbedQuery", event.target.value)}
+          onChange={event => set("mapsEmbedQuery", event.target.value)}
         />
         <div className={styles.pair}>
           <Field
-            label="Широта"
+            label='Широта'
             required
-            type="number"
-            step="0.0001"
+            type='number'
+            step='0.0001'
             value={form.latitude}
             error={errors.latitude}
-            onChange={(event) => set("latitude", Number(event.target.value))}
+            onChange={event => set("latitude", Number(event.target.value))}
           />
           <Field
-            label="Довгота"
+            label='Довгота'
             required
-            type="number"
-            step="0.0001"
+            type='number'
+            step='0.0001'
             value={form.longitude}
             error={errors.longitude}
-            onChange={(event) => set("longitude", Number(event.target.value))}
+            onChange={event => set("longitude", Number(event.target.value))}
           />
         </div>
       </div>
 
-      <button type="submit" className={styles.submit} disabled={pending}>
+      <button
+        type='submit'
+        className={styles.submit}
+        disabled={pending}
+      >
         {pending ? "Зберігаємо…" : "Зберегти налаштування"}
       </button>
     </form>
-  );
-};
+  )
+}

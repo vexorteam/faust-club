@@ -1,8 +1,9 @@
-import Link from "next/link";
-import { SectionTitle } from "@/components/ui/SectionTitle";
-import { Reveal } from "@/components/layout/Reveal";
-import { IconGlassCocktail, IconSpark, IconMusic, IconChevronRight } from "@/components/ui/icon";
-import styles from "./BarHighlights.module.css";
+import Link from "next/link"
+
+import { Reveal } from "@/components/layout/Reveal"
+import { IconChevronRight, IconGlassCocktail, IconMusic, IconSpark } from "@/components/ui/icon"
+import { SectionTitle } from "@/components/ui/SectionTitle"
+import styles from "./BarHighlights.module.css"
 
 const highlights = [
   {
@@ -23,17 +24,28 @@ const highlights = [
     text: "Експериментальні мікси, нестандартні поєднання інгредієнтів та справжнє мистецтво створення смаку.",
     tag: "Щодня",
   },
-];
+]
 
 export const BarHighlights = () => (
-  <section className={styles.section} aria-labelledby="highlights-heading">
-    <div className="container">
+  <section
+    className={styles.section}
+    aria-labelledby='highlights-heading'
+  >
+    <div className='container'>
       <div className={styles.head}>
         <Reveal>
-          <SectionTitle id="highlights-heading" eyebrow="У барі" title="Що ми" accent="наливаємо" />
+          <SectionTitle
+            id='highlights-heading'
+            eyebrow='У барі'
+            title='Що ми'
+            accent='наливаємо'
+          />
         </Reveal>
         <Reveal delay={0.05}>
-          <Link href="/menu" className={styles.link}>
+          <Link
+            href='/menu'
+            className={styles.link}
+          >
             Усе меню
             <IconChevronRight />
           </Link>
@@ -42,9 +54,15 @@ export const BarHighlights = () => (
 
       <div className={styles.grid}>
         {highlights.map((h, i) => (
-          <Reveal key={h.title} delay={i * 0.07}>
+          <Reveal
+            key={h.title}
+            delay={i * 0.07}
+          >
             <div className={styles.card}>
-              <div className={styles.cardGlow} aria-hidden="true" />
+              <div
+                className={styles.cardGlow}
+                aria-hidden='true'
+              />
               <span className={styles.cardIcon}>
                 <h.icon />
               </span>
@@ -57,4 +75,4 @@ export const BarHighlights = () => (
       </div>
     </div>
   </section>
-);
+)

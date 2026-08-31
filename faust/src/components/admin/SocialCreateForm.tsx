@@ -1,102 +1,112 @@
-"use client";
+"use client"
 
-import { useState, type FormEvent } from "react";
-import { Field } from "@/components/ui/Field";
-import { SOCIAL_HANDLE_MAX, SOCIAL_NAME_MAX, URL_MAX, socialFormSchema } from "@/schemas/settings";
-import { useAdminMutation } from "./useAdminMutation";
-import styles from "./SocialCreateForm.module.css";
+import { useState } from "react"
+import type { FormEvent } from "react"
 
-type FieldErrors = { name?: string; href?: string; handle?: string };
+import { Field } from "@/components/ui/Field"
+import { SOCIAL_HANDLE_MAX, SOCIAL_NAME_MAX, socialFormSchema, URL_MAX } from "@/schemas/settings"
+import styles from "./SocialCreateForm.module.css"
+import { useAdminMutation } from "./useAdminMutation"
+
+type FieldErrors = { name?: string; href?: string; handle?: string }
 
 export const SocialCreateForm = () => {
-  const { mutate, pendingKey } = useAdminMutation();
-  const [name, setName] = useState("");
-  const [href, setHref] = useState("");
-  const [handle, setHandle] = useState("");
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const { mutate, pendingKey } = useAdminMutation()
+  const [name, setName] = useState("")
+  const [href, setHref] = useState("")
+  const [handle, setHandle] = useState("")
+  const [errors, setErrors] = useState<FieldErrors>({})
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    const parsed = socialFormSchema.safeParse({ name, href, handle });
+    const parsed = socialFormSchema.safeParse({ name, href, handle })
 
     if (!parsed.success) {
-      const collected: FieldErrors = {};
+      const collected: FieldErrors = {}
 
       for (const issue of parsed.error.issues) {
-        const field = issue.path[0];
+        const field = issue.path[0]
 
-        if (field === "name" && !collected.name) collected.name = issue.message;
-        if (field === "href" && !collected.href) collected.href = issue.message;
-        if (field === "handle" && !collected.handle) collected.handle = issue.message;
+        if (field === "name" && !collected.name) collected.name = issue.message
+        if (field === "href" && !collected.href) collected.href = issue.message
+        if (field === "handle" && !collected.handle) collected.handle = issue.message
       }
 
-      setErrors(collected);
-      return;
+      setErrors(collected)
+      return
     }
 
-    setErrors({});
+    setErrors({})
 
     const outcome = await mutate(
       "create",
       { url: "/api/admin/settings/socials", method: "POST", body: parsed.data },
-      { success: "Соцмережу додано" },
-    );
+      { success: "Соцмережу додано" }
+    )
 
     if (!outcome.ok) {
-      if (outcome.fieldErrors) setErrors(outcome.fieldErrors as FieldErrors);
-      return;
+      if (outcome.fieldErrors) setErrors(outcome.fieldErrors as FieldErrors)
+      return
     }
 
-    setName("");
-    setHref("");
-    setHandle("");
-  };
+    setName("")
+    setHref("")
+    setHandle("")
+  }
 
-  const pending = pendingKey === "create";
+  const pending = pendingKey === "create"
 
   return (
-    <form className={styles.form} onSubmit={onSubmit} noValidate>
+    <form
+      className={styles.form}
+      onSubmit={onSubmit}
+      noValidate
+    >
       <h2 className={styles.title}>Нова соцмережа</h2>
 
       <div className={styles.pair}>
         <Field
-          label="Назва"
-          name="name"
+          label='Назва'
+          name='name'
           required
           maxLength={SOCIAL_NAME_MAX}
-          placeholder="Instagram"
+          placeholder='Instagram'
           value={name}
           error={errors.name}
-          onChange={(event) => setName(event.target.value)}
+          onChange={event => setName(event.target.value)}
         />
 
         <Field
-          label="Позначка"
-          name="handle"
+          label='Позначка'
+          name='handle'
           required
           maxLength={SOCIAL_HANDLE_MAX}
-          placeholder="@faust.club"
+          placeholder='@faust.club'
           value={handle}
           error={errors.handle}
-          onChange={(event) => setHandle(event.target.value)}
+          onChange={event => setHandle(event.target.value)}
         />
       </div>
 
       <Field
-        label="Посилання на профіль"
-        name="href"
+        label='Посилання на профіль'
+        name='href'
         required
         maxLength={URL_MAX}
-        placeholder="https://www.instagram.com/faust.club"
+        placeholder='https://www.instagram.com/faust.club'
         value={href}
         error={errors.href}
-        onChange={(event) => setHref(event.target.value)}
+        onChange={event => setHref(event.target.value)}
       />
 
-      <button type="submit" className={styles.submit} disabled={pending}>
+      <button
+        type='submit'
+        className={styles.submit}
+        disabled={pending}
+      >
         {pending ? "Додаємо…" : "Додати соцмережу"}
       </button>
     </form>
-  );
-};
+  )
+}

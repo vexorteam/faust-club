@@ -1,18 +1,18 @@
-import clubPhoto from "../../public/img/disco.jpg";
+import clubPhoto from "../../public/img/disco.jpg"
 
 export type MenuItem = {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image?: string;
-};
+  id: string
+  name: string
+  description: string
+  price: number
+  image?: string
+}
 
 export type MenuCategory = {
-  slug: string;
-  label: string;
-  items: MenuItem[];
-};
+  slug: string
+  label: string
+  items: MenuItem[]
+}
 
 export const menu: MenuCategory[] = [
   {
@@ -218,4 +218,4 @@ export const menu: MenuCategory[] = [
       { id: "olives", name: "Оливки", description: "мікс, зелень, цитрус", price: 140, image: clubPhoto.src },
     ],
   },
-];
+]

@@ -1,22 +1,22 @@
-import { requireAdminOrRedirect } from "@/lib/session";
-import { listItemGroups } from "@/lib/admin";
-import { AdminNotice } from "@/components/admin/AdminNotice";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { ItemsBoard } from "@/components/admin/ItemsBoard";
+import { AdminNotice } from "@/components/admin/AdminNotice"
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
+import { ItemsBoard } from "@/components/admin/ItemsBoard"
+import { listItemGroups } from "@/lib/admin"
+import { requireAdminOrRedirect } from "@/lib/session"
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
 
 const AdminItemsPage = async () => {
-  await requireAdminOrRedirect();
+  await requireAdminOrRedirect()
 
-  const groups = await listItemGroups();
+  const groups = await listItemGroups()
 
   return (
     <section>
       <AdminPageHeader
-        eyebrow="меню"
-        title="Позиції"
-        description="Ціна, наявність і порядок зберігаються одразу. Решта — у формі позиції."
+        eyebrow='меню'
+        title='Позиції'
+        description='Ціна, наявність і порядок зберігаються одразу. Решта — у формі позиції.'
         action={groups.length > 0 ? { href: "/admin/items/new", label: "Додати позицію" } : undefined}
       />
 
@@ -28,7 +28,7 @@ const AdminItemsPage = async () => {
         <ItemsBoard groups={groups} />
       )}
     </section>
-  );
-};
+  )
+}
 
-export default AdminItemsPage;
+export default AdminItemsPage

@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
-import { z } from "zod";
-import { apiRequest } from "@/lib/api";
-import { clearSessionCookie, readSessionToken } from "@/lib/session";
+import { NextResponse } from "next/server"
+import { z } from "zod"
+
+import { apiRequest } from "@/lib/api"
+import { clearSessionCookie, readSessionToken } from "@/lib/session"
 
 /**
  * Ends the session. The API bumps `token_version`, which kills every token
@@ -11,10 +12,10 @@ import { clearSessionCookie, readSessionToken } from "@/lib/session";
  * token nobody accepts is worse than a browser with no token at all.
  */
 
-const logoutResponseSchema = z.unknown();
+const logoutResponseSchema = z.unknown()
 
 export const POST = async () => {
-  const token = await readSessionToken();
+  const token = await readSessionToken()
 
   if (token) {
     try {
@@ -22,13 +23,13 @@ export const POST = async () => {
         method: "POST",
         token,
         cache: "no-store",
-      });
+      })
     } catch (error) {
-      console.error("[auth] the API did not confirm the logout, dropping the cookie anyway", error);
+      console.error("[auth] the API did not confirm the logout, dropping the cookie anyway", error)
     }
   }
 
-  await clearSessionCookie();
+  await clearSessionCookie()
 
-  return NextResponse.json({ ok: true });
-};
+  return NextResponse.json({ ok: true })
+}

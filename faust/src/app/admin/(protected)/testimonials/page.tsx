@@ -1,34 +1,35 @@
-import type { Metadata } from "next";
-import { requireAdminOrRedirect } from "@/lib/session";
-import { listTestimonials } from "@/lib/admin";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { TestimonialList } from "@/components/admin/TestimonialList";
+import type { Metadata } from "next"
+
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
+import { TestimonialList } from "@/components/admin/TestimonialList"
+import { listTestimonials } from "@/lib/admin"
+import { requireAdminOrRedirect } from "@/lib/session"
 
 /** Review cards of the home page's "Відгуки" grid. */
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Відгуки",
   robots: { index: false, follow: false, nocache: true },
-};
+}
 
 const TestimonialsPage = async () => {
-  await requireAdminOrRedirect();
+  await requireAdminOrRedirect()
 
-  const testimonials = await listTestimonials();
+  const testimonials = await listTestimonials()
 
   return (
     <section>
       <AdminPageHeader
-        eyebrow="сайт"
-        title="Відгуки"
-        description="Картки відгуків на головній сторінці. Прихований відгук лишається тут, але зникає з сайту."
+        eyebrow='сайт'
+        title='Відгуки'
+        description='Картки відгуків на головній сторінці. Прихований відгук лишається тут, але зникає з сайту.'
       />
 
       <TestimonialList testimonials={testimonials} />
     </section>
-  );
-};
+  )
+}
 
-export default TestimonialsPage;
+export default TestimonialsPage

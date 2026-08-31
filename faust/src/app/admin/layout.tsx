@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
-import type { ReactNode } from "react";
-import styles from "./layout.module.css";
+import type { Metadata } from "next"
+import type { ReactNode } from "react"
+
+import styles from "./layout.module.css"
 
 /**
  * Outer shell of the admin area: the part that also has to wrap the login
@@ -11,13 +12,13 @@ import styles from "./layout.module.css";
  * session it was asked with.
  */
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Керування",
   robots: { index: false, follow: false, nocache: true },
-};
+}
 
-const AdminLayout = ({ children }: { children: ReactNode }) => <div className={styles.shell}>{children}</div>;
+const AdminLayout = ({ children }: { children: ReactNode }) => <div className={styles.shell}>{children}</div>
 
-export default AdminLayout;
+export default AdminLayout

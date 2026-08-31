@@ -1,10 +1,11 @@
-import Image from "next/image";
-import { SectionTitle } from "@/components/ui/SectionTitle";
-import { Reveal } from "@/components/layout/Reveal";
-import { formatWorkingDays } from "@/lib/hours";
-import type { SiteSettingsView } from "@/types";
-import styles from "./About.module.css";
-import aboutPhoto from "../../../public/img/disco.jpg";
+import Image from "next/image"
+import type { SiteSettingsView } from "@/types"
+
+import { Reveal } from "@/components/layout/Reveal"
+import { SectionTitle } from "@/components/ui/SectionTitle"
+import { formatWorkingDays } from "@/lib/hours"
+import aboutPhoto from "../../../public/img/disco.jpg"
+import styles from "./About.module.css"
 
 export const About = ({ settings }: { settings: SiteSettingsView }) => {
   const facts = [
@@ -14,28 +15,40 @@ export const About = ({ settings }: { settings: SiteSettingsView }) => {
     { value: formatWorkingDays(settings.hours), label: "ночі щотижня" },
     { value: "180+", label: "коктейлів" },
     { value: "1000+", label: "вдячних гостей" },
-  ];
+  ]
 
   return (
-    <section id="club" className={styles.section} aria-labelledby="about-heading">
+    <section
+      id='club'
+      className={styles.section}
+      aria-labelledby='about-heading'
+    >
       <div className={`container ${styles.grid}`}>
         <div className={styles.text}>
           <Reveal>
-            <SectionTitle id="about-heading" eyebrow="Хто ми" title="Клуб, який" accent="задає ритм міста" />
+            <SectionTitle
+              id='about-heading'
+              eyebrow='Хто ми'
+              title='Клуб, який'
+              accent='задає ритм міста'
+            />
           </Reveal>
 
           <Reveal delay={0.05}>
             <p className={styles.paragraph}>
-              Faust народився з ідеї, що ніч у клубі — це не просто музика, а повноцінна режисура: світло, звук, смак
-              і люди складаються в одну історію. Ми наповнюємо кожен вечір особливою енергією, унікальними міксами
-              від бару та атмосферою.
+              Faust народився з ідеї, що ніч у клубі — це не просто музика, а повноцінна режисура: світло, звук, смак і
+              люди складаються в одну історію. Ми наповнюємо кожен вечір особливою енергією, унікальними міксами від
+              бару та атмосферою.
             </p>
           </Reveal>
 
           <Reveal delay={0.1}>
             <div className={styles.facts}>
-              {facts.map((fact) => (
-                <div key={fact.label} className={styles.fact}>
+              {facts.map(fact => (
+                <div
+                  key={fact.label}
+                  className={styles.fact}
+                >
                   <div className={styles.factValue}>{fact.value}</div>
                   <div className={styles.factLabel}>{fact.label}</div>
                 </div>
@@ -44,20 +57,26 @@ export const About = ({ settings }: { settings: SiteSettingsView }) => {
           </Reveal>
         </div>
 
-        <Reveal delay={0.1} className={styles.visual}>
+        <Reveal
+          delay={0.1}
+          className={styles.visual}
+        >
           <Image
             src={aboutPhoto}
-            alt="Атмосфера всередині клубу Faust"
+            alt='Атмосфера всередині клубу Faust'
             fill
             className={styles.visualImage}
-            sizes="(min-width: 900px) 45vw, 100vw"
-            placeholder="blur"
+            sizes='(min-width: 900px) 45vw, 100vw'
+            placeholder='blur'
           />
-          <span className={styles.visualMark} aria-hidden="true">
+          <span
+            className={styles.visualMark}
+            aria-hidden='true'
+          >
             FAUST
           </span>
         </Reveal>
       </div>
     </section>
-  );
-};
+  )
+}

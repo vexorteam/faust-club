@@ -1,10 +1,12 @@
-"use client";
+"use client"
 
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
-import { Field } from "@/components/ui/Field";
-import { loginSchema } from "@/schemas/auth";
-import styles from "./LoginForm.module.css";
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import type { FormEvent } from "react"
+
+import { Field } from "@/components/ui/Field"
+import { loginSchema } from "@/schemas/auth"
+import styles from "./LoginForm.module.css"
 
 /**
  * The form knows how credentials should *look*, never whether they are right.
@@ -13,106 +15,117 @@ import styles from "./LoginForm.module.css";
  * address alike.
  */
 
-const FALLBACK_MESSAGE = "Не вдалося зʼєднатися з сервером. Спробуйте ще раз";
+const FALLBACK_MESSAGE = "Не вдалося зʼєднатися з сервером. Спробуйте ще раз"
 
-type FieldErrors = { email?: string; password?: string };
+type FieldErrors = { email?: string; password?: string }
 
 const collectFieldErrors = (issues: readonly { path: readonly PropertyKey[]; message: string }[]): FieldErrors => {
-  const errors: FieldErrors = {};
+  const errors: FieldErrors = {}
 
   for (const issue of issues) {
-    const field = issue.path[0];
+    const field = issue.path[0]
 
-    if (field === "email" && !errors.email) errors.email = issue.message;
-    if (field === "password" && !errors.password) errors.password = issue.message;
+    if (field === "email" && !errors.email) errors.email = issue.message
+    if (field === "password" && !errors.password) errors.password = issue.message
   }
 
-  return errors;
-};
+  return errors
+}
 
 export const LoginForm = () => {
-  const router = useRouter();
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+  const router = useRouter()
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+  const [formError, setFormError] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    const data = new FormData(event.currentTarget);
+    const data = new FormData(event.currentTarget)
     const credentials = loginSchema.safeParse({
       email: data.get("email"),
       password: data.get("password"),
-    });
+    })
 
     if (!credentials.success) {
-      setFormError(null);
-      setFieldErrors(collectFieldErrors(credentials.error.issues));
-      return;
+      setFormError(null)
+      setFieldErrors(collectFieldErrors(credentials.error.issues))
+      return
     }
 
-    setFieldErrors({});
-    setFormError(null);
-    setPending(true);
+    setFieldErrors({})
+    setFormError(null)
+    setPending(true)
 
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(credentials.data),
-      });
-      const result: unknown = await response.json().catch(() => null);
+      })
+      const result: unknown = await response.json().catch(() => null)
 
       if (response.ok) {
-        router.replace("/admin");
-        router.refresh();
-        return;
+        router.replace("/admin")
+        router.refresh()
+        return
       }
 
       const message =
         typeof result === "object" && result !== null && typeof (result as { message?: unknown }).message === "string"
           ? (result as { message: string }).message
-          : FALLBACK_MESSAGE;
+          : FALLBACK_MESSAGE
 
-      setFormError(message);
+      setFormError(message)
     } catch {
-      setFormError(FALLBACK_MESSAGE);
+      setFormError(FALLBACK_MESSAGE)
     }
 
-    setPending(false);
-  };
+    setPending(false)
+  }
 
   return (
-    <form className={styles.form} onSubmit={onSubmit} noValidate>
+    <form
+      className={styles.form}
+      onSubmit={onSubmit}
+      noValidate
+    >
       <Field
-        label="Пошта"
-        name="email"
-        type="email"
-        autoComplete="username"
-        inputMode="email"
+        label='Пошта'
+        name='email'
+        type='email'
+        autoComplete='username'
+        inputMode='email'
         autoFocus
         required
         error={fieldErrors.email}
       />
 
       <Field
-        label="Пароль"
-        name="password"
-        type="password"
-        autoComplete="current-password"
+        label='Пароль'
+        name='password'
+        type='password'
+        autoComplete='current-password'
         required
         error={fieldErrors.password}
       />
 
       {formError && (
-        <p className={styles.formError} role="alert">
+        <p
+          className={styles.formError}
+          role='alert'
+        >
           {formError}
         </p>
       )}
 
-      <button type="submit" className={styles.submit} disabled={pending}>
+      <button
+        type='submit'
+        className={styles.submit}
+        disabled={pending}
+      >
         {pending ? "Заходимо…" : "Увійти"}
       </button>
     </form>
-  );
-};
+  )
+}

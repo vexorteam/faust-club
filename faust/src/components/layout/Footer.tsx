@@ -1,22 +1,26 @@
-import Link from "next/link";
-import { site } from "@/data/site";
-import { Logo } from "@/components/ui/icon";
-import { Beam } from "@/components/ui/Beam";
-import { resolveSocialIcon } from "@/lib/social-icons";
-import type { SiteSettingsView } from "@/types";
-import styles from "./Footer.module.css";
+import Link from "next/link"
+import type { SiteSettingsView } from "@/types"
+
+import { Beam } from "@/components/ui/Beam"
+import { Logo } from "@/components/ui/icon"
+import { site } from "@/data/site"
+import { resolveSocialIcon } from "@/lib/social-icons"
+import styles from "./Footer.module.css"
 
 export const Footer = ({ settings }: { settings: SiteSettingsView }) => {
-  const year = new Date().getFullYear();
+  const year = new Date().getFullYear()
 
   return (
     <footer className={styles.footer}>
-      <div className="container">
+      <div className='container'>
         <Beam />
 
         <div className={styles.top}>
           <div className={styles.brandCol}>
-            <Link href="/" aria-label={`${settings.name} — на головну`}>
+            <Link
+              href='/'
+              aria-label={`${settings.name} — на головну`}
+            >
               <Logo className={styles.logo} />
             </Link>
             <p className={styles.tagline}>{settings.description}</p>
@@ -27,7 +31,7 @@ export const Footer = ({ settings }: { settings: SiteSettingsView }) => {
             <div className={styles.col}>
               <h3>Навігація</h3>
               <ul>
-                {site.nav.map((item) => (
+                {site.nav.map(item => (
                   <li key={item.href}>
                     <Link href={item.href}>{item.label}</Link>
                   </li>
@@ -53,19 +57,19 @@ export const Footer = ({ settings }: { settings: SiteSettingsView }) => {
             <div className={styles.col}>
               <h3>Ми в соцмережах</h3>
               <div className={styles.socials}>
-                {settings.socials.map((social) => {
-                  const Icon = resolveSocialIcon(social.name);
+                {settings.socials.map(social => {
+                  const Icon = resolveSocialIcon(social.name)
                   return (
                     <a
                       key={social.name}
                       href={social.href}
-                      target="_blank"
-                      rel="noreferrer noopener"
+                      target='_blank'
+                      rel='noreferrer noopener'
                       aria-label={social.name}
                     >
                       <Icon />
                     </a>
-                  );
+                  )
                 })}
               </div>
             </div>
@@ -78,14 +82,18 @@ export const Footer = ({ settings }: { settings: SiteSettingsView }) => {
           </span>
 
           <div className={styles.bottomLinks}>
-            <Link href="/menu">Меню</Link>
+            <Link href='/menu'>Меню</Link>
 
-            <a href={settings.contacts.mapsUrl} target="_blank" rel="noreferrer noopener">
+            <a
+              href={settings.contacts.mapsUrl}
+              target='_blank'
+              rel='noreferrer noopener'
+            >
               Як нас знайти
             </a>
           </div>
         </div>
       </div>
     </footer>
-  );
-};
+  )
+}

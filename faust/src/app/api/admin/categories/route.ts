@@ -1,6 +1,6 @@
-import { adminRoute, parseBody, readJsonBody } from "@/lib/admin-route";
-import { createCategory } from "@/lib/admin";
-import { categoryFormSchema } from "@/schemas/category";
+import { createCategory } from "@/lib/admin"
+import { adminRoute, parseBody, readJsonBody } from "@/lib/admin-route"
+import { categoryFormSchema } from "@/schemas/category"
 
 /**
  * `POST /api/admin/categories` — creates a category.
@@ -10,11 +10,11 @@ import { categoryFormSchema } from "@/schemas/category";
  * not something the caller can skip.
  */
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
 
 export const POST = async (request: Request) =>
   adminRoute(async () => {
-    const input = parseBody(categoryFormSchema, await readJsonBody(request));
+    const input = parseBody(categoryFormSchema, await readJsonBody(request))
 
-    return createCategory(input);
-  });
+    return createCategory(input)
+  })

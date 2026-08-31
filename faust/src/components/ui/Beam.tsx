@@ -1,5 +1,9 @@
-import styles from "./Beam.module.css";
+import styles from "./Beam.module.css"
 
 export const Beam = ({ className }: { className?: string }) => (
-  <div className={`${styles.beam} ${className ?? ""}`} aria-hidden="true" role="presentation" />
-);
+  <div
+    className={`${styles.beam} ${className ?? ""}`}
+    aria-hidden='true'
+    role='presentation'
+  />
+)

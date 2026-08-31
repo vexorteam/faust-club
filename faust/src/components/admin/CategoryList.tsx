@@ -1,7 +1,8 @@
-import type { AdminCategory } from "@/schemas/category";
-import { CategoryCreateForm } from "./CategoryCreateForm";
-import { CategoryRow } from "./CategoryRow";
-import styles from "./CategoryList.module.css";
+import type { AdminCategory } from "@/schemas/category"
+
+import { CategoryCreateForm } from "./CategoryCreateForm"
+import styles from "./CategoryList.module.css"
+import { CategoryRow } from "./CategoryRow"
 
 /**
  * Categories in the order they appear on the showcase.
@@ -10,7 +11,7 @@ import styles from "./CategoryList.module.css";
  * list is position on the page, and that is the only place the order is stored.
  */
 
-export type CategoryListProps = { categories: readonly AdminCategory[] };
+export type CategoryListProps = { categories: readonly AdminCategory[] }
 
 export const CategoryList = ({ categories }: CategoryListProps) => (
   <div className={styles.board}>
@@ -31,4 +32,4 @@ export const CategoryList = ({ categories }: CategoryListProps) => (
       </ul>
     )}
   </div>
-);
+)

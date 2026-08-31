@@ -1,37 +1,50 @@
-import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
-import { useId } from "react";
-import styles from "./Field.module.css";
+import { useId } from "react"
+import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react"
+
+import styles from "./Field.module.css"
 
 type BaseFieldProps = {
-  label: string;
-  error?: string;
-  required?: boolean;
-};
+  label: string
+  error?: string
+  required?: boolean
+}
 
 type InputFieldProps = BaseFieldProps &
   InputHTMLAttributes<HTMLInputElement> & {
-    as?: "input";
-  };
+    as?: "input"
+  }
 
 type TextareaFieldProps = BaseFieldProps &
   TextareaHTMLAttributes<HTMLTextAreaElement> & {
-    as: "textarea";
-  };
+    as: "textarea"
+  }
 
-export type FieldProps = InputFieldProps | TextareaFieldProps;
+export type FieldProps = InputFieldProps | TextareaFieldProps
 
 export const Field = (props: FieldProps) => {
-  const generatedId = useId();
-  const { label, error, required, id = generatedId, className, ...rest } = props;
-  const errorId = error ? `${id}-error` : undefined;
-  const controlClassName = [styles.control, error && styles.invalid, className].filter(Boolean).join(" ");
+  const generatedId = useId()
+  const { label, error, required, id = generatedId, className, ...rest } = props
+  const errorId = error ? `${id}-error` : undefined
+  const controlClassName = [
+    styles.control,
+    error && styles.invalid,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ")
 
   return (
     <div className={styles.field}>
-      <label htmlFor={id} className={styles.label}>
+      <label
+        htmlFor={id}
+        className={styles.label}
+      >
         {label}
         {required && (
-          <span className={styles.required} aria-hidden="true">
+          <span
+            className={styles.required}
+            aria-hidden='true'
+          >
             *
           </span>
         )}
@@ -58,10 +71,14 @@ export const Field = (props: FieldProps) => {
       )}
 
       {error && (
-        <span id={errorId} className={styles.error} role="alert">
+        <span
+          id={errorId}
+          className={styles.error}
+          role='alert'
+        >
           {error}
         </span>
       )}
     </div>
-  );
-};
+  )
+}

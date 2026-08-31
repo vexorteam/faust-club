@@ -1,8 +1,9 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import styles from "./AdminNav.module.css";
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+
+import styles from "./AdminNav.module.css"
 
 /**
  * Three sections, always visible: what the owner manages is the whole map of
@@ -21,18 +22,21 @@ const SECTIONS = [
   { href: "/admin/atmosphere", label: "Атмосфера", owns: ["/admin/atmosphere"] },
   { href: "/admin/testimonials", label: "Відгуки", owns: ["/admin/testimonials"] },
   { href: "/admin/settings", label: "Налаштування", owns: ["/admin/settings"] },
-] as const;
+] as const
 
 const isCurrent = (pathname: string, href: string, owns: readonly string[]) =>
-  pathname === href || owns.some((base) => pathname === base || pathname.startsWith(`${base}/`));
+  pathname === href || owns.some(base => pathname === base || pathname.startsWith(`${base}/`))
 
 export const AdminNav = () => {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   return (
-    <nav className={styles.nav} aria-label="Розділи керування">
-      {SECTIONS.map((section) => {
-        const current = isCurrent(pathname, section.href, section.owns);
+    <nav
+      className={styles.nav}
+      aria-label='Розділи керування'
+    >
+      {SECTIONS.map(section => {
+        const current = isCurrent(pathname, section.href, section.owns)
 
         return (
           <Link
@@ -43,8 +47,8 @@ export const AdminNav = () => {
           >
             {section.label}
           </Link>
-        );
+        )
       })}
     </nav>
-  );
-};
+  )
+}

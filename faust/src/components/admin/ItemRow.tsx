@@ -1,38 +1,39 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { formatPrice } from "@/lib/format";
-import type { AdminMenuItem } from "@/schemas/menu-item";
-import type { MoveDirection } from "@/schemas/category";
-import { MoveButtons } from "./MoveButtons";
-import { StateToggle } from "./StateToggle";
-import { useAdminMutation } from "./useAdminMutation";
-import styles from "./ItemRow.module.css";
+import Link from "next/link"
+import type { MoveDirection } from "@/schemas/category"
+import type { AdminMenuItem } from "@/schemas/menu-item"
 
-const BADGE_LABELS: Record<"new" | "hit", string> = { new: "Нове", hit: "Хіт" };
+import { formatPrice } from "@/lib/format"
+import styles from "./ItemRow.module.css"
+import { MoveButtons } from "./MoveButtons"
+import { StateToggle } from "./StateToggle"
+import { useAdminMutation } from "./useAdminMutation"
+
+const BADGE_LABELS: Record<"new" | "hit", string> = { new: "Нове", hit: "Хіт" }
 
 export type ItemRowProps = {
-  item: AdminMenuItem;
-  isFirst: boolean;
-  isLast: boolean;
-};
+  item: AdminMenuItem
+  isFirst: boolean
+  isLast: boolean
+}
 
 export const ItemRow = ({ item, isFirst, isLast }: ItemRowProps) => {
-  const { mutate, pendingKey } = useAdminMutation();
+  const { mutate, pendingKey } = useAdminMutation()
 
   const setAvailable = (next: boolean) =>
     void mutate(
       "available",
       { url: `/api/admin/items/${item.id}`, method: "PATCH", body: { available: next } },
-      { success: next ? `«${item.name}» знову в продажу` : `«${item.name}» знято з продажу` },
-    );
+      { success: next ? `«${item.name}» знову в продажу` : `«${item.name}» знято з продажу` }
+    )
 
   const move = (direction: MoveDirection) =>
     void mutate(
       "move",
       { url: `/api/admin/items/${item.id}/move`, method: "POST", body: { direction } },
-      { success: "Порядок оновлено" },
-    );
+      { success: "Порядок оновлено" }
+    )
 
   return (
     <li className={item.available ? styles.row : `${styles.row} ${styles.unavailable}`}>
@@ -50,19 +51,28 @@ export const ItemRow = ({ item, isFirst, isLast }: ItemRowProps) => {
       <div className={styles.controls}>
         <StateToggle
           on={item.available}
-          onLabel="Є"
-          offLabel="Немає"
+          onLabel='Є'
+          offLabel='Немає'
           title={item.available ? `«${item.name}» є в наявності` : `«${item.name}» немає`}
           pending={pendingKey === "available"}
           onToggle={setAvailable}
         />
 
-        <MoveButtons what={item.name} isFirst={isFirst} isLast={isLast} pending={pendingKey === "move"} onMove={move} />
+        <MoveButtons
+          what={item.name}
+          isFirst={isFirst}
+          isLast={isLast}
+          pending={pendingKey === "move"}
+          onMove={move}
+        />
 
-        <Link href={`/admin/items/${item.id}`} className={styles.edit}>
+        <Link
+          href={`/admin/items/${item.id}`}
+          className={styles.edit}
+        >
           Редагувати
         </Link>
       </div>
     </li>
-  );
-};
+  )
+}

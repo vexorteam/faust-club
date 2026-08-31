@@ -1,14 +1,15 @@
-"use client";
+"use client"
 
-import Image from "next/image";
-import Link from "next/link";
-import type { AtmospherePhoto } from "@/schemas/atmosphere";
-import type { MoveDirection } from "@/schemas/category";
-import { ConfirmAction } from "./ConfirmAction";
-import { MoveButtons } from "./MoveButtons";
-import { StateToggle } from "./StateToggle";
-import { useAdminMutation } from "./useAdminMutation";
-import styles from "./AtmosphereTile.module.css";
+import Image from "next/image"
+import Link from "next/link"
+import type { AtmospherePhoto } from "@/schemas/atmosphere"
+import type { MoveDirection } from "@/schemas/category"
+
+import styles from "./AtmosphereTile.module.css"
+import { ConfirmAction } from "./ConfirmAction"
+import { MoveButtons } from "./MoveButtons"
+import { StateToggle } from "./StateToggle"
+import { useAdminMutation } from "./useAdminMutation"
 
 /**
  * One tile of the "Атмосфера" grid on the home page.
@@ -18,38 +19,44 @@ import styles from "./AtmosphereTile.module.css";
  */
 
 export type AtmosphereTileProps = {
-  photo: AtmospherePhoto;
-  isFirst: boolean;
-  isLast: boolean;
-};
+  photo: AtmospherePhoto
+  isFirst: boolean
+  isLast: boolean
+}
 
 export const AtmosphereTile = ({ photo, isFirst, isLast }: AtmosphereTileProps) => {
-  const { mutate, pendingKey } = useAdminMutation();
+  const { mutate, pendingKey } = useAdminMutation()
 
   const setVisible = (next: boolean) =>
     void mutate(
       "visible",
       { url: `/api/admin/atmosphere/${photo.id}`, method: "PATCH", body: { visible: next } },
-      { success: next ? `«${photo.label}» знову на головній` : `«${photo.label}» прихована` },
-    );
+      { success: next ? `«${photo.label}» знову на головній` : `«${photo.label}» прихована` }
+    )
 
   const move = (direction: MoveDirection) =>
     void mutate(
       "move",
       { url: `/api/admin/atmosphere/${photo.id}/move`, method: "POST", body: { direction } },
-      { success: "Порядок оновлено" },
-    );
+      { success: "Порядок оновлено" }
+    )
 
   const remove = () =>
     void mutate(
       "delete",
       { url: `/api/admin/atmosphere/${photo.id}`, method: "DELETE" },
-      { success: `«${photo.label}» видалено` },
-    );
+      { success: `«${photo.label}» видалено` }
+    )
 
   return (
     <li className={photo.visible ? styles.tile : `${styles.tile} ${styles.hidden}`}>
-      <Image src={photo.image} alt={photo.imageAlt} width={320} height={240} className={styles.preview} />
+      <Image
+        src={photo.image}
+        alt={photo.imageAlt}
+        width={320}
+        height={240}
+        className={styles.preview}
+      />
 
       <div className={styles.body}>
         <span className={styles.label}>{photo.label}</span>
@@ -59,8 +66,8 @@ export const AtmosphereTile = ({ photo, isFirst, isLast }: AtmosphereTileProps) 
       <div className={styles.controls}>
         <StateToggle
           on={photo.visible}
-          onLabel="Видно"
-          offLabel="Прихована"
+          onLabel='Видно'
+          offLabel='Прихована'
           title={photo.visible ? `«${photo.label}» видно на головній` : `«${photo.label}» прихована`}
           pending={pendingKey === "visible"}
           onToggle={setVisible}
@@ -74,17 +81,20 @@ export const AtmosphereTile = ({ photo, isFirst, isLast }: AtmosphereTileProps) 
           onMove={move}
         />
 
-        <Link href={`/admin/atmosphere/${photo.id}`} className={styles.edit}>
+        <Link
+          href={`/admin/atmosphere/${photo.id}`}
+          className={styles.edit}
+        >
           Редагувати
         </Link>
 
         <ConfirmAction
-          label="Видалити"
+          label='Видалити'
           question={`Видалити «${photo.label}»? Скасувати неможливо`}
           pending={pendingKey === "delete"}
           onConfirm={remove}
         />
       </div>
     </li>
-  );
-};
+  )
+}

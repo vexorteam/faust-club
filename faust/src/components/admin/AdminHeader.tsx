@@ -1,12 +1,16 @@
-import Link from "next/link";
-import type { AdminUser } from "@/types";
-import { LogoutButton } from "./LogoutButton";
-import styles from "./AdminHeader.module.css";
+import Link from "next/link"
+import type { AdminUser } from "@/types"
+
+import styles from "./AdminHeader.module.css"
+import { LogoutButton } from "./LogoutButton"
 
 export const AdminHeader = ({ user, clubName }: { user: AdminUser; clubName: string }) => (
   <header className={styles.header}>
     <div className={styles.bar}>
-      <Link href="/admin" className={styles.brand}>
+      <Link
+        href='/admin'
+        className={styles.brand}
+      >
         {clubName}
         <span className={styles.area}>керування</span>
       </Link>
@@ -17,4 +21,4 @@ export const AdminHeader = ({ user, clubName }: { user: AdminUser; clubName: str
       </div>
     </div>
   </header>
-);
+)

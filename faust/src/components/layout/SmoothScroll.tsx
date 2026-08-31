@@ -1,17 +1,17 @@
-"use client";
+"use client"
 
-import { ReactLenis } from "lenis/react";
-import { useReducedMotion } from "motion/react";
-import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { usePathname } from "next/navigation"
+import { ReactLenis } from "lenis/react"
+import { useReducedMotion } from "motion/react"
+import type { ReactNode } from "react"
 
 export const SmoothScroll = ({ children }: { children: ReactNode }) => {
-  const shouldReduceMotion = useReducedMotion();
-  const pathname = usePathname();
+  const shouldReduceMotion = useReducedMotion()
+  const pathname = usePathname()
 
   // The admin area has no animations at all — smooth scrolling included.
   if (shouldReduceMotion || pathname?.startsWith("/admin")) {
-    return <>{children}</>;
+    return <>{children}</>
   }
 
   return (
@@ -28,5 +28,5 @@ export const SmoothScroll = ({ children }: { children: ReactNode }) => {
     >
       {children}
     </ReactLenis>
-  );
-};
+  )
+}

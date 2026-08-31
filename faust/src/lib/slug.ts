@@ -35,7 +35,7 @@ const TRANSLITERATION: Record<string, string> = {
   "'": "",
   "’": "",
   ʼ: "",
-};
+}
 
 /** Word-initial forms differ from the ones inside a word: Її → Yii, не Iii. */
 const INITIAL_TRANSLITERATION: Record<string, string> = {
@@ -44,33 +44,33 @@ const INITIAL_TRANSLITERATION: Record<string, string> = {
   й: "y",
   ю: "yu",
   я: "ya",
-};
+}
 
 export const slugify = (source: string): string => {
-  const lower = source.trim().toLowerCase();
-  let result = "";
-  let atWordStart = true;
+  const lower = source.trim().toLowerCase()
+  let result = ""
+  let atWordStart = true
 
   for (const character of lower) {
     const table = atWordStart
       ? (INITIAL_TRANSLITERATION[character] ?? TRANSLITERATION[character])
-      : TRANSLITERATION[character];
+      : TRANSLITERATION[character]
 
     if (table !== undefined) {
-      result += table;
-      atWordStart = false;
-      continue;
+      result += table
+      atWordStart = false
+      continue
     }
 
     if (/[a-z0-9]/.test(character)) {
-      result += character;
-      atWordStart = false;
-      continue;
+      result += character
+      atWordStart = false
+      continue
     }
 
-    result += "-";
-    atWordStart = true;
+    result += "-"
+    atWordStart = true
   }
 
-  return result.replace(/-+/g, "-").replace(/^-|-$/g, "");
-};
+  return result.replace(/-+/g, "-").replace(/^-|-$/g, "")
+}

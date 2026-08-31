@@ -1,12 +1,12 @@
-import { z } from "zod";
+import { z } from "zod"
 
-export const PHOTO_LABEL_MIN = 2;
-export const PHOTO_LABEL_MAX = 60;
-export const PHOTO_ALT_MIN = 5;
-export const PHOTO_ALT_MAX = 120;
+export const PHOTO_LABEL_MIN = 2
+export const PHOTO_LABEL_MAX = 60
+export const PHOTO_ALT_MIN = 5
+export const PHOTO_ALT_MAX = 120
 
-const LABEL_MESSAGE = `Підпис — від ${PHOTO_LABEL_MIN} до ${PHOTO_LABEL_MAX} символів`;
-const ALT_MESSAGE = `Опис для скрінрідера — від ${PHOTO_ALT_MIN} до ${PHOTO_ALT_MAX} символів`;
+const LABEL_MESSAGE = `Підпис — від ${PHOTO_LABEL_MIN} до ${PHOTO_LABEL_MAX} символів`
+const ALT_MESSAGE = `Опис для скрінрідера — від ${PHOTO_ALT_MIN} до ${PHOTO_ALT_MAX} символів`
 
 export const atmospherePhotoSchema = z.object({
   id: z.string().min(1),
@@ -16,30 +16,30 @@ export const atmospherePhotoSchema = z.object({
   imageAlt: z.string().trim().min(1).max(PHOTO_ALT_MAX),
   order: z.number().int(),
   visible: z.boolean(),
-});
+})
 
-export const adminAtmosphereResponseSchema = z.object({ photos: z.array(atmospherePhotoSchema) });
+export const adminAtmosphereResponseSchema = z.object({ photos: z.array(atmospherePhotoSchema) })
 
 export const publicAtmospherePhotoSchema = z.object({
   id: z.string().min(1),
   label: z.string().trim().min(1).max(PHOTO_LABEL_MAX),
   image: z.url(),
   imageAlt: z.string().trim().min(1).max(PHOTO_ALT_MAX),
-});
+})
 
 export const atmosphereResponseSchema = z.object({ photos: z.array(z.unknown()) }).transform(({ photos }) =>
   photos.flatMap((entry, index) => {
-    const parsed = publicAtmospherePhotoSchema.safeParse(entry);
+    const parsed = publicAtmospherePhotoSchema.safeParse(entry)
 
-    if (parsed.success) return [parsed.data];
+    if (parsed.success) return [parsed.data]
 
-    console.error(`[atmosphere] photo #${index} does not match the API contract, skipped`, parsed.error.issues);
+    console.error(`[atmosphere] photo #${index} does not match the API contract, skipped`, parsed.error.issues)
 
-    return [];
-  }),
-);
+    return []
+  })
+)
 
-export const adminAtmospherePhotoResponseSchema = z.object({ photo: atmospherePhotoSchema });
+export const adminAtmospherePhotoResponseSchema = z.object({ photo: atmospherePhotoSchema })
 
 /**
  * `PATCH /admin/atmosphere/{id}` — text and visibility only. Replacing the
@@ -49,12 +49,12 @@ export const atmosphereFormSchema = z.object({
   label: z.string().trim().min(PHOTO_LABEL_MIN, LABEL_MESSAGE).max(PHOTO_LABEL_MAX, LABEL_MESSAGE),
   imageAlt: z.string().trim().min(PHOTO_ALT_MIN, ALT_MESSAGE).max(PHOTO_ALT_MAX, ALT_MESSAGE),
   visible: z.boolean(),
-});
+})
 
 export const atmospherePatchSchema = atmosphereFormSchema
   .partial()
-  .refine((patch) => Object.keys(patch).length > 0, "Немає що змінювати");
+  .refine(patch => Object.keys(patch).length > 0, "Немає що змінювати")
 
-export type AtmospherePhoto = z.output<typeof atmospherePhotoSchema>;
-export type PublicAtmospherePhoto = z.output<typeof publicAtmospherePhotoSchema>;
-export type AtmospherePatch = z.output<typeof atmospherePatchSchema>;
+export type AtmospherePhoto = z.output<typeof atmospherePhotoSchema>
+export type PublicAtmospherePhoto = z.output<typeof publicAtmospherePhotoSchema>
+export type AtmospherePatch = z.output<typeof atmospherePatchSchema>
