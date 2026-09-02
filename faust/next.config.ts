@@ -18,7 +18,7 @@ if (isLocalMedia) {
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  output: "standalone",
+  output: process.env.VERCEL ? undefined : "standalone",
   images: {
     remotePatterns,
     formats: ["image/avif", "image/webp"],
