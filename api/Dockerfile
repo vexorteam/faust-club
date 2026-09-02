@@ -19,7 +19,7 @@ WORKDIR /app
 # Dependencies before sources: editing a router must not re-resolve the whole
 # dependency tree.
 COPY pyproject.toml uv.lock ./
-RUN --mount=type=cache,target=/root/.cache/uv \
+RUN --mount=type=cache,target=/root/.cache/uv,id=uv-cache \
     uv sync --frozen --no-dev --no-install-project
 
 COPY src ./src
