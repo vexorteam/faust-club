@@ -36,6 +36,15 @@ export const Footer = ({ settings }: { settings: SiteSettingsView }) => {
                     <Link href={item.href}>{item.label}</Link>
                   </li>
                 ))}
+                <li>
+                  <a
+                    href='https://vexorteam.github.io/faust-club/'
+                    target='_blank'
+                    rel='noreferrer noopener'
+                  >
+                    Дизайн система
+                  </a>
+                </li>
               </ul>
             </div>
 
@@ -79,6 +88,18 @@ export const Footer = ({ settings }: { settings: SiteSettingsView }) => {
         <div className={styles.bottom}>
           <span>
             © {year} {settings.name}. Всі права захищені.
+          </span>
+
+          <span className={styles.credit}>
+            Розроблено командою{" "}
+            <a
+              href='https://vexor.team'
+              target='_blank'
+              rel='noreferrer noopener'
+            >
+              vexor.team
+            </a>{" "}
+            з ❤️
           </span>
 
           <div className={styles.bottomLinks}>

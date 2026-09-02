@@ -1,7 +1,7 @@
 export const site = {
   name: "Faust",
   tagline: "Нічний клуб у серці Шепетівки",
-  description: "Faust — авторські коктейлі, особлива атмосфера та ритм, який задає настрій усьому вечору.",
+  description: "Faust — авторські коктейлі, особлива атмосфера та ритм, який задає настрій усьому вечору",
   url: "https://faust.bar",
   locale: "uk_UA",
   themeColor: "#070707",
