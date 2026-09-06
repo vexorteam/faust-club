@@ -3,14 +3,16 @@
   top: 0;
   left: 0;
   width: 100vw;
+  height: 100vh;
   height: 100dvh;
-  z-index: 9999;
+  z-index: 99999;
   background: var(--ink);
   display: flex;
   flex-direction: column;
-  padding: 0;
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
   animation: fadeIn var(--dur-base) var(--ease-out);
   overscroll-behavior: contain;
+  transform: translateZ(0);
 }
 
 @keyframes fadeIn {
