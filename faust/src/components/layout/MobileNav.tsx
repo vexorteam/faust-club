@@ -102,6 +102,7 @@ export const MobileNav = ({ open, onClose, pathname, settings }: MobileNavProps)
             href={item.href}
             className={styles.link}
             aria-current={pathname === item.href ? "page" : undefined}
+            onClick={onClose}
           >
             {item.label}
           </Link>
