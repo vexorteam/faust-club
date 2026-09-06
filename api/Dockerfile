@@ -36,7 +36,10 @@ ENV PYTHONUNBUFFERED=1 \
 # Non-root (§3.5). The uid is fixed so that a volume created by this image
 # keeps working after a rebuild, and so a bind mount can be given to it.
 RUN groupadd --gid 1001 faust \
- && useradd --uid 1001 --gid 1001 --no-create-home --shell /usr/sbin/nologin faust
+ && useradd --uid 1001 --gid 1001 --no-create-home --shell /usr/sbin/nologin faust \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends gosu \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -50,12 +53,17 @@ COPY migrations ./migrations
 
 # Docker seeds a new named volume from the image directory, ownership included
 # — without this line the volume would arrive owned by root and the API could
-# not write a single photo into it.
+# not write a single photo into it. A volume MOUNTED at runtime (Railway, k8s)
+# overrides this ownership back to root, so the entrypoint below re-applies it
+# on every container start, not just at build time.
 RUN mkdir -p /app/uploads && chown faust:faust /app/uploads
 
-USER faust
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 EXPOSE 8000
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Worker count comes from the environment (§13.2). It defaults to one, and
 # raising it has a consequence worth knowing: the login limit counts attempts
