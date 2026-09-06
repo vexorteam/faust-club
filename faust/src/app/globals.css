@@ -193,6 +193,7 @@ h4 {
   max-width: var(--container);
   margin-inline: auto;
   padding-inline: var(--gutter);
+  box-sizing: border-box;
 }
 
 .visually-hidden {
