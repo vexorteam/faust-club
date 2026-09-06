@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import type { SiteSettingsView } from "@/types"
 
 import { IconClose, Logo } from "@/components/ui/icon"
@@ -69,7 +70,7 @@ export const MobileNav = ({ open, onClose, pathname, settings }: MobileNavProps)
 
   if (!open) return null
 
-  return (
+  return createPortal(
     <div
       id='mobile-nav'
       ref={panelRef}
@@ -129,6 +130,7 @@ export const MobileNav = ({ open, onClose, pathname, settings }: MobileNavProps)
           })}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
